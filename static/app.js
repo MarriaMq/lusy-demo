@@ -5159,7 +5159,7 @@ function numCalc(birthdate, btn, errId){
     if(data.karmicTail) NUM.tailCache[String(data.matrix.karmicTail)] = data.karmicTail;
 
     numRenderAll();
-    if(_curScreen === 'num-home' && NUM.fromForm !== false){
+    if(_curScreen === 'num-home'){
       /* Розрахунок із форми «Інша дата»: форма не лишається в історії, а
          попередня схема (з якої відкрили форму) замінюється новою. «Назад» зі
          схеми веде туди, звідки людина прийшла до матриці. */
