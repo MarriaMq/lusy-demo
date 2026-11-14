@@ -377,9 +377,10 @@ var I18N = {
     svc_tile_name: 'My services',
     svc_tile_desc: 'Consultations, learning and support',
     num_forecast_btn: 'Order a forecast for 2027',
-    num_club_btn: 'Join the closed club',
-    num_club_msg: 'Hello! I would like to join the closed club. Could you tell me how to do it?',
-    num_all_btn: 'All services',
+    num_call_btn: 'Book a free call about personal mentoring',
+    num_call_msg: 'Hello! I would like to book a free call about personal mentoring. Could you tell me how to do it?',
+    num_learn_btn: 'Learn to calculate it yourself',
+    num_svc_btn: 'My services',
     num_forecast_msg: 'Hello! I would like to order a forecast for 2027. Could you tell me how to do it?',
     num_learn_pop_t: '✨ Learn to calculate it yourself',
     num_learn_pop_intro: 'If you want to study numerology on your own and read your own matrix, I have a recorded course for you: “Your Own Numerologist”.',
@@ -772,9 +773,10 @@ var I18N = {
     svc_tile_name: 'Мои услуги',
     svc_tile_desc: 'Консультации, обучение и поддержка',
     num_forecast_btn: 'Заказать прогностику на 2027 год',
-    num_club_btn: 'Вступить в закрытый клуб',
-    num_club_msg: 'Здравствуйте! Хочу вступить в закрытый клуб. Подскажите, пожалуйста, как это сделать?',
-    num_all_btn: 'Все услуги',
+    num_call_btn: 'Заказать бесплатный созвон о личном наставничестве',
+    num_call_msg: 'Здравствуйте! Хочу заказать бесплатный созвон о личном наставничестве. Подскажите, пожалуйста, как это сделать?',
+    num_learn_btn: 'Научиться рассчитывать самостоятельно',
+    num_svc_btn: 'Мои услуги',
     num_forecast_msg: 'Здравствуйте! Хочу заказать прогностику на 2027 год. Подскажите, пожалуйста, как это сделать?',
     num_learn_pop_t: '✨ Научиться рассчитывать самостоятельно',
     num_learn_pop_intro: 'Если вы хотите самостоятельно изучать нумерологию и разбирать свою матрицу, у меня для вас есть курс в записи «Сам себе нумеролог».',
@@ -1565,7 +1567,7 @@ function show(id){
 /* ─── BOOT ─── */
 /* Скільки тримаємо сплеш: логотип «пишеться» ~2.5 с, підпис з'являється ще ~0.7 с, щоб напис
    встигли роздивитись. Має бути не менше за тривалість анімації .sp-pen. */
-var SPLASH_MS = 3000;
+var SPLASH_MS = 1700;
 
 function boot(){
   S.userId = tgUserId();
@@ -5198,6 +5200,7 @@ function numRenderScheme(){
   });
 
   numRenderCodes();
+  numRenderConsultScheme();
   numRenderAgeScale();
   numRenderBlockGrid();
   numRenderHintsPanel();
@@ -5339,6 +5342,13 @@ function numAgeYears(bd){
    замовниці. Формулювання й роздільник «, » — як на еталонному фото.
    На самій схемі цих чисел немає: там їх немає і на фото, а дубль на
    діагоналях лише закривав родові стрілки. */
+function numRenderConsultScheme(){
+  var box = document.getElementById('num-consult-scheme');
+  if(!box) return;
+  box.innerHTML = numConsultHtml();
+  numWireConsult(box);
+}
+
 function numRenderCodes(){
   var box = document.getElementById('num-codes');
   if(!box) return;
@@ -5935,6 +5945,35 @@ function numOpenBlock(id){
    Сторінка малюється МИТТЄВО, з числами, і лише тексти доїжджають запитом:
    числа вже пораховані локально, і показувати «Готуємо тлумачення…» над тим,
    що вже відоме, означало б вдавати генерацію там, де її немає. */
+/* Блок «Розібрати детальніше з Аліною» і кнопки під ним — один на схему й на
+   сторінки блоків. Кнопки: зідзвон про наставництво, навчання, прогностика,
+   «Мої послуги». */
+function numConsultHtml(){
+  return '<div class="num-panel num-stack num-consult">'
+    +'<p class="num-para">'+escHtml(t('num_consult_text',
+       'Це коротке тлумачення твого результату. На особистій консультації ми зможемо детальніше розібрати, як ці енергії проявляються саме у твоєму житті, де знаходиться твій ресурс і що може заважати його реалізації.'))+'</p>'
+    +'<button class="btn bp" data-nact="consult">'+escHtml(t('num_consult_btn','Розібрати детальніше з Аліною'))+'</button>'
+    +'</div>'
+    +'<button class="btn bg" data-nact="call">'+escHtml(t('num_call_btn','Замовити безкоштовний зідзвон про особисте наставництво'))+'</button>'
+    +'<button class="btn bg" data-nact="learn">'+escHtml(t('num_learn_btn','Навчитись розраховувати самостійно'))+'</button>'
+    +'<button class="btn bg" data-nact="forecast">'+escHtml(t('num_forecast_btn','Замовити прогностику на 2027 рік'))+'</button>'
+    +'<button class="btn bg" data-nact="services">'+escHtml(t('num_svc_btn','Мої послуги'))+'</button>';
+}
+function numWireConsult(root){
+  if(!root) return;
+  root.querySelectorAll('[data-nact]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      hapticTap();
+      var a = btn.dataset.nact;
+      if(a === 'consult')       numConsultOpen();
+      else if(a === 'call')     consultOpen(t('num_call_msg','Вітаю! Хочу замовити безкоштовний зідзвон про особисте наставництво. Підкажіть, будь ласка, як це зробити?'));
+      else if(a === 'learn')    svcOpenDetail('course');
+      else if(a === 'forecast') consultOpen(t('num_forecast_msg','Вітаю! Хочу замовити прогностику на 2027 рік. Підкажіть, будь ласка, як це зробити?'));
+      else if(a === 'services') svcOpenList();
+    });
+  });
+}
+
 function numRenderBlock(id){
   var b   = numBlockById(id);
   var m   = NUM.active;
@@ -5963,19 +6002,7 @@ function numRenderBlock(id){
      на прохання замовниці, щоб вони були видні одразу, без прокрутки до
      кінця тексту. Той самий екран обслуговує всі блоки, тож це діє для
      будь-якого розрахунку. */
-  var consultHtml = '';
-  consultHtml += '<div class="num-panel num-stack num-consult">';
-  consultHtml +=   '<p class="num-para">' + escHtml(t('num_consult_text',
-           'Це коротке тлумачення твого результату. На особистій консультації ми зможемо детальніше розібрати, як ці енергії проявляються саме у твоєму житті, де знаходиться твій ресурс і що може заважати його реалізації.')) + '</p>';
-  consultHtml +=   '<button class="btn bp" id="num-consult-btn">' +
-           escHtml(t('num_consult_btn','Розібрати детальніше з Аліною')) + '</button>';
-  consultHtml += '</div>';
-  consultHtml += '<button class="btn bg" id="num-forecast-btn">' +
-       escHtml(t('num_forecast_btn','Замовити прогностику на 2027 рік')) + '</button>';
-  consultHtml += '<button class="btn bg" id="num-club-btn">' +
-       escHtml(t('num_club_btn','Вступити в закритий клуб')) + '</button>';
-  consultHtml += '<button class="btn bg" id="num-all-btn">' +
-       escHtml(t('num_all_btn','Всі послуги')) + '</button>';
+  var consultHtml = numConsultHtml();
 
   var h = '';
 
@@ -6035,18 +6062,7 @@ function numRenderBlock(id){
   });
   var kb = document.getElementById('num-karmic-btn');
   if(kb) kb.addEventListener('click', numOpenKarmic);
-  var cnb = document.getElementById('num-consult-btn');
-  if(cnb) cnb.addEventListener('click', numConsultOpen);
-  var fcb = document.getElementById('num-forecast-btn');
-  if(fcb) fcb.addEventListener('click', function(){
-    consultOpen(t('num_forecast_msg','Вітаю! Хочу замовити прогностику на 2027 рік. Підкажіть, будь ласка, як це зробити?'));
-  });
-  var clb = document.getElementById('num-club-btn');
-  if(clb) clb.addEventListener('click', function(){
-    consultOpen(t('num_club_msg','Вітаю! Хочу вступити в закритий клуб. Підкажіть, будь ласка, як це зробити?'));
-  });
-  var alb = document.getElementById('num-all-btn');
-  if(alb) alb.addEventListener('click', svcOpenList);
+  numWireConsult(box);
   numLangNote('num-block-body');
 
   numRenderBlockTexts(id, nums, null);

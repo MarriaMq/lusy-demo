@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0D0D10">
 <title>LUSY — наставник</title>
-<link rel="stylesheet" href="static/style.css?v=58d1794681954">
+<link rel="stylesheet" href="static/style.css?v=59d1794682613">
 <!-- ?v — кеш-бастер, а не піна версії: сервер query ігнорує й завжди віддає
      свіжий SDK. Без нього браузер може підсунути закешовану збірку старішу за
      Bot API 8.0, і повний екран разом із safeAreaInset тихо не ввімкнеться —
@@ -71,17 +71,17 @@
 	     Підпис «наставник» з'являється знизу вже після того, як слово дописано. -->
 	<div class="sp-name" role="img" aria-label="LUSY">
 		<svg class="sp-pen" viewBox="0 0 260 100" aria-hidden="true">
-			<path d="M30 12 C34 4 44 4 42 16 C40 38 34 60 26 74 C18 86 8 96 3 88 C-2 78 10 68 24 74 C36 82 58 86 74 76" pathLength="1" style="--d:0s;--t:.5s"/>
-			<path d="M80 12 C77 34 77 62 87 72 C97 79 106 62 110 40 C111 28 111 18 111 12 C110 40 110 62 115 74 C119 81 126 77 134 70" pathLength="1" style="--d:.52s;--t:.58s"/>
-			<path d="M180 16 C174 3 148 5 148 24 C148 42 179 46 179 62 C179 80 150 84 143 68" pathLength="1" style="--d:1.12s;--t:.5s"/>
-			<path d="M192 14 C198 36 214 52 230 54" pathLength="1" style="--d:1.66s;--t:.24s"/>
-			<path d="M244 8 C238 40 230 70 218 82 C208 92 196 90 198 80" pathLength="1" style="--d:1.92s;--t:.4s"/>
+			<path d="M30 12 C34 4 44 4 42 16 C40 38 34 60 26 74 C18 86 8 96 3 88 C-2 78 10 68 24 74 C36 82 58 86 74 76" pathLength="1" style="--d:0s;--t:0.25s"/>
+			<path d="M80 12 C77 34 77 62 87 72 C97 79 106 62 110 40 C111 28 111 18 111 12 C110 40 110 62 115 74 C119 81 126 77 134 70" pathLength="1" style="--d:0.26s;--t:0.29s"/>
+			<path d="M180 16 C174 3 148 5 148 24 C148 42 179 46 179 62 C179 80 150 84 143 68" pathLength="1" style="--d:0.56s;--t:0.25s"/>
+			<path d="M192 14 C198 36 214 52 230 54" pathLength="1" style="--d:0.83s;--t:0.12s"/>
+			<path d="M244 8 C238 40 230 70 218 82 C208 92 196 90 198 80" pathLength="1" style="--d:0.96s;--t:0.2s"/>
 		</svg>
 		<!-- Іскри спалахують на верхівках літер одразу після того, як їх дописано -->
-		<b class="sp-spark" style="left:16%;top:2%;--d:.5s"></b>
-		<b class="sp-spark" style="left:43%;top:8%;--d:1.05s"></b>
-		<b class="sp-spark" style="left:57%;top:2%;--d:1.6s"></b>
-		<b class="sp-spark" style="left:94%;top:6%;--d:2.3s"></b>
+		<b class="sp-spark" style="left:16%;top:2%;--d:0.25s"></b>
+		<b class="sp-spark" style="left:43%;top:8%;--d:0.53s"></b>
+		<b class="sp-spark" style="left:57%;top:2%;--d:0.8s"></b>
+		<b class="sp-spark" style="left:94%;top:6%;--d:1.15s"></b>
 	</div>
 	<div class="sp-sub" data-i18n="splash_sub">наставник</div>
 </div>
@@ -183,22 +183,22 @@
 					<stop offset="0" stop-color="#F0CE7A" stop-opacity=".28"/><stop offset="1" stop-color="#F0CE7A" stop-opacity="0"/></radialGradient>
 				<linearGradient id="bhbar" x1="0" y1="1" x2="0" y2="0">
 					<stop offset="0" stop-color="#C9983F" stop-opacity=".25"/><stop offset="1" stop-color="#F6DE9A" stop-opacity=".9"/></linearGradient>
+				<mask id="bhm" maskUnits="userSpaceOnUse" x="190" y="0" width="130" height="120">
+					<path class="bh-reveal" d="M206 84L240 62L266 46L292 26" stroke="#fff" stroke-width="8" pathLength="100"/></mask>
 			</defs>
 			<ellipse cx="160" cy="84" rx="150" ry="68" fill="url(#bhglow)"/>
-			<rect x="34" y="20" width="100" height="116" rx="16" stroke="url(#bhg)" stroke-width="1.6" fill="rgba(255,255,255,.025)"/>
+			<rect x="34" y="20" width="100" height="116" rx="16" stroke="url(#bhg)" stroke-width="1.6" fill="#15140f"/>
 			<circle cx="84" cy="54" r="14" stroke="url(#bhg)" stroke-width="1.6"/>
-			<path d="M72 66c3-5 21-5 24 0" stroke="url(#bhg)" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
 			<path d="M58 86h52M64 99h40M68 110h32" stroke="url(#bhg)" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
-			<circle cx="150" cy="92" r="28" stroke="url(#bhg)" stroke-width="2.4" fill="rgba(240,206,122,.07)"/>
-			<path d="M170 113l20 21" stroke="url(#bhg)" stroke-width="5" stroke-linecap="round"/>
 			<g class="bh-bars">
 				<rect x="214" y="98" width="22" height="34" rx="4" fill="url(#bhbar)"/>
 				<rect x="244" y="76" width="22" height="56" rx="4" fill="url(#bhbar)"/>
 				<rect x="274" y="48" width="22" height="84" rx="4" fill="url(#bhbar)"/>
 			</g>
-			<path d="M206 84L240 62L266 46L292 26" stroke="url(#bhg)" stroke-width="1.6" stroke-dasharray="1 5" stroke-linecap="round"/>
-			<path class="bh-spark" d="M296 14C296.600 19 298 20.400 303 21C298 21.600 296.600 23 296 28C295.400 23 294 21.600 289 21C294 20.400 295.400 19 296 14Z" fill="url(#bhg)"/>
-			<path class="bh-spark b" d="M196 30C196.400 33 197 33.600 200 34C197 34.400 196.400 35 196 38C195.600 35 195 34.400 192 34C195 33.600 195.600 33 196 30Z" fill="url(#bhg)" opacity=".7"/>
+			<path d="M206 84L240 62L266 46L292 26" stroke="url(#bhg)" stroke-width="1.8" stroke-dasharray="1 5" stroke-linecap="round" mask="url(#bhm)"/>
+			<path class="bh-spark bh-top" d="M296 14C296.600 19 298 20.400 303 21C298 21.600 296.600 23 296 28C295.400 23 294 21.600 289 21C294 20.400 295.400 19 296 14Z" fill="url(#bhg)"/>
+			<circle cx="152" cy="94" r="32" stroke="url(#bhg)" stroke-width="3.6" fill="#17150f"/>
+			<path d="M175 117l22 23" stroke="url(#bhg)" stroke-width="7" stroke-linecap="round"/>
 		</svg>
 	</div>
 	<!-- Стан «доступ уже сплачено». Стоїть ПЕРЕД картками навмисно: людина
@@ -772,6 +772,7 @@
 	     відкриває схему НА ВЕСЬ ЕКРАН (#num-zoom нижче) — так попросила
 	     замовниця замість прокрутки всередині панелі. -->
 	<button class="btn bg bsm" id="num-zoom-toggle" data-i18n="num_zoom_in">Збільшити схему</button>
+	<div class="num-stack" id="num-consult-scheme"></div>
 
 	<!-- Підсумкові коди — одразу під схемою (на прохання замовниці).
 	     Вміст будує numRenderCodes(). -->
@@ -1133,7 +1134,7 @@ window.__DEMO__ = {"scenarios": {"new": {"profile_complete": false, "user": {"fi
   }};
 })();
 </script>
-<script src="demo/shim.js?v=1794681954"></script>
-<script src="static/app.js?v=74d1794681954"></script>
+<script src="demo/shim.js?v=1794682613"></script>
+<script src="static/app.js?v=75d1794682613"></script>
 </body>
 </html>

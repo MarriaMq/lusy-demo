@@ -263,7 +263,7 @@ strong{font-weight:600;color:var(--t1)}
 	font-size:11px;letter-spacing:.28em;text-transform:uppercase;
 	color:var(--t3);text-indent:.28em;
 	/* З'являється знизу після того, як слово дописано (~2.4 с). */
-	animation:riseIn 700ms var(--ease) 2.3s backwards;
+	animation:riseIn 600ms var(--ease) 1.15s backwards;
 }
 
 /* ─── 6. ТИПОГРАФІЧНІ ПРИМІТИВИ ──────────────────────────── */
@@ -2453,3 +2453,10 @@ body.num-zoom-on{overflow:hidden}
 .ma-hist{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0}
 .tli svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 #home .scr-hdr{margin-bottom:22px}
+
+/* Ілюстрація «Мій блог»: лінія росте разом зі стовпчиками, іскра зʼявляється наприкінці. */
+.bh-reveal{stroke-dasharray:100;stroke-dashoffset:100;animation:bhLine 1.1s cubic-bezier(.4,.1,.3,1) .35s forwards}
+@keyframes bhLine{to{stroke-dashoffset:0}}
+.bh-top{opacity:0;animation:bhTop .6s ease-out 1.35s forwards,mxPulse 3.4s ease-in-out 2s infinite}
+@keyframes bhTop{to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.bh-reveal{animation:none;stroke-dashoffset:0}.bh-top{animation:none;opacity:1}}
