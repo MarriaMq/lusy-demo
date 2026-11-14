@@ -299,7 +299,6 @@ var I18N = {
        каже num_lang_note. Мовчазної підстановки немає — є декларація. */
     num_title: 'Destiny Matrix',
     num_title_pair: 'Couple matrix',
-    num_birthdate: 'Date of birth',
     num_no_birthdate: 'Your profile has no date of birth. Enter it below \u2014 the matrix will be calculated once and your profile will stay unchanged.',
     num_btn_calc: 'Calculate the matrix',
     num_btn_other: 'Calculate for another date',
@@ -695,7 +694,6 @@ var I18N = {
        українською, і про це прямо каже num_lang_note. */
     num_title: 'Матрица судьбы',
     num_title_pair: 'Матрица пары',
-    num_birthdate: 'Дата рождения',
     num_no_birthdate: 'В профиле нет даты рождения. Введи её ниже \u2014 матрица посчитается разово, профиль не изменится.',
     num_btn_calc: 'Рассчитать матрицу',
     num_btn_other: 'Рассчитать для другой даты',
@@ -5055,8 +5053,7 @@ function numRenderHome(otherOnly){
            'У профілі немає дати народження. Введи її нижче — матриця порахується разово, профіль не зміниться.')) + '</div>';
     }
     h +=   '<div class="igrp">';
-    h +=     '<label class="ilbl" for="num-other-inp">' + escHtml(t('num_other_label','ДД.ММ.РРРР')) + '</label>';
-    h +=     '<input class="inp" id="num-other-inp" type="text" inputmode="numeric" placeholder="29.07.1989" maxlength="10">';
+    h +=     '<input class="inp" id="num-other-inp" type="text" inputmode="numeric" placeholder="29.07.1989" maxlength="10" aria-label="' + escHtml(t('num_other_label','ДД.ММ.РРРР')) + '">';
     h +=     '<div class="ierr" id="num-other-err"></div>';
     h +=   '</div>';
     h +=   '<button class="btn bp" id="num-other-go">' + escHtml(t('num_btn_calc','Розрахувати матрицю')) + '</button>';
