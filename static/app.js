@@ -5275,8 +5275,9 @@ function numRenderBlockGrid(){
     h += '<div class="num-bgroup">';
     cat.blocks.forEach(function(b){
       var uniq = numUniqueVals(numBlockValues(b, m));
-      h += '<button class="num-bbtn" data-block="' + escHtml(b.id) + '">';
+      h += '<button class="num-bbtn' + (b.screen ? ' num-xbtn' : '') + '" data-block="' + escHtml(b.id) + '">';
       h +=   '<span class="num-bbtn-t">' + escHtml(t(b.key, b.uk)) + '</span>';
+      if(b.screen) h += '<span class="num-xgo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>';
       if(uniq.length){
         h += '<span class="num-bbtn-n">' + escHtml(uniq.map(function(u){ return u.n; }).join(' · ')) + '</span>';
       }
