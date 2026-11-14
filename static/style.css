@@ -2543,3 +2543,7 @@ body.num-zoom-on{overflow:hidden}
 @keyframes tapGlow{0%,100%{background:rgba(240,206,122,.06)}50%{background:rgba(240,206,122,.14)}}
 @media (prefers-reduced-motion:reduce){.num-tap-hint,.num-tap-hint::before{animation:none}}
 .num-tap-hint{margin-top:10px}
+
+/* Форма «Інша дата»: заголовок не налізає на поле. */
+.num-other-form .num-card-title{margin-bottom:14px}
+.num-other-form .igrp{margin-top:6px}

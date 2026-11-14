@@ -5018,6 +5018,10 @@ function numInlineErr(id, msg){
 /* ─── 1. ВХІД У МОДУЛЬ ─────────────────────────────────────────────────── */
 
 function numOpen(){
+  /* Дата вже є в профілі — одразу рахуємо й показуємо схему, без проміжного
+     екрана «дата + Розрахувати». Без дати — форма введення. */
+  var bd = (S.profile.birthdate || '').trim();
+  if(bd){ numCalc(bd, null, null); return; }
   numRenderHome();
   pushScreen('num-home');
 }
@@ -5060,6 +5064,7 @@ function numRenderHome(otherOnly){
     h +=     '<div class="ierr" id="num-other-err"></div>';
     h +=   '</div>';
     h +=   '<button class="btn bp" id="num-other-go">' + escHtml(t('num_btn_calc','Розрахувати матрицю')) + '</button>';
+    h +=   '<button class="btn bg" id="num-other-compat">' + escHtml(t('num_btn_compat','Розрахувати сумісність')) + '</button>';
     h += '</div>';
   } else {
     h += '<div class="num-dcard">'
@@ -5087,6 +5092,11 @@ function numRenderHome(otherOnly){
     });
     var btnGo = document.getElementById('num-other-go');
     if(btnGo) btnGo.addEventListener('click', numOtherGo);
+    var btnOc = document.getElementById('num-other-compat');
+    if(btnOc) btnOc.addEventListener('click', function(){
+      numRenderCompatForm();
+      pushScreen('num-compat');
+    });
     return;
   }
 
@@ -5149,7 +5159,16 @@ function numCalc(birthdate, btn, errId){
     if(data.karmicTail) NUM.tailCache[String(data.matrix.karmicTail)] = data.karmicTail;
 
     numRenderAll();
-    pushScreen('num-scheme');
+    if(_curScreen === 'num-home' && NUM.fromForm !== false){
+      /* Розрахунок із форми «Інша дата»: форма не лишається в історії, а
+         попередня схема (з якої відкрили форму) замінюється новою. «Назад» зі
+         схеми веде туди, звідки людина прийшла до матриці. */
+      if(_navStack[_navStack.length - 1] === 'num-scheme') _navStack.pop();
+      show('num-scheme');
+      window.scrollTo(0, 0);
+    } else {
+      pushScreen('num-scheme');
+    }
   }).catch(function(){
     if(btn){ btn.disabled = false; btn.textContent = label; }
     showErrToast(t('err_network','Помилка мережі'));
