@@ -225,7 +225,7 @@ var I18N = {
     aut_approach: 'My approach',
     aut_stat_people: 'years of working with people',
     aut_btn_products: 'My services',
-    aut_p6: 'Its job is not to give you one more beautiful description. It is to help you ask yourself the right questions, turn the chaos into a clear picture and see the point where your next choice begins.',
+    aut_p6: 'My job is not to give you one more beautiful description. It is to help you ask yourself the right questions, turn the chaos into a clear picture and see the point where your next choice begins.',
     aut_p5: '<strong>LUSY is my approach, carried over into the digital space.</strong>',
     aut_p4: 'It helps you not just find out “what you are like”, but understand why your life looks the way it does right now — and what you can change.',
     aut_p3: 'In my work I combine psychology, numerology and over 15 years of real experience working with people and business.',
@@ -622,7 +622,7 @@ var I18N = {
     aut_approach: 'Мой подход',
     aut_stat_people: 'лет работы с людьми',
     aut_btn_products: 'Мои услуги',
-    aut_p6: 'Её задача — не дать тебе ещё одну красивую характеристику. А помочь задать себе правильные вопросы, собрать хаос в понятную картину и увидеть точку, с которой начинается твой следующий выбор.',
+    aut_p6: 'Моя задача — не дать тебе ещё одну красивую характеристику. А помочь задать себе правильные вопросы, собрать хаос в понятную картину и увидеть точку, с которой начинается твой следующий выбор.',
     aut_p5: '<strong>LUSY — это мой подход, перенесённый в цифровое пространство.</strong>',
     aut_p4: 'Это помогает не просто узнать, «какая ты», а понять, почему твоя жизнь сейчас выглядит именно так — и что ты можешь изменить.',
     aut_p3: 'В своей работе я соединяю психологию, нумерологию и более 15 лет реального опыта работы с людьми и бизнесом.',
@@ -1529,6 +1529,9 @@ var _navStack  = [];
 function pushScreen(id){
   if(_curScreen && _curScreen !== id) _navStack.push(_curScreen);
   show(id);
+  /* Новий екран відкривається з самого верху, а не з позиції прокрутки того,
+     з якого прийшли (інакше «Карта здоров'я» відкривалась би внизу). */
+  window.scrollTo(0, 0);
 }
 function goBack(fallback){
   var prev = _navStack.pop();
@@ -5335,6 +5338,13 @@ function numToggleHints(){
                                         : t('num_hints_show', 'Показати підказки');
   }
   numRenderHintsPanel();
+  /* Підказки зʼявляються нижче кнопки — прокручуємо до них, щоб було видно, що саме відкрилось. */
+  if(NUM.showHints){
+    setTimeout(function(){
+      var box = document.getElementById('num-scheme-hints');
+      if(box && !box.hidden){ try{ box.scrollIntoView({behavior:'smooth', block:'start'}); }catch(e){} }
+    }, 60);
+  }
 }
 
 
