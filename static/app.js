@@ -5065,7 +5065,7 @@ function numRenderHome(otherOnly){
     h += '<div class="num-dcard">'
       +'<span class="num-dico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></span>'
       +'<span class="num-dtxt">'
-      +'<span class="num-dk">' + escHtml(name ? name + ' · ' + t('num_birthdate','Дата народження') : t('num_birthdate','Дата народження')) + '</span>'
+      +(name ? '<span class="num-dk">' + escHtml(name) + '</span>' : '')
       +'<span class="num-dv">' + escHtml(bd) + '</span>'
       +'<span class="num-dh">' + escHtml(t('num_date_hint','Матрицю розрахуємо за цією датою з твого профілю')) + '</span>'
       +'</span></div>';
