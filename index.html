@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<!-- lang виставляється з JS одразу після /api/profile: у розмітці лишається
+     мова-джерело, щоб сторінка була осмисленою навіть якщо JS не стартував. -->
+<html lang="uk">
+<head>
+<meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0D0D10">
+<title>LUSY — наставник</title>
+<link rel="stylesheet" href="static/style.css?v=55">
+<!-- ?v — кеш-бастер, а не піна версії: сервер query ігнорує й завжди віддає
+     свіжий SDK. Без нього браузер може підсунути закешовану збірку старішу за
+     Bot API 8.0, і повний екран разом із safeAreaInset тихо не ввімкнеться —
+     код їх коректно не знайде й піде фолбеком. -->
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     ЛОКАЛІЗАЦІЯ РОЗМІТКИ
+
+     data-i18n      — текст вузла
+     data-i18n-html — те саме, але значення містить розмітку (<br>, <em>)
+     data-i18n-ph   — placeholder поля вводу
+     data-i18n-aria — aria-label
+
+     Український текст лишається в розмітці як є: він і є мова-джерело й
+     одночасно фолбек. applyI18n() запам'ятовує його при першому проході, тому
+     перемикання назад на українську відновлює оригінал точно, без словника.
+     ══════════════════════════════════════════════════════════ -->
+
+<!-- ══════════════════════════════════════════════════════════
+     SPLASH — видимий до першого show(); boot() тримає ~1.5 с
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr on" id="splash">
+	<!-- Магічний фон: м'яке золоте сяйво й дрібні зірочки, що мерехтять. Усе
+	     декоративне (aria-hidden), без JS — лише CSS. -->
+	<div class="sp-glow" aria-hidden="true"></div>
+	<div class="sp-stars" aria-hidden="true">
+		<i style="--x:33.8%;--y:19.3%;--s:2.6px;--d:0.23s;--p:3.8s"></i>
+		<i style="--x:37.6%;--y:11.1%;--s:2.4px;--d:0.12s;--p:3.6s"></i>
+		<i style="--x:10.4%;--y:14.0%;--s:2.2px;--d:2.65s;--p:2.9s"></i>
+		<i style="--x:91.2%;--y:56.8%;--s:2.2px;--d:3.12s;--p:2.7s"></i>
+		<i style="--x:83.0%;--y:31.5%;--s:1.7px;--d:0.38s;--p:3.3s"></i>
+		<i style="--x:79.1%;--y:21.9%;--s:2.5px;--d:2.04s;--p:3.4s"></i>
+		<i style="--x:54.4%;--y:11.5%;--s:1.6px;--d:0.66s;--p:4.1s"></i>
+		<i style="--x:43.3%;--y:33.6%;--s:2.5px;--d:1.45s;--p:3.3s"></i>
+		<i style="--x:77.1%;--y:67.5%;--s:1.9px;--d:1.84s;--p:3.8s"></i>
+		<i style="--x:84.5%;--y:70.2%;--s:2.0px;--d:3.14s;--p:2.9s"></i>
+		<i style="--x:42.5%;--y:72.6%;--s:1.8px;--d:1.56s;--p:2.7s"></i>
+		<i style="--x:65.5%;--y:73.3%;--s:2.5px;--d:2.8s;--p:3.3s"></i>
+		<i style="--x:81.3%;--y:89.1%;--s:2.3px;--d:2.13s;--p:2.7s"></i>
+		<i style="--x:68.5%;--y:62.9%;--s:3.2px;--d:2.63s;--p:3.2s"></i>
+		<i style="--x:39.5%;--y:64.8%;--s:1.5px;--d:1.48s;--p:3.0s"></i>
+		<i style="--x:84.2%;--y:13.1%;--s:2.3px;--d:1.76s;--p:4.5s"></i>
+		<i style="--x:37.0%;--y:83.8%;--s:3.1px;--d:0.48s;--p:3.0s"></i>
+		<i style="--x:25.3%;--y:26.5%;--s:2.3px;--d:1.89s;--p:3.2s"></i>
+		<i style="--x:4.4%;--y:42.9%;--s:2.1px;--d:1.81s;--p:4.7s"></i>
+		<i style="--x:60.8%;--y:65.5%;--s:1.6px;--d:2.88s;--p:4.3s"></i>
+		<i style="--x:13.5%;--y:61.8%;--s:1.6px;--d:0.22s;--p:3.1s"></i>
+		<i style="--x:18.9%;--y:35.9%;--s:1.6px;--d:0.0s;--p:2.9s"></i>
+		<i style="--x:6.3%;--y:82.9%;--s:2.5px;--d:0.48s;--p:3.2s"></i>
+		<i style="--x:15.3%;--y:80.7%;--s:3.2px;--d:1.49s;--p:3.7s"></i>
+		<i style="--x:35.5%;--y:29.3%;--s:2.9px;--d:0.52s;--p:2.7s"></i>
+		<i style="--x:17.5%;--y:53.8%;--s:1.5px;--d:1.69s;--p:4.8s"></i>
+	</div>
+	<!-- LUSY «пишеться від руки»: рукописні прописні літери з нахилом і петлями,
+	     кожна — окремий плавний штрих (Y — два). Штрихи малюються по черзі
+	     (~2.3 с), як пером по планшету, руки в кадрі немає. pathLength=1
+	     дозволяє анімувати всі штрихи однаково, незалежно від довжини.
+	     Підпис «наставник» з'являється знизу вже після того, як слово дописано. -->
+	<div class="sp-name" role="img" aria-label="LUSY">
+		<svg class="sp-pen" viewBox="0 0 260 100" aria-hidden="true">
+			<path d="M30 12 C34 4 44 4 42 16 C40 38 34 60 26 74 C18 86 8 96 3 88 C-2 78 10 68 24 74 C36 82 58 86 74 76" pathLength="1" style="--d:0s;--t:.5s"/>
+			<path d="M80 12 C77 34 77 62 87 72 C97 79 106 62 110 40 C111 28 111 18 111 12 C110 40 110 62 115 74 C119 81 126 77 134 70" pathLength="1" style="--d:.52s;--t:.58s"/>
+			<path d="M180 16 C174 3 148 5 148 24 C148 42 179 46 179 62 C179 80 150 84 143 68" pathLength="1" style="--d:1.12s;--t:.5s"/>
+			<path d="M192 14 C198 36 214 52 230 54" pathLength="1" style="--d:1.66s;--t:.24s"/>
+			<path d="M244 8 C238 40 230 70 218 82 C208 92 196 90 198 80" pathLength="1" style="--d:1.92s;--t:.4s"/>
+		</svg>
+		<!-- Іскри спалахують на верхівках літер одразу після того, як їх дописано -->
+		<b class="sp-spark" style="left:16%;top:2%;--d:.5s"></b>
+		<b class="sp-spark" style="left:43%;top:8%;--d:1.05s"></b>
+		<b class="sp-spark" style="left:57%;top:2%;--d:1.6s"></b>
+		<b class="sp-spark" style="left:94%;top:6%;--d:2.3s"></b>
+	</div>
+	<div class="sp-sub" data-i18n="splash_sub">наставник</div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ОНБОРДИНГ
+     ══════════════════════════════════════════════════════════ -->
+<!-- Реєстрація тепер у боті (handlers/common.py: мова → дата → номер). Цей
+     екран бачить лише той, хто відкрив WebApp, не завершивши її: кнопкою меню
+     в чаті, старим повідомленням або поза Telegram. Анкети тут більше немає —
+     два місця вводу тих самих даних розійшлися б на першій правці валідації. -->
+<div class="scr" id="ob">
+	<div class="ob-wrap">
+		<div class="eyebrow">Аліна Грицаєнко</div>
+		<h1 class="display" data-i18n-html="ob_bot_title">Спершу<br><em>познайомимось</em></h1>
+		<p class="lede" data-i18n="ob_bot_lede">Реєстрація проходить у чаті з LUSY: дата народження і номер телефону — і застосунок одразу відкриється на головному екрані.</p>
+	</div>
+	<div class="ob-foot">
+		<button class="btn bp" id="btn-ob-bot" data-i18n="ob_bot_btn">Повернутися в чат</button>
+	</div>
+</div>
+
+<div class="scr" id="home">
+	<header class="scr-hdr">
+		<div class="scr-hdr-txt">
+			<!-- Привітання розбите на два вузли: перекладна частина окремо від
+			     імені, інакше applyI18n затер би <span id="hm-name">. -->
+			<h1 class="scr-title"><span data-i18n="home_greet">Вітаю, </span><span id="hm-name">Користувач</span></h1>
+			<p class="scr-sub" data-i18n="home_sub">Що досліджуємо сьогодні?</p>
+		</div>
+		<div class="scr-hdr-slot">
+			<div class="avring"><div class="avin" id="hm-av"></div></div>
+		</div>
+	</header>
+
+	<div class="sect-lbl" data-i18n="lbl_directions">Обери свій напрям</div>
+	<!-- плитки рендеряться з реєстру MODULES у app.js -->
+	<div class="mgrid" id="mgrid"></div>
+
+	<div class="h16"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ПОКРАЩИТИ МІЙ БЛОГ — хаб бізнес-модулів (плитки рендеряться з реєстру
+     MODULES у renderModuleGrid; тут лише каркас)
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="biz-list">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-biz-list" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span data-i18n="biz_tile_name">Мій блог</span></div>
+	</div>
+	<p class="num-para svc-pick" data-i18n="biz_pick">Обери, над чим працюємо 👇</p>
+	<div class="mgrid" id="biz-grid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     МОЇ ПОСЛУГИ — перелік форматів роботи з Аліною і сторінка одного формату.
+     Список і тексти лежать у SERVICES (app.js): тут лише каркас екранів.
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="svc-list">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-svc-list" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span data-i18n="svc_title">Мої послуги</span></div>
+	</div>
+	<div class="num-panel num-stack">
+		<p class="num-para" data-i18n="svc_intro">Я створила декілька форматів роботи, щоб ти могла обрати той, який найбільше відповідає твоїм потребам.</p>
+		<p class="num-para svc-pick" data-i18n="svc_pick">Обирай, що тобі зараз цікаво 👇</p>
+	</div>
+	<div class="num-stack" id="svc-items"></div>
+</div>
+
+<div class="scr num-stack" id="svc-detail">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-svc-detail" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span id="svc-detail-title"></span></div>
+	</div>
+	<div class="num-stack" id="svc-body"></div>
+	<button class="btn bp svc-cta" id="svc-cta"></button>
+	<button class="btn bg" id="svc-back-list" data-i18n="svc_back">Повернутися до моїх послуг</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ТАРИФИ — верхній рівень, патерн .scr-hdr
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr" id="tar">
+	<header class="scr-hdr">
+		<div class="scr-hdr-txt">
+			<h1 class="scr-title" data-i18n="tar_title">Мій блог</h1>
+			<p class="scr-sub" data-i18n="tar_sub">Аналіз твого блогу: розбір ситуації, ідеї для контенту, ніша й підготовка до продажу. Обери тариф — і всі розділи відкриються.</p>
+		</div>
+	</header>
+
+	<div class="blog-hero" aria-hidden="true">
+		<svg viewBox="0 0 320 156" fill="none">
+			<defs id="bh-defs">
+				<linearGradient id="bhg" gradientUnits="userSpaceOnUse" x1="30" y1="10" x2="300" y2="140">
+					<stop offset="0" stop-color="#FBE9B0"/><stop offset="1" stop-color="#C9983F"/></linearGradient>
+				<radialGradient id="bhglow" cx="50%" cy="50%" r="50%">
+					<stop offset="0" stop-color="#F0CE7A" stop-opacity=".28"/><stop offset="1" stop-color="#F0CE7A" stop-opacity="0"/></radialGradient>
+				<linearGradient id="bhbar" x1="0" y1="1" x2="0" y2="0">
+					<stop offset="0" stop-color="#C9983F" stop-opacity=".25"/><stop offset="1" stop-color="#F6DE9A" stop-opacity=".9"/></linearGradient>
+			</defs>
+			<ellipse cx="160" cy="84" rx="150" ry="68" fill="url(#bhglow)"/>
+			<rect x="34" y="20" width="100" height="116" rx="16" stroke="url(#bhg)" stroke-width="1.6" fill="rgba(255,255,255,.025)"/>
+			<circle cx="84" cy="54" r="14" stroke="url(#bhg)" stroke-width="1.6"/>
+			<path d="M72 66c3-5 21-5 24 0" stroke="url(#bhg)" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>
+			<path d="M58 86h52M64 99h40M68 110h32" stroke="url(#bhg)" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+			<circle cx="150" cy="92" r="28" stroke="url(#bhg)" stroke-width="2.4" fill="rgba(240,206,122,.07)"/>
+			<path d="M170 113l20 21" stroke="url(#bhg)" stroke-width="5" stroke-linecap="round"/>
+			<path class="bh-spark" d="M150 74C151.5 85 155 88.500 166 90C155 91.500 151.500 95 150 106C148.500 95 145 91.500 134 90C145 88.500 148.500 85 150 74Z" fill="url(#bhg)"/>
+			<g class="bh-bars">
+				<rect x="214" y="98" width="22" height="34" rx="4" fill="url(#bhbar)"/>
+				<rect x="244" y="76" width="22" height="56" rx="4" fill="url(#bhbar)"/>
+				<rect x="274" y="48" width="22" height="84" rx="4" fill="url(#bhbar)"/>
+			</g>
+			<path d="M206 84L240 62L266 46L292 26" stroke="url(#bhg)" stroke-width="1.6" stroke-dasharray="1 5" stroke-linecap="round"/>
+			<path class="bh-spark" d="M296 14C296.600 19 298 20.400 303 21C298 21.600 296.600 23 296 28C295.400 23 294 21.600 289 21C294 20.400 295.400 19 296 14Z" fill="url(#bhg)"/>
+			<path class="bh-spark b" d="M196 30C196.400 33 197 33.600 200 34C197 34.400 196.400 35 196 38C195.600 35 195 34.400 192 34C195 33.600 195.600 33 196 30Z" fill="url(#bhg)" opacity=".7"/>
+		</svg>
+	</div>
+	<!-- Стан «доступ уже сплачено». Стоїть ПЕРЕД картками навмисно: людина
+	     ухвалює рішення, дивлячись на першу картку, і плашка нижче не встигла б
+	     нічого пояснити. Без неї той самий список цін означав дві протилежні
+	     речі — «ось скільки коштує» і «ти вже платила», — а розрізнити їх можна
+	     було лише тицьнувши картку й дочитавши пояснення в шиті оплати.
+	     hidden за замовчуванням: новий користувач приходить саме без доступу, і
+	     плашка збрехала б йому про сплачене.
+	     Текст плану, дати й приміток пише renderTariffsBanner() — вони залежать
+	     від відповіді сервера, а не від розмітки. -->
+	<div class="tar-active" id="tar-active" hidden>
+		<div class="tar-active-top">
+			<span class="tar-active-dot"></span>
+			<span class="tar-active-title" data-i18n="tar_have_access">Доступ уже активний</span>
+		</div>
+		<div class="tar-active-plan" id="tar-active-plan">—</div>
+		<div class="tar-active-note" id="tar-active-note"></div>
+	</div>
+
+	<!-- «Матриця долі безкоштовна…» і перелік того, що відкриває оплата, —
+	     ОДИН раз над картками: усі три періоди дають однаковий доступ, різниця
+	     лише в періоді. Перелік — рідний <details> (згорнутий), наповнює його
+	     renderTariffIncludes() з реєстру MODULES. -->
+	<div class="tar-acc tar-box" id="tar-acc">
+		<div class="tar-acc-hd"><span class="tar-acc-ok" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg></span><span data-i18n="tar_incl_title">Що ти отримаєш після оплати?</span></div>
+		<div class="tar-acc-list" id="tar-incl-list"></div>
+	</div>
+
+	<!-- Картки періодів рендеряться з реєстру TARIFFS у app.js: ціна там одна,
+	     а ціна за місяць і економія — похідні від неї. Тап по картці — оплата. -->
+	<button class="btn bp" id="btn-pick-plan" data-i18n="tar_pick_btn">Обрати тариф</button>
+	<button class="btn bg" id="btn-open-blog" data-i18n="tar_open_blog" hidden>Відкрити розділи</button>
+	<div id="tar-plans" hidden>
+		<div class="sect-lbl" data-i18n="tar_pick_lbl">Обери період доступу</div>
+		<div id="tcards"></div>
+	</div>
+
+	<div class="h16"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ПРОФІЛЬ — верхній рівень, патерн .scr-hdr
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr" id="prof">
+	<header class="scr-hdr">
+		<button class="backbtn" id="btn-back-prof" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="scr-hdr-txt">
+			<h1 class="scr-title" data-i18n="prof_title">Профіль</h1>
+		</div>
+		<div class="scr-hdr-slot">
+			<div class="avring"><div class="avin" id="pf-av"></div></div>
+		</div>
+	</header>
+
+	<!-- ніша: рендериться з app.js -->
+	<div id="prof-niche-block" class="niche-block"></div>
+
+	<!-- мова: рендериться з app.js тим самим патерном, що й ніша -->
+	<div id="prof-lang-block" class="niche-block"></div>
+
+	<!-- ДЕМО -->
+	<div id="prof-demo-block">
+		<div class="subcard">
+			<div class="subhd">
+				<span class="subtier" data-i18n="lbl_demo">Демо</span>
+				<span class="subst expired" data-i18n="status_no_access">без доступу</span>
+			</div>
+			<div class="subexp" data-i18n="prof_demo_exp">Доступний один розбір і кілька уточнень.</div>
+			<div class="statrow">
+				<div class="sbox"><div class="snum" id="dc2">0/1</div><div class="slbl" data-i18n="lbl_analyses">Розбори</div></div>
+				<div class="sbox"><div class="snum" id="sc2">0/3</div><div class="slbl" data-i18n="lbl_followups">Уточнення</div></div>
+				<div class="sbox"><div class="snum" id="mod-count-demo">6</div><div class="slbl" data-i18n="lbl_modules">Модулів</div></div>
+			</div>
+			<button class="btn bp bsm" id="btn-renew" data-i18n="btn_get_access">Отримати доступ</button>
+		</div>
+
+		<button class="btn bg bsm" id="btn-my-strategies-demo"><span data-i18n="btn_my_analyses">Мої розбори</span> <span class="strat-count" id="strat-count-demo"></span></button>
+	</div>
+
+	<!-- АКТИВНИЙ ДОСТУП. Стан за замовчуванням — прихований; вмикає setVis(). -->
+	<div id="prof-active-block" hidden>
+		<div class="sub-info-card">
+			<div class="si-plan" id="si-plan-name">—</div>
+			<div class="si-row"><span class="si-label" data-i18n="lbl_status">Статус</span><span class="si-val" id="si-status">—</span></div>
+			<div class="si-row"><span class="si-label" data-i18n="lbl_valid_until">Діє до</span><span class="si-val" id="si-expires-date">—</span></div>
+
+			<div class="si-divider"></div>
+
+			<div class="si-usage-title" data-i18n="lbl_used">Використано</div>
+			<div class="ubars">
+				<div class="urow">
+					<span class="ulbl" data-i18n="lbl_analyses">Розбори</span>
+					<span class="ubar"><i class="ufill" id="pdb"></i></span>
+					<span class="ucnt" id="pdc">0/0</span>
+				</div>
+				<div class="urow">
+					<span class="ulbl" data-i18n="lbl_followups">Уточнення</span>
+					<span class="ubar"><i class="ufill" id="psb"></i></span>
+					<span class="ucnt" id="psc">0/0</span>
+				</div>
+			</div>
+		</div>
+
+		<button class="btn bp bsm" id="btn-renew2" data-i18n="btn_extend">Продовжити доступ</button>
+		<div class="renew-wait" id="renew-wait-msg" hidden></div>
+		<div class="h12"></div>
+		<button class="btn bg bsm" id="btn-my-strategies-active"><span data-i18n="btn_my_analyses">Мої розбори</span> <span class="strat-count" id="strat-count-active"></span></button>
+	</div>
+
+	<div class="h16"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ПРО АВТОРА — верхній рівень, патерн .scr-hdr
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr" id="aut">
+	<header class="scr-hdr">
+		<div class="scr-hdr-txt">
+			<h1 class="scr-title" data-i18n="aut_title">Про автора</h1>
+			<p class="scr-sub" data-i18n="aut_sub">Хто стоїть за розборами LUSY.</p>
+		</div>
+	</header>
+
+	<div class="au-hero">
+		<!-- Фото, а не ініціали. Тут воно працює як головний елемент довіри —
+		     людина вирішує, чи брати розбір, дивлячись саме сюди, — тож кадр
+		     навмисно великий, на всю ширину колонки.
+		     Квадрат 1:1 і БЕЗ обрізання в коло: на знімку капелюх заходить майже
+		     в самі краї, і кругла маска (.avring-lg) зрізала б і поля капелюха,
+		     і половину постаті.
+		     <img> лежить ПОЗА #au-av навмисно: renderAuthorStats() пише туди
+		     ініціали через textContent, тобто вкладений сюди <img> стирався б
+		     при кожному показі екрана.
+		     onerror, а не привʼязка в app.js: помилка завантаження встигає
+		     статись раніше, ніж виконається скрипт унизу сторінки. Файл — це
+		     окремий ресурс, який може не доїхати на сервер, і тоді екран мусить
+		     лишитись цілим, а не показати значок битої картинки. -->
+		<div class="au-photo">
+			<img src="static/img/author.jpg?v=1" alt="Аліна Грицаєнко"
+			     onerror="this.closest('.au-hero').classList.add('no-photo')">
+		</div>
+		<div class="avring avring-lg"><div class="avin" id="au-av">АГ</div></div>
+		<div class="au-name">Аліна Грицаєнко</div>
+		<div class="au-role" data-i18n="aut_role">Цифровий психолог · нумеролог · наставниця</div>
+	</div>
+
+	<blockquote class="au-quote" data-i18n-html="aut_quote">Я не кажу людині, ким їй бути.<br>Я допомагаю побачити, де вона втратила себе — і повернутися до власного вибору.</blockquote>
+
+	<!-- цифри рендеряться з AUTHOR у app.js -->
+	<div class="austats" id="au-stats"></div>
+
+	<div class="au-card">
+		<div class="au-card-title" data-i18n="aut_approach">Мій підхід</div>
+		<p data-i18n-html="aut_p1">Мені завжди було мало просто дати людині розшифровку її чисел або універсальну пораду.</p>
+		<p data-i18n-html="aut_p2">За кожним запитом я бачу цілий життєвий сценарій: як людина обирає, будує стосунки, заробляє, проявляється, чому зупиняється і в який момент втрачає контакт із собою.</p>
+		<p data-i18n-html="aut_p3">У своїй роботі я поєдную психологію, нумерологію та понад 15 років реального досвіду роботи з людьми й бізнесом.</p>
+		<p data-i18n-html="aut_p4">Це допомагає не просто дізнатися, «яка ти», а зрозуміти, чому твоє життя зараз виглядає саме так — і що ти можеш змінити.</p>
+		<p data-i18n-html="aut_p5"><strong>LUSY — це мій підхід, перенесений у цифровий простір.</strong></p>
+		<p data-i18n-html="aut_p6">Її завдання — не дати тобі ще одну красиву характеристику. А допомогти поставити собі правильні запитання, зібрати хаос у зрозумілу картину й побачити точку, з якої починається твій наступний вибір.</p>
+	</div>
+
+	<!-- Дві дії замовниці. «Отримати доступ» звідси прибрано: доступ
+	     продається на головній, у тарифах і в профілі, а екран автора — про
+	     неї саму, тож і дії тут ведуть до неї. -->
+	<div class="au-actions">
+		<button class="btn bp learn-pay" id="btn-aut-products" data-i18n="aut_btn_products">Мої послуги</button>
+	</div>
+	<div class="h16"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ДОСТУП ДО МОДУЛЯ — підекран, патерн .flhdr
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr" id="mod-access">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-mod-access" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle" id="mod-access-title">Модуль</div>
+	</div>
+	<div id="mod-access-body"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ПОТІК МОДУЛЯ — підекран, патерн .flhdr
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr" id="mflow">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-mod" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle" id="fl-title">Модуль</div>
+	</div>
+	<div class="flprog" id="fl-prog"></div>
+	<div id="fl-q"></div>
+	<div id="fl-r" hidden></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     МОЇ РОЗБОРИ — підекран, патерн .flhdr
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr" id="my-strategies">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-strategies" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle" id="my-strategies-title">Мої розбори</div>
+	</div>
+
+	<div class="loading" id="strat-loading" hidden>
+		<div class="typing"><span></span><span></span><span></span></div>
+	</div>
+
+	<div id="strategies-list"></div>
+
+	<!-- клас навмисне не "empty": app.js вішає .empty на .niche-row-val -->
+	<div class="empty-state" id="strategies-empty" hidden>
+		<div class="empty-mark">◇</div>
+		<div class="empty-title" data-i18n="empty_title">Тут зберігаються твої розбори</div>
+		<div class="empty-sub" data-i18n="empty_sub">Пройди будь-який модуль — результат залишиться в профілі, і до нього можна буде повернутись.</div>
+		<!-- Порожній список не має бути глухим кутом: одна дія — отримати розбір. -->
+		<button class="btn bp" id="btn-empty-get" data-i18n="btn_get_analysis">Отримати розбір</button>
+	</div>
+
+	<div class="h16"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ДЕТАЛЬ РОЗБОРУ — підекран, патерн .flhdr
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr" id="strategy-detail">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-strategy-detail" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle" id="strategy-detail-title">Розбір</div>
+	</div>
+
+	<div id="strategy-detail-meta"></div>
+
+	<div id="sd-actions" hidden>
+		<button class="btn bg bsm" id="sd-followup-btn" data-i18n="btn_ask_question">Задати питання</button>
+		<div class="h12"></div>
+	</div>
+
+	<div class="airesp">
+		<div class="aitxt" id="strategy-detail-body"></div>
+	</div>
+
+	<div class="h16"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     УТОЧНЕННЯ — підекран, патерн .flhdr
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr" id="followup">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-followup" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle" id="followup-title" data-i18n="lbl_followups">Уточнення</div>
+	</div>
+
+	<div class="fu-limit-bar">
+		<span class="fu-limit-label" data-i18n="fu_limit_label">Використано уточнень</span>
+		<span class="fu-limit-val" id="followup-limit-val">0 / 3</span>
+	</div>
+
+	<details class="fu-source">
+		<summary data-i18n="fu_show_source">Показати розбір</summary>
+		<div class="aitxt" id="followup-strategy-body"></div>
+	</details>
+
+	<div id="followup-chat"></div>
+
+	<div class="loading fu-loading" id="followup-loading" hidden>
+		<div class="fu-msg-badge" data-i18n="lbl_mentor">Наставник</div>
+		<div class="typing"><span></span><span></span><span></span></div>
+	</div>
+
+	<div class="fu-limit-out" id="followup-limit-reached" hidden>
+		<div class="fu-limit-out-title" data-i18n="fu_limit_out_title">Уточнення на цьому тарифі закінчились</div>
+		<div class="fu-limit-out-sub" data-i18n="fu_limit_out_sub">Розбори залишаються в профілі. Щоб продовжити діалог — обери період доступу.</div>
+		<button class="btn bp bsm" id="followup-buy" data-i18n="btn_get_access">Отримати доступ</button>
+	</div>
+
+	<div class="fu-bar" id="followup-input-wrap">
+		<div class="fu-row">
+			<textarea class="inp fu-input" id="followup-input" rows="1" placeholder="Що уточнити?" data-i18n-ph="fu_input_ph" enterkeyhint="send"></textarea>
+			<button class="fu-send" id="followup-send" aria-label="Надіслати" data-i18n-aria="btn_send">
+				<svg viewBox="0 0 24 24"><path d="M2 21l20-9L2 3v7l14 2-14 2z"/></svg>
+			</button>
+		</div>
+	</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · 1. ВХІД У МОДУЛЬ
+     Дані беруться з профілю; дату можна перебити разово, не чіпаючи профіль.
+     ══════════════════════════════════════════════════════════ -->
+<!-- num-stack на самому екрані: власник вертикального проміжку між усіма
+     блоками модуля. Саме тому #num-home-body і кнопки в ньому нарешті мають
+     відступи — вони їх не оголошують, вони їх отримують. -->
+<div class="scr num-stack" id="num-home">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-num-home" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span class="rh-ico" aria-hidden="true"></span><span data-i18n="num_title">Матриця долі</span></div>
+	</div>
+	<!-- Езотеричний дисклеймер обов'язковий саме при вході в модуль
+	     (legal_payment.uk.txt, «Дисклеймер» §1). Текст цитується, не переказується. -->
+	<div class="num-panel num-panel-q num-legal" data-i18n="num_legal_esoteric">Розрахунки мають інформаційний, освітній і рефлексивний характер. Нумерологія є символічною системою самопізнання і не є науково підтвердженим методом діагностики або прогнозування майбутнього.</div>
+	<div class="num-stack" id="num-home-body"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · 2. СХЕМА
+     SVG — шаблон: координати статичні, app.js підставляє лише числа.
+     Кожна позиція має стабільний data-point-id з numerology/registry.py.
+     На схемі 32 з 33: CE не малюється, як і на еталоні замовниці.
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="num-scheme">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-num-scheme" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span id="num-scheme-title" data-i18n="num_title">Матриця долі</span></div>
+	</div>
+	<!-- Смуга вкладок звідси прибрана. Вона роздавала блоки по п'яти екранах,
+	     тобто єдиного переліку розділів не існувало взагалі: щоб побачити всі,
+	     треба було відкрити кожну вкладку й запам'ятати, що там було. Замість
+	     неї — панель стану («на яку дату це порахували») і сітка блоків нижче. -->
+	<!-- Панель дати: дата великим шрифтом, «змінити» — компактна кнопка з іконкою
+	     календаря й олівця. Напису «Розрахунок готовий» і крапки більше немає
+	     (на прохання замовниці). «Змінити дату» веде на вхід у модуль із уже
+	     розгорнутим полем разової дати. Окремого поля тут навмисно немає: два
+	     місця вводу однієї й тієї самої дати розійдуться на першій же правці
+	     валідації. -->
+	<div class="num-panel num-ready" id="num-scheme-ready">
+		<div class="num-date-row">
+			<div class="num-date-txt">
+				<div class="num-date-lbl" id="num-scheme-lbl"></div>
+				<div class="num-date-big" id="num-scheme-sub"></div>
+			</div>
+			<button class="num-date-btn" id="num-change-date" aria-label="Змінити дату" data-i18n-aria="num_change_date">
+				<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="14" height="14" rx="2.5"/><path d="M3 10h14M7.5 3v4M12.5 3v4"/><path d="M15 21l1.2-3.6 5.3-5.3a1.6 1.6 0 012.3 2.3l-5.3 5.3z" transform="translate(-1 -1)"/></svg>
+				<span data-i18n="num_change_short">Змінити</span>
+			</button>
+		</div>
+	</div>
+
+	<div class="num-panel num-svg-wrap" id="num-svg-wrap">
+	<svg class="num-svg" id="num-svg" viewBox="-42 48 1084 904" role="img"
+	     aria-labelledby="num-svg-title">
+		<title id="num-svg-title" data-i18n="num_svg_alt">Схема Матриці долі</title>
+		<!-- Наконечники. Кожна родова лінія має ВЛАСНИЙ marker, а не спільний:
+		     marker успадковує колір не від лінії, а від власного fill, тож один
+		     на двох дав би дві різнокольорові лінії з однаково пофарбованими
+		     стрілками. context-stroke навмисно не використано — його немає в
+		     старих WebView, а промах тут виглядає як «стрілка зникла».
+		     refX=10 при вістрі на 12: кінець лінії ховається під основою
+		     наконечника, а вістря виступає рівно на радіус внутрішнього кола. -->
+		<defs>
+			<marker id="num-arrow-m" class="num-arrow-m" viewBox="0 0 12 12"
+			        refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+				<path d="M0,1 L12,6 L0,11 z"/>
+			</marker>
+			<marker id="num-arrow-f" class="num-arrow-f" viewBox="0 0 12 12"
+			        refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+				<path d="M0,1 L12,6 L0,11 z"/>
+			</marker>
+			<!-- Обідок кольорових кружків: білий stroke + тонка тінь, як на еталоні. -->
+			<filter id="num-ring" x="-20%" y="-20%" width="140%" height="140%">
+				<feDropShadow dx="0" dy="0" stdDeviation="1.1" flood-color="#000" flood-opacity=".4"/>
+			</filter>
+		</defs>
+		<!-- Каркас за еталоном замовниці.
+		     • Тонкий ВОСЬМИКУТНИК — це вікова шкала: вершини на r=423, тобто на
+		       зовнішньому краї великих кіл (380 + 43). По його гранях стоять роки.
+		     • Квадрат і ромб — товсті. Їхні сторони проходять центрами перших
+		       деталізуючих точок: квадрат — через А1 Б1 В1 Г1, ромб — через
+		       Д1 Е1 Ж1 З1. Кути обох ховаються під великими колами.
+		     • Коло r=232 — межа родових стрілок: на ньому їхні вістря й бейджі Л/М.
+		     • Дві осі — тонкі. Діагоналей немає: їх цілком накривають родові
+		       стрілки та ланцюжки кружків. -->
+		<g class="num-frame" fill="none">
+			<polygon class="num-age-oct" points="77,500 200.9,200.9 500,77 799.1,200.9 923,500 799.1,799.1 500,923 200.9,799.1"/>
+			<circle cx="500" cy="500" r="232"/>
+			<line x1="120" y1="500" x2="880" y2="500"/>
+			<line x1="500" y1="120" x2="500" y2="880"/>
+			<polygon class="num-fig" points="241.6,241.6 758.4,241.6 758.4,758.4 241.6,758.4"/>
+			<polygon class="num-fig" points="134.6,500 500,134.6 865.4,500 500,865.4"/>
+		</g>
+		<line class="num-dash" x1="732" y1="500" x2="500" y2="732"/>
+		<!-- Родові лінії: двоголові стрілки від вістря до вістря на колі r=232.
+		     Підпис — над верхньою половиною стрілки, як на еталоні, між кружком C
+		     і наконечником. textLength тримає довжину сталою (150) незалежно від
+		     мови й шрифту пристрою: довший переклад інакше заїхав би на вістря. -->
+		<g class="num-rod num-rod-male">
+			<line x1="339" y1="339" x2="661" y2="661"
+			      marker-start="url(#num-arrow-m)" marker-end="url(#num-arrow-m)"/>
+			<text x="416.9" y="406.3" transform="rotate(45 416.9 406.3)" textLength="150"
+			      data-i18n="num_rod_male">лінія чоловічого роду</text>
+		</g>
+		<g class="num-rod num-rod-female">
+			<line x1="339" y1="661" x2="661" y2="339"
+			      marker-start="url(#num-arrow-f)" marker-end="url(#num-arrow-f)"/>
+			<text x="583.1" y="406.3" transform="rotate(-45 583.1 406.3)" textLength="150"
+			      data-i18n="num_rod_female">лінія жіночого роду</text>
+		</g>
+		<!-- Вікова шкала. Порожня група навмисно: вузли будує numRenderAgeScale()
+		     з NUM.active.ageContour. Другий, статичний перелік у розмітці розійшовся
+		     б із core.py на першій же правці AGE_ANCHORS. Стоїть ДО точок: великі
+		     кола мусять лягати поверх кінців граней. -->
+		<g class="num-age-scale" id="num-age-scale" aria-hidden="true"></g>
+		<!-- 32 позиції. CE на схемі немає, як і на еталоні замовниці: це похідне
+		     R(C+C), і живе воно в карті здоров'я (емоції Маніпури). -->
+		<g class="num-pt" data-point-id="A1" tabindex="0" role="button">
+			<circle cx="241.6" cy="500" r="22" fill="#40B0E2"/>
+			<text x="241.6" y="500" font-size="29" class="on-fill">–</text>
+		</g>
+		<g class="num-pt num-pt-md" data-point-id="A2" tabindex="0" role="button">
+			<circle cx="194.1" cy="500" r="27" fill="#3062CC"/>
+			<text x="194.1" y="500" font-size="36" class="on-fill">–</text>
+		</g>
+		<g class="num-pt" data-point-id="A3" tabindex="0" role="button">
+			<circle cx="351.8" cy="500" r="22" fill="#6DB05D"/>
+			<text x="351.8" y="500" font-size="29" class="on-fill">–</text>
+		</g>
+		<g class="num-pt" data-point-id="B1" tabindex="0" role="button">
+			<circle cx="500" cy="241.6" r="22" fill="#40B0E2"/>
+			<text x="500" y="241.6" font-size="29" class="on-fill">–</text>
+		</g>
+		<g class="num-pt num-pt-md" data-point-id="B2" tabindex="0" role="button">
+			<circle cx="500" cy="194.1" r="27" fill="#3062CC"/>
+			<text x="500" y="194.1" font-size="36" class="on-fill">–</text>
+		</g>
+		<g class="num-pt" data-point-id="B3" tabindex="0" role="button">
+			<circle cx="500" cy="351.8" r="22" fill="#6DB05D"/>
+			<text x="500" y="351.8" font-size="29" class="on-fill">–</text>
+		</g>
+		<g class="num-pt" data-point-id="V1" tabindex="0" role="button">
+			<circle cx="758.4" cy="500" r="22" fill="#D08A4E"/>
+			<text x="758.4" y="500" font-size="29" class="on-fill">–</text>
+		</g>
+		<g class="num-pt num-pt-md" data-point-id="V2" tabindex="0" role="button">
+			<circle cx="805.9" cy="500" r="27"/>
+			<text x="805.9" y="500" font-size="36">–</text>
+		</g>
+		<g class="num-pt" data-point-id="G1" tabindex="0" role="button">
+			<circle cx="500" cy="758.4" r="22" fill="#D08A4E"/>
+			<text x="500" y="758.4" font-size="29" class="on-fill">–</text>
+		</g>
+		<g class="num-pt num-pt-md" data-point-id="G2" tabindex="0" role="button">
+			<circle cx="500" cy="805.9" r="27"/>
+			<text x="500" y="805.9" font-size="36">–</text>
+		</g>
+		<g class="num-pt" data-point-id="D1" tabindex="0" role="button">
+			<circle cx="317.3" cy="317.3" r="22"/>
+			<text x="317.3" y="317.3" font-size="29">–</text>
+		</g>
+		<g class="num-pt num-pt-md" data-point-id="D2" tabindex="0" role="button">
+			<circle cx="283.7" cy="283.7" r="27"/>
+			<text x="283.7" y="283.7" font-size="36">–</text>
+		</g>
+		<g class="num-pt" data-point-id="E1" tabindex="0" role="button">
+			<circle cx="682.7" cy="317.3" r="22"/>
+			<text x="682.7" y="317.3" font-size="29">–</text>
+		</g>
+		<g class="num-pt num-pt-md" data-point-id="E2" tabindex="0" role="button">
+			<circle cx="716.3" cy="283.7" r="27"/>
+			<text x="716.3" y="283.7" font-size="36">–</text>
+		</g>
+		<g class="num-pt" data-point-id="Zh1" tabindex="0" role="button">
+			<circle cx="682.7" cy="682.7" r="22"/>
+			<text x="682.7" y="682.7" font-size="29">–</text>
+		</g>
+		<g class="num-pt num-pt-md" data-point-id="Zh2" tabindex="0" role="button">
+			<circle cx="716.3" cy="716.3" r="27"/>
+			<text x="716.3" y="716.3" font-size="36">–</text>
+		</g>
+		<g class="num-pt" data-point-id="Z1" tabindex="0" role="button">
+			<circle cx="317.3" cy="682.7" r="22"/>
+			<text x="317.3" y="682.7" font-size="29">–</text>
+		</g>
+		<g class="num-pt num-pt-md" data-point-id="Z2" tabindex="0" role="button">
+			<circle cx="283.7" cy="716.3" r="27"/>
+			<text x="283.7" y="716.3" font-size="36">–</text>
+		</g>
+		<g class="num-pt" data-point-id="K" tabindex="0" role="button">
+			<circle cx="620" cy="620" r="22"/>
+			<text x="620" y="620" font-size="29">–</text>
+		</g>
+		<g class="num-pt" data-point-id="O" tabindex="0" role="button">
+			<circle cx="680" cy="606" r="22"/>
+			<text x="680" y="606" font-size="29">–</text>
+		</g>
+		<g class="num-pt" data-point-id="N" tabindex="0" role="button">
+			<circle cx="606" cy="680" r="22"/>
+			<text x="606" y="680" font-size="29">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="A" tabindex="0" role="button">
+			<circle cx="120" cy="500" r="43" fill="#9A3099"/>
+			<text x="120" y="500" font-size="58" class="on-fill">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="B" tabindex="0" role="button">
+			<circle cx="500" cy="120" r="43" fill="#9A3099"/>
+			<text x="500" y="120" font-size="58" class="on-fill">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="V" tabindex="0" role="button">
+			<circle cx="880" cy="500" r="43" fill="#CF4A42"/>
+			<text x="880" y="500" font-size="58" class="on-fill">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="G" tabindex="0" role="button">
+			<circle cx="500" cy="880" r="43" fill="#CF4A42"/>
+			<text x="500" y="880" font-size="58" class="on-fill">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="D" tabindex="0" role="button">
+			<circle cx="231.3" cy="231.3" r="43"/>
+			<text x="231.3" y="231.3" font-size="58">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="E" tabindex="0" role="button">
+			<circle cx="768.7" cy="231.3" r="43"/>
+			<text x="768.7" y="231.3" font-size="58">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="Zh" tabindex="0" role="button">
+			<circle cx="768.7" cy="768.7" r="43"/>
+			<text x="768.7" y="768.7" font-size="58">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="Z" tabindex="0" role="button">
+			<circle cx="231.3" cy="768.7" r="43"/>
+			<text x="231.3" y="768.7" font-size="58">–</text>
+		</g>
+		<g class="num-pt num-pt-lg" data-point-id="C" tabindex="0" role="button">
+			<circle cx="500" cy="500" r="43" fill="#F2DD70"/>
+			<text x="500" y="500" font-size="58">–</text>
+		</g>
+		<g class="num-pt num-pt-badge" data-point-id="L" tabindex="0" role="button">
+			<circle cx="732" cy="500" r="11" fill="#D08A4E"/>
+			<text x="732" y="500" font-size="13" class="on-fill">Л</text>
+		</g>
+		<g class="num-pt num-pt-badge" data-point-id="M" tabindex="0" role="button">
+			<circle cx="500" cy="732" r="11" fill="#D08A4E"/>
+			<text x="500" y="732" font-size="13" class="on-fill">М</text>
+		</g>
+		<!-- Літери вершин — бейджі впритул до великого кола, по його променю.
+		     data-side каже, з якого боку numRenderAgeScale() ставить «N років»:
+		     за еталоном 0/10/60/70 — ліворуч, 20/30/40/50 — праворуч. -->
+		<g class="num-vtx" aria-hidden="true">
+			<g data-vtx="A" data-side="-1"><circle cx="68" cy="500" r="10.5" fill="#9A3099"/><text x="68" y="500">А</text></g>
+			<g data-vtx="D" data-side="-1"><circle cx="194.5" cy="194.5" r="10.5"/><text x="194.5" y="194.5">Д</text></g>
+			<g data-vtx="B" data-side="1"><circle cx="500" cy="68" r="10.5" fill="#9A3099"/><text x="500" y="68">Б</text></g>
+			<g data-vtx="E" data-side="1"><circle cx="805.5" cy="194.5" r="10.5"/><text x="805.5" y="194.5">Е</text></g>
+			<g data-vtx="V" data-side="1"><circle cx="932" cy="500" r="10.5" fill="#CF4A42"/><text x="932" y="500">В</text></g>
+			<g data-vtx="Zh" data-side="1"><circle cx="805.5" cy="805.5" r="10.5"/><text x="805.5" y="805.5">Ж</text></g>
+			<g data-vtx="G" data-side="-1"><circle cx="500" cy="932" r="10.5" fill="#CF4A42"/><text x="500" y="932">Г</text></g>
+			<g data-vtx="Z" data-side="-1"><circle cx="194.5" cy="805.5" r="10.5"/><text x="194.5" y="805.5">З</text></g>
+		</g>
+		<!-- Літери К / О / Н — чорні бейджі зліва згори від свого кружка. -->
+		<g class="num-inner-lbl" aria-hidden="true">
+			<circle cx="599.5" cy="599.5" r="10"/><text x="599.5" y="599.5">К</text>
+			<circle cx="659.5" cy="585.5" r="10"/><text x="659.5" y="585.5">О</text>
+			<circle cx="585.5" cy="659.5" r="10"/><text x="585.5" y="659.5">Н</text>
+		</g>
+		<!-- Зона комфорту: жовтий бейдж «ЗК» під кружком C, стрілка вниз і
+		     повна назва. Саме підпис, а не заміна числа: у кружку C стоїть
+		     значення зони комфорту, і воно потрібне. -->
+		<g class="num-zk" aria-hidden="true">
+			<circle cx="500" cy="551" r="13"/>
+			<path d="M494.5,566 L505.5,566 L500,576 z"/>
+			<text x="500" y="551" class="num-zk-s" data-i18n="num_zk_short">ЗК</text>
+			<text x="500" y="593" class="num-zk-l" data-i18n="num_zk_full">ЗОНА КОМФОРТУ</text>
+		</g>
+		<text class="num-sigil num-sigil-money" x="641" y="546" aria-hidden="true">$</text>
+		<path class="num-sigil-heart" aria-hidden="true" transform="translate(548.5 626)"
+		      d="M0,19 C-3,16.5 -24,4 -24,-8.5 C-24,-17.5 -17,-22.5 -11,-22.5 C-5,-22.5 -1.5,-19 0,-15.5 C1.5,-19 5,-22.5 11,-22.5 C17,-22.5 24,-17.5 24,-8.5 C24,4 3,16.5 0,19 z"/>
+	</svg>
+	</div>
+
+	<!-- Збільшення замість вимикача шкали. Шкала завжди на схемі, як на
+	     еталоні, але її підписи — 10–15 одиниць viewBox, тобто 3–5 CSS-px на
+	     телефоні, а щипок у WebApp вимкнений (maximum-scale=1). Кнопка
+	     відкриває схему НА ВЕСЬ ЕКРАН (#num-zoom нижче) — так попросила
+	     замовниця замість прокрутки всередині панелі. -->
+	<button class="btn bg bsm" id="num-zoom-toggle" data-i18n="num_zoom_in">Збільшити схему</button>
+
+	<!-- Підсумкові коди — одразу під схемою (на прохання замовниці).
+	     Вміст будує numRenderCodes(). -->
+	<div class="num-panel num-codes" id="num-codes"></div>
+
+	<!-- Сітка блоків. Стоїть ОДРАЗУ під схемою, вище підказок: це головна дія
+	     екрана («тисну блок — читаю розбір»), а підказки — довідка для тих, хто
+	     вже роздивляється саму схему.
+	     Групи й склад задає реєстр NUM_BLOCKS в app.js — тут навмисно порожній
+	     контейнер, бо другий перелік блоків у розмітці розійшовся б із реєстром. -->
+	<div class="num-pick" id="num-pick" data-i18n="num_pick">Обери блок, який хочеш дослідити</div>
+	<div class="num-bgrid" id="num-bgrid"></div>
+
+	<!-- Обгортка .num-toggle-row прибрана: кнопка — пряма дитина стеку екрана
+	     і бере проміжок звідти, як і всі інші блоки. -->
+	<button class="btn bg bsm" id="num-hints-toggle" data-i18n="num_hints_show">Показати підказки</button>
+	<div class="num-stack" id="num-scheme-hints" hidden></div>
+
+	<!-- Тут був <details> «Усі 33 позиції списком» — дубль схеми текстом.
+	     Прибраний на прохання власниці: він показував сирі коди позицій
+	     (A, B, C1…) без жодного тлумачення, тобто ставив під схемою другий,
+	     менш зрозумілий її переказ і відсував сітку блоків — головну дію
+	     екрана — на екран нижче. Самі числа лишились у кружках схеми, а тап
+	     по кружку відкриває той самий numOpenPoint, який відкривав список.
+	     Якщо колись знадобиться текстова альтернатива для скрінрідера —
+	     робити її треба на <title>/aria самої схеми, а не другим блоком. -->
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · 3. СТОРІНКА ОДНОГО БЛОКУ
+
+     Тут був екран «Блоки результату» — один довгий скрол, де всі 17 блоків
+     йшли підряд картками. Людина не вибирала блок: вона гортала повз усі,
+     і кожен наступний заважав читати попередній.
+
+     Тепер екран ОДИН на всі блоки, а не 17 окремих: розмітка в них однакова,
+     різні лише числа й тексти, і сімнадцять копій однієї сторінки означали б
+     сімнадцять місць для правки кожної наступної зміни. Наповнює
+     numRenderBlock(blockId).
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="num-block">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-num-block" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span id="num-block-title" data-i18n="num_blk_personality">Архетип особистості</span></div>
+	</div>
+	<div class="num-stack" id="num-block-body"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · НАВЧАЛЬНІ ПРОДУКТИ (заглушка)
+
+     ЧОГО ТУТ ЩЕ НЕМАЄ — щоб наступний не шукав:
+
+     1. Самих продуктів. Замовниця має надати перелік: назва, опис, чого саме
+        людина навчиться, формат (відео / текст / жива зустріч) і ціна.
+     2. Поняття «продукт» у коді взагалі не існує. Є лише тариф підписки
+        (db/subscription.py:17) — тобто доступ на ЧАС, а не разова покупка
+        конкретної речі. Продукт — це друга сутність із власною таблицею
+        покупок; переробити тариф під неї не вийде.
+     3. Оплати. WayForPay уже підключено (wfp.py CreateInvoice,
+        WfpCallbackHandler у webapp/api.py), але orderReference зашитий під
+        формат {user_id}_{tariff}_{uuid}, і колбек нараховує ДНІ підписки.
+        Під продукт потрібен окремий формат посилання й окрема гілка колбека.
+     4. Видачі доступу. За задумом кожен продукт має власний закритий
+        Telegram-канал, і після оплати людині приходить одноразовий інвайт.
+        У проєкті НЕМАЄ жодного виклику create_chat_invite_link і жодного
+        ID каналу в config.py — цей шматок треба писати з нуля.
+
+     До того часу екран чесно каже «готуємо», а не імітує вітрину.
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="num-learn">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-num-learn" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span data-i18n="num_learn_title">Навчальні продукти</span></div>
+	</div>
+	<div class="num-panel num-stack">
+		<div class="num-card-title" data-i18n="num_learn_soon_t">Готуємо</div>
+		<div class="num-hint" data-i18n="num_learn_soon">Тут з’являться курси й практикуми, після яких ти зможеш розраховувати матрицю самостійно — свою і чужу. Ми ще збираємо програму, тож поки що показувати нема чого. Якщо хочеш дізнатись першою — напиши Аліні.</div>
+		<button class="btn bp" id="num-learn-consult" data-i18n="num_consult_btn">Розібрати детальніше з Аліною</button>
+	</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · 4. КАРТА ЗДОРОВ'Я
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="num-health">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-num-health" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span data-i18n="num_health_title">Карта здоров’я</span></div>
+	</div>
+	<div class="num-sub" id="num-health-sub"></div>
+	<div class="num-stack" id="num-health-body"></div>
+	<!-- Медична дискламація стоїть поруч із таблицею, а не в підвалі екрана:
+	     її мають прочитати ті, хто дивиться на числа, а не ті, хто догортав. -->
+	<div class="num-panel num-panel-q num-legal num-legal-med" data-i18n="num_legal_medical">Карта здоров’я, чакровий аналіз та відповідні числа не є медичною діагностикою. Вони не визначають наявність захворювань, не замінюють обстеження, аналізи, лікування або консультацію лікаря. Заборонено припиняти лікування, змінювати препарати або ухвалювати медичні рішення лише на підставі нумерологічного розрахунку.</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · 5. ПРОГНОСТИКА (віковий контур 0–80)
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="num-prognosis">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-num-prognosis" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span data-i18n="num_prog_title">Прогностика</span></div>
+	</div>
+	<div class="num-sub" id="num-prog-sub"></div>
+	<div class="num-panel num-panel-q num-legal" data-i18n="num_legal_prognosis">Прогностика та енергії року показують символічні теми й можливі напрями уваги, а не гарантовані події. Розрахунок не гарантує настання шлюбу, вагітності, розлучення, фінансового зростання, зміни роботи, переїзду або будь-якої іншої події.</div>
+	<div class="num-stack" id="num-prog-body"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · 6. ЗНАЧЕННЯ АРКАНІВ
+     ID екрана, ключі й функції лишились num-energies / num_energies_* —
+     перейменована лише видима назва. Внутрішнє поняття «енергія» живе в
+     numerology/registry.py і в JSON із текстами; тягнути ренейм через увесь
+     бекенд заради заголовка означало б правити те, чого користувач не бачить.
+
+     Тексти вантажаться ліниво, по одному Аркану: повний JSON ~120 КБ.
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="num-energies">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-num-energies" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span data-i18n="num_energies_title">Значення Арканів</span></div>
+	</div>
+	<div class="num-sub" data-i18n="num_energies_sub">Тапни число, щоб прочитати значення Аркана у плюсі та в мінусі.</div>
+	<div class="num-egrid" id="num-egrid"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · 7. СУМІСНІСТЬ
+     Дата другої людини живе лише в межах запиту — у профіль не пишеться.
+     ══════════════════════════════════════════════════════════ -->
+<div class="scr num-stack" id="num-compat">
+	<div class="flhdr">
+		<button class="backbtn" id="btn-back-num-compat" aria-label="Назад" data-i18n-aria="btn_back">←</button>
+		<div class="fltitle"><span data-i18n="num_compat_title">Сумісність</span></div>
+	</div>
+	<div class="num-sub" data-i18n="num_compat_sub">Матриця пари будується з двох повних персональних матриць — по кожній однойменній точці окремо.</div>
+	<!-- Два сусідніх контейнери, які наповнюють РІЗНІ функції (numRenderCompatForm
+	     і numRenderCompatResult), причому другий до першого розрахунку порожній.
+	     Жодна з них не може знати про іншу — тому проміжок між ними тримає
+	     стек екрана, а порожній #num-compat-body просто не має бокса. -->
+	<div class="num-stack" id="num-compat-form"></div>
+	<div class="num-stack" id="num-compat-body"></div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · СХЕМА НА ВЕСЬ ЕКРАН
+     Порожній навмисно: numZoomOpen() переносить сюди сам #num-svg і
+     повертає його в панель при закритті. Нижче шторки за z-index, тож
+     тап по кружку відкриває шторку ПОВЕРХ збільшеної схеми.
+     ══════════════════════════════════════════════════════════ -->
+<div class="num-zoom" id="num-zoom" role="dialog" aria-modal="true"
+     aria-labelledby="num-svg-title" hidden>
+	<div class="num-zoom-view" id="num-zoom-view"></div>
+	<div class="num-zoom-bar">
+		<button class="num-zoom-b" id="num-zoom-minus" aria-label="Зменшити" data-i18n-aria="num_zoom_minus">−</button>
+		<button class="num-zoom-b" id="num-zoom-plus" aria-label="Збільшити" data-i18n-aria="num_zoom_plus">+</button>
+		<button class="num-zoom-b num-zoom-x" id="num-zoom-close" data-i18n="btn_close">Закрити</button>
+	</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НУМЕРОЛОГІЯ · ШТОРКА ДЕТАЛІ (точка · зона · енергія)
+     Той самий патерн .nm-overlay, що в модалках ніші та мови.
+     ══════════════════════════════════════════════════════════ -->
+<div class="nm-overlay" id="num-sheet">
+	<div class="nm-sheet num-sheet">
+		<div class="pwh"></div>
+		<div class="nm-hd">
+			<div class="nm-title" id="num-sheet-title"></div>
+			<button class="sheet-x" id="num-sheet-close" aria-label="Закрити" data-i18n-aria="btn_close">×</button>
+		</div>
+		<div class="num-sheet-body num-stack" id="num-sheet-body"></div>
+	</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     НИЖНЯ НАВІГАЦІЯ
+     ══════════════════════════════════════════════════════════ -->
+<nav class="bnav" id="bnav">
+	<button class="ni" id="ni-home">
+		<svg viewBox="0 0 24 24"><path d="M4 10.5L12 4l8 6.5V20a1 1 0 01-1 1h-4v-6H9v6H5a1 1 0 01-1-1z"/></svg>
+		<span class="ni-l" data-i18n="nav_home">Головна</span>
+	</button>
+	<button class="ni" id="ni-tar">
+		<svg viewBox="0 0 24 24"><path d="M6.5 4h11l3.5 5-9 11L3 9z"/><path d="M3 9h18M9.5 4L8 9l4 11 4-11-1.5-5"/></svg>
+		<span class="ni-l" data-i18n="nav_plans">Мій блог</span>
+	</button>
+	<button class="ni" id="ni-aut">
+		<svg viewBox="0 0 24 24"><circle cx="12" cy="9" r="3.6"/><path d="M5 20c0-3.4 3.1-5.6 7-5.6s7 2.2 7 5.6"/></svg>
+		<span class="ni-l" data-i18n="nav_author">Автор</span>
+	</button>
+	<button class="ni" id="ni-svc">
+		<svg viewBox="0 0 24 24"><path d="M12 4l2 5.4 5.4 2-5.4 2-2 5.4-2-5.4-5.4-2 5.4-2z"/></svg>
+		<span class="ni-l" data-i18n="nav_services">Послуги</span>
+	</button>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════
+     ДОСТУП — ЄДИНА ТОЧКА ВХОДУ (шит поверх будь-якого екрана)
+     ══════════════════════════════════════════════════════════ -->
+<div class="pwo" id="pw">
+	<div class="pws">
+		<div class="pwh"></div>
+		<button class="sheet-x" id="btn-pw-close" aria-label="Закрити" data-i18n-aria="btn_close">×</button>
+
+		<!-- вибір періоду -->
+		<div id="pw-action">
+			<div class="pwtitle" data-i18n="pw_title">Оплата доступу</div>
+			<div class="pwsub" data-i18n="pw_sub">Обирай тариф та отримуй доступ до блоку «Мій блог»</div>
+
+			<!-- рядок контексту: чому шит відкрився. Керується requestAccess(reason) -->
+			<div class="pw-reason" id="pw-reason" hidden></div>
+
+			<!-- Рядки рендеряться з того самого реєстру TARIFFS, що й картки:
+			     дві захардкоджені копії прайсу вже існували, і при зміні ціни
+			     розійшлися б мовчки — картка показувала б одне, шит оплати інше. -->
+			<div class="tqs" id="tqs"></div>
+
+			<div class="pw-info" id="pw-info" hidden>
+				<div id="pw-info-text"></div>
+			</div>
+
+			<button class="btn bp" id="btn-pay" data-i18n="btn_pay">Перейти до оплати</button>
+			<div class="pw-hint" id="pw-renew-hint" hidden data-i18n="pw_renew_hint">Новий період додається до поточного після підтвердження оплати.</div>
+		</div>
+
+		<!-- потрібна реєстрація (замість колишнього оверлея #upsell) -->
+
+		<!-- створення інвойсу -->
+		<div id="pw-loading" hidden>
+			<div class="pwtitle" data-i18n="pw_loading_title">Готуємо оплату</div>
+			<div class="loading tc"><div class="typing"><span></span><span></span><span></span></div></div>
+			<div class="pwsub" data-i18n="pw_loading_sub">Кілька секунд…</div>
+		</div>
+
+		<!-- перехід на WayForPay -->
+		<div id="pw-redirect" hidden>
+			<div class="pwtitle" data-i18n="pw_redirect_title">Сторінку оплати відкрито</div>
+			<div class="pwsub" data-i18n="pw_redirect_sub">Заверши оплату у вікні WayForPay. Доступ увімкнеться автоматично.</div>
+			<a class="btn bg" id="pw-redirect-link" href="#" target="_blank" rel="noopener" data-i18n="btn_open_again">Відкрити ще раз</a>
+			<div class="h12"></div>
+			<button class="btn bs" id="btn-pw-redirect-close" data-i18n="btn_close_word">Закрити</button>
+		</div>
+
+		<!-- помилка -->
+		<div id="pw-error" hidden>
+			<div class="pwtitle" data-i18n="pw_err_title">Не вдалося</div>
+			<div class="pwsub" id="pw-error-text">Помилка оплати</div>
+			<button class="btn bp" id="btn-pw-retry" data-i18n="btn_retry">Спробувати ще раз</button>
+			<div class="h12"></div>
+			<button class="btn bs" id="btn-pw-error-close" data-i18n="btn_close_word">Закрити</button>
+		</div>
+
+		<!-- успіх -->
+		<div id="pw-success" hidden>
+			<div class="pw-burst" aria-hidden="true">
+				<span class="pw-ok">✓</span>
+				<i class="sp s1"></i><i class="sp s2"></i><i class="sp s3"></i><i class="sp s4"></i><i class="sp s5"></i>
+			</div>
+			<div class="pwtitle" data-i18n="pw_ok_title">Оплата пройшла успішно</div>
+			<div class="pwsub" id="pw-success-text"></div>
+			<div class="pw-ok-open" data-i18n="pw_ok_open_what">Тепер відкрито:</div>
+			<div class="pw-ok-list" id="pw-success-list"></div>
+			<button class="btn bp" id="btn-pw-success-blog" data-i18n="pw_ok_open">Відкрити мій блог</button>
+			<button class="btn bg" id="btn-pw-success-close" data-i18n="btn_home">На головну</button>
+		</div>
+
+	</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     МОДАЛКА НІШІ
+     ══════════════════════════════════════════════════════════ -->
+<div class="nm-overlay" id="niche-modal">
+	<div class="nm-sheet">
+		<div class="pwh"></div>
+		<div class="nm-hd">
+			<div class="nm-title" data-i18n="niche_title">Твоя ніша</div>
+			<button class="sheet-x" id="nm-close-btn" aria-label="Закрити" data-i18n-aria="btn_close">×</button>
+		</div>
+		<div class="nm-list" id="nm-list"></div>
+		<div class="nm-custom-row" id="nm-custom-row" hidden>
+			<input class="inp" id="nm-custom-inp" type="text" placeholder="Напиши свою нішу…" data-i18n-ph="niche_custom_ph">
+		</div>
+		<button class="btn bp" id="nm-save-btn" data-i18n="btn_save">Зберегти</button>
+	</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     МОДАЛКА МОВИ — той самий патерн, що й ніша
+     ══════════════════════════════════════════════════════════ -->
+<div class="nm-overlay" id="lang-modal">
+	<div class="nm-sheet">
+		<div class="pwh"></div>
+		<div class="nm-hd">
+			<div class="nm-title" data-i18n="lang_title">Мова</div>
+			<button class="sheet-x" id="lm-close-btn" aria-label="Закрити" data-i18n-aria="btn_close">×</button>
+		</div>
+		<!-- назви мов рендеряться з LANG_LABELS у app.js -->
+		<div class="nm-list" id="lm-list"></div>
+	</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     МОДАЛКА «НАВЧИТИСЯ РОЗРАХОВУВАТИ САМОСТІЙНО» — той самий патерн, що й ніша.
+     Посилання на оплату — NUM_LEARN_URL в app.js.
+     ══════════════════════════════════════════════════════════ -->
+<div class="nm-overlay" id="learn-modal">
+	<div class="nm-sheet">
+		<div class="pwh"></div>
+		<div class="nm-hd">
+			<div class="nm-title" data-i18n="num_learn_pop_t">✨ Навчитися розраховувати самостійно</div>
+			<button class="sheet-x" id="learn-close-btn" aria-label="Закрити" data-i18n-aria="btn_close">×</button>
+		</div>
+		<div class="num-stack learn-body">
+			<p class="num-para" data-i18n="num_learn_pop_intro">Якщо ви хочете самостійно вивчати нумерологію та розбирати свою матрицю, у мене для вас є курс у записі «Сам собі нумеролог».</p>
+			<div class="num-sect" data-i18n="num_learn_pop_what_t">📚 Що буде в курсі?</div>
+			<ul class="learn-list" id="learn-list">
+				<li>покрокові відеоуроки у записі;</li>
+				<li>вся інформація про те, як самостійно розрахувати матрицю;</li>
+				<li>значення арканів від 1 до 22 простими словами;</li>
+				<li>зручний формат навчання у будь-який час;</li>
+				<li>доступ до матеріалів без обмежень у часі.</li>
+			</ul>
+			<div class="num-sect" data-i18n="num_learn_pop_who_t">💫 Для кого цей курс?</div>
+			<p class="num-para" data-i18n="num_learn_pop_who">Для тих, хто хоче краще зрозуміти себе, свої таланти, сильні сторони та життєві задачі через нумерологію.</p>
+			<div class="learn-facts">
+				<div data-i18n="num_learn_pop_price">💰 Вартість: 2999 грн</div>
+				<div data-i18n="num_learn_pop_access">🔓 Доступ: назавжди</div>
+			</div>
+			<button class="btn bp learn-pay" id="learn-pay-btn"><span data-i18n="num_learn_pay">Придбати курс</span></button>
+		</div>
+	</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     ТОСТ
+     ══════════════════════════════════════════════════════════ -->
+<div class="toast" id="toast-el"></div>
+
+<script>
+window.__DEMO__ = {"scenarios": {"new": {"profile_complete": false, "user": {"first_name": "", "last_name": "", "phone": "", "birthdate": null, "niche": null, "lang": "uk"}, "subscription": {"plan": null, "active": false, "plan_name": "", "expires_at": null}, "usage": {"deep_used": 0, "short_used": 0, "deep_left": 1, "short_left": 3, "deep_limit": 1, "short_limit": 3}, "strategies_count": 0}, "demo": {"profile_complete": true, "user": {"first_name": "\u041e\u043b\u0435\u043d\u0430", "last_name": "\u041a\u043e\u0432\u0430\u043b\u044c\u0447\u0443\u043a", "phone": "+380671112233", "birthdate": "29.07.1989", "niche": null, "lang": "uk"}, "subscription": {"plan": null, "active": false, "plan_name": "", "expires_at": null}, "usage": {"deep_used": 0, "short_used": 1, "deep_left": 1, "short_left": 2, "deep_limit": 1, "short_limit": 3}, "strategies_count": 2}, "fresh": {"profile_complete": true, "user": {"first_name": "\u041c\u0430\u0440\u0456\u044f", "last_name": "", "phone": "+380671112233", "birthdate": "25.08.2000", "niche": null, "lang": "uk"}, "subscription": {"plan": null, "active": false, "plan_name": "", "expires_at": null}, "usage": {"deep_used": 0, "short_used": 0, "deep_left": 1, "short_left": 3, "deep_limit": 1, "short_limit": 3}, "strategies_count": 0}, "active": {"profile_complete": true, "user": {"first_name": "\u041e\u043b\u0435\u043d\u0430", "last_name": "\u041a\u043e\u0432\u0430\u043b\u044c\u0447\u0443\u043a", "phone": "+380671112233", "birthdate": "29.07.1989", "niche": "\u041f\u0441\u0438\u0445\u043e\u043b\u043e\u0433\u0456\u044f \u0442\u0430 \u0442\u0435\u0440\u0430\u043f\u0456\u044f", "lang": "uk"}, "subscription": {"plan": "1month", "active": true, "plan_name": "1 \u043c\u0456\u0441\u044f\u0446\u044c", "expires_at": "2026-09-29T12:00:00"}, "usage": {"deep_used": 7, "short_used": 12, "deep_left": 23, "short_left": 78, "deep_limit": 30, "short_limit": 90}, "strategies_count": 7}, "year": {"profile_complete": true, "user": {"first_name": "\u041e\u043b\u0435\u043d\u0430", "last_name": "\u041a\u043e\u0432\u0430\u043b\u044c\u0447\u0443\u043a", "phone": "+380671112233", "birthdate": "29.07.1989", "niche": "\u041f\u0441\u0438\u0445\u043e\u043b\u043e\u0433\u0456\u044f \u0442\u0430 \u0442\u0435\u0440\u0430\u043f\u0456\u044f", "lang": "uk"}, "subscription": {"plan": "year", "active": true, "plan_name": "12 \u043c\u0456\u0441\u044f\u0446\u0456\u0432", "expires_at": "2027-08-29T12:00:00"}, "usage": {"deep_used": 12, "short_used": 30, "deep_left": 348, "short_left": 1050, "deep_limit": 360, "short_limit": 1080}, "strategies_count": 12}, "limit": {"profile_complete": true, "user": {"first_name": "\u041e\u043b\u0435\u043d\u0430", "last_name": "\u041a\u043e\u0432\u0430\u043b\u044c\u0447\u0443\u043a", "phone": "+380671112233", "birthdate": "29.07.1989", "niche": "\u041f\u0441\u0438\u0445\u043e\u043b\u043e\u0433\u0456\u044f \u0442\u0430 \u0442\u0435\u0440\u0430\u043f\u0456\u044f", "lang": "uk"}, "subscription": {"plan": "starter", "active": true, "plan_name": "\u0421\u0442\u0430\u0440\u0442\u0435\u0440", "expires_at": "2026-09-05T12:00:00"}, "usage": {"deep_used": 5, "short_used": 15, "deep_left": 0, "short_left": 0, "deep_limit": 5, "short_limit": 15}, "strategies_count": 5}}, "history": [{"id": 1, "module": "strategy", "niche": "\u041f\u0441\u0438\u0445\u043e\u043b\u043e\u0433\u0456\u044f \u0442\u0430 \u0442\u0435\u0440\u0430\u043f\u0456\u044f", "preview": "\u0421\u0442\u0440\u0430\u0442\u0435\u0433\u0456\u044f \u043c\u043e\u043d\u0435\u0442\u0438\u0437\u0430\u0446\u0456\u0457 \u0434\u043b\u044f \u043d\u0456\u0448\u0435\u0432\u043e\u0433\u043e \u0431\u043b\u043e\u0433\u0443 \u0437 \u0444\u043e\u043a\u0443\u0441\u043e\u043c \u043d\u0430 \u0433\u043b\u0438\u0431\u0438\u043d\u0456 \u0440\u043e\u0437\u0431\u043e\u0440\u0443", "created_at": "28.08.2026"}, {"id": 2, "module": "blog", "niche": "\u041f\u0441\u0438\u0445\u043e\u043b\u043e\u0433\u0456\u044f \u0442\u0430 \u0442\u0435\u0440\u0430\u043f\u0456\u044f", "preview": "\u0410\u043d\u0430\u043b\u0456\u0437 \u0431\u043b\u043e\u0433\u0443: \u043f\u043e\u0437\u0438\u0446\u0456\u044e\u0432\u0430\u043d\u043d\u044f \u0440\u043e\u0437\u043c\u0438\u0442\u0435, \u0448\u0430\u043f\u043a\u0430 \u043d\u0435 \u043f\u0440\u043e\u0434\u0430\u0454", "created_at": "21.08.2026"}, {"id": 3, "module": "content", "niche": "\u041f\u0441\u0438\u0445\u043e\u043b\u043e\u0433\u0456\u044f \u0442\u0430 \u0442\u0435\u0440\u0430\u043f\u0456\u044f", "preview": "\u041a\u043e\u043d\u0442\u0435\u043d\u0442-\u043c\u0438\u0441\u043b\u0435\u043d\u043d\u044f: 5 \u0440\u0443\u0431\u0440\u0438\u043a, \u044f\u043a\u0456 \u043d\u0435 \u0432\u0438\u0433\u043e\u0440\u0430\u044e\u0442\u044c", "created_at": "14.08.2026"}], "sampleMd": "# \u0421\u0442\u0440\u0430\u0442\u0435\u0433\u0456\u044f \u043c\u043e\u043d\u0435\u0442\u0438\u0437\u0430\u0446\u0456\u0457\n\n\u0422\u0432\u043e\u044f \u0441\u0438\u043b\u044c\u043d\u0430 \u0441\u0442\u043e\u0440\u043e\u043d\u0430 \u2014 **\u0433\u043b\u0438\u0431\u0438\u043d\u0430 \u0440\u043e\u0437\u0431\u043e\u0440\u0443**, \u0430 \u043d\u0435 \u043e\u0445\u043e\u043f\u043b\u0435\u043d\u043d\u044f. \u0426\u0435 \u0437\u043c\u0456\u043d\u044e\u0454 \u0432\u0441\u044e \u043b\u043e\u0433\u0456\u043a\u0443\n\u0432\u043e\u0440\u043e\u043d\u043a\u0438: \u0442\u043e\u0431\u0456 \u043d\u0435 \u043f\u043e\u0442\u0440\u0456\u0431\u0435\u043d \u0432\u0435\u043b\u0438\u043a\u0438\u0439 \u0431\u043b\u043e\u0433, \u043f\u043e\u0442\u0440\u0456\u0431\u0435\u043d *\u0442\u043e\u0447\u043d\u0438\u0439* \u0432\u0445\u0456\u0434.\n\n## \u0429\u043e \u043f\u0440\u043e\u0434\u0430\u0454\u043c\u043e \u0437\u0430\u0440\u0430\u0437\n\n| \u041f\u0440\u043e\u0434\u0443\u043a\u0442 | \u0426\u0456\u043d\u0430 | \u041a\u043e\u043c\u0443 |\n|---|---|---|\n| \u0420\u043e\u0437\u0431\u0456\u0440 60 \u0445\u0432 | $80 | \u0445\u043e\u043b\u043e\u0434\u043d\u0430 \u0430\u0443\u0434\u0438\u0442\u043e\u0440\u0456\u044f |\n| \u0421\u0443\u043f\u0440\u043e\u0432\u0456\u0434 1 \u043c\u0456\u0441 | $250 | \u043f\u0456\u0441\u043b\u044f \u0440\u043e\u0437\u0431\u043e\u0440\u0443 |\n| \u0413\u0440\u0443\u043f\u0430 8 \u0442\u0438\u0436\u043d\u0456\u0432 | $400 | \u0442\u0435\u043f\u043b\u0456 \u043f\u0456\u0434\u043f\u0438\u0441\u043d\u0438\u043a\u0438 |\n\n### \u041f\u0435\u0440\u0448\u0438\u0439 \u043a\u0440\u043e\u043a\n\n- \u041f\u0440\u0438\u0431\u0440\u0430\u0442\u0438 \u0437 \u0448\u0430\u043f\u043a\u0438 \u0441\u043b\u043e\u0432\u043e \u00ab\u043f\u0441\u0438\u0445\u043e\u043b\u043e\u0433\u00bb \u2014 \u0432\u043e\u043d\u043e \u043d\u0456\u0447\u043e\u0433\u043e \u043d\u0435 \u043f\u0440\u043e\u0434\u0430\u0454\n- \u0417\u0430\u043c\u0456\u043d\u0438\u0442\u0438 \u043d\u0430 \u043a\u043e\u043d\u043a\u0440\u0435\u0442\u043d\u0438\u0439 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u043a\u043b\u0456\u0454\u043d\u0442\u0430\n- \u0414\u043e\u0434\u0430\u0442\u0438 \u043e\u0434\u043d\u0435 \u0437\u0430\u043a\u0440\u0456\u043f\u043b\u0435\u043d\u0435 \u0441\u0442\u043e\u0440\u0456\u0441 \u0456\u0437 \u043a\u0435\u0439\u0441\u043e\u043c\n\n1. \u0422\u0438\u0436\u0434\u0435\u043d\u044c 1 \u2014 \u043f\u0435\u0440\u0435\u0443\u043f\u0430\u043a\u043e\u0432\u043a\u0430 \u043f\u0440\u043e\u0444\u0456\u043b\u044e\n2. \u0422\u0438\u0436\u0434\u0435\u043d\u044c 2 \u2014 3 \u043f\u043e\u0441\u0442\u0438-\u043a\u0435\u0439\u0441\u0438\n3. \u0422\u0438\u0436\u0434\u0435\u043d\u044c 3 \u2014 \u0432\u0456\u0434\u043a\u0440\u0438\u0442\u0442\u044f \u0437\u0430\u043f\u0438\u0441\u0443\n\n---\n\n## \u0427\u043e\u043c\u0443 \u0441\u0430\u043c\u0435 \u0442\u0430\u043a\n\n\u0410\u0443\u0434\u0438\u0442\u043e\u0440\u0456\u044f \u043a\u0443\u043f\u0443\u0454 \u043d\u0435 \u00ab\u0442\u0435\u0440\u0430\u043f\u0456\u044e\u00bb, \u0430 \u0432\u0438\u0445\u0456\u0434 \u0437\u0456 \u0441\u0442\u0430\u043d\u0443. \u0424\u043e\u0440\u043c\u0443\u043b\u044e\u0432\u0430\u043d\u043d\u044f `\u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442 \u0437\u0430 8 \u0442\u0438\u0436\u043d\u0456\u0432`\n\u043f\u0440\u0430\u0446\u044e\u0454 \u043a\u0440\u0430\u0449\u0435, \u043d\u0456\u0436 \u043f\u0435\u0440\u0435\u043b\u0456\u043a \u043c\u0435\u0442\u043e\u0434\u0438\u043a.\n\n> \u0413\u043e\u043b\u043e\u0432\u043d\u0435: \u043d\u0435 \u0437\u0431\u0456\u043b\u044c\u0448\u0443\u0439 \u043a\u0456\u043b\u044c\u043a\u0456\u0441\u0442\u044c \u043a\u043e\u043d\u0442\u0435\u043d\u0442\u0443, \u043f\u043e\u043a\u0438 \u043d\u0435 \u043f\u043e\u043b\u0430\u0433\u043e\u0434\u0438\u0448 \u0432\u0445\u0456\u0434.\n\n\u0414\u0435\u0442\u0430\u043b\u0456 \u2014 \u0443 [\u043c\u0435\u0442\u043e\u0434\u0438\u0447\u0446\u0456](https://example.com).\n", "followupMd": "\u041a\u043e\u0440\u043e\u0442\u043a\u043e: **\u043f\u043e\u0447\u0438\u043d\u0430\u0439 \u0437 \u0448\u0430\u043f\u043a\u0438**, \u0431\u043e \u0446\u0435 \u0454\u0434\u0438\u043d\u0435, \u0449\u043e \u0431\u0430\u0447\u0438\u0442\u044c \u0445\u043e\u043b\u043e\u0434\u043d\u0438\u0439 \u0442\u0440\u0430\u0444\u0456\u043a.\n\n- \u041f\u0435\u0440\u0448\u0438\u0439 \u0440\u044f\u0434\u043e\u043a \u2014 \u0440\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442, \u0430 \u043d\u0435 \u043f\u0440\u043e\u0444\u0435\u0441\u0456\u044f\n- \u0414\u0440\u0443\u0433\u0438\u0439 \u2014 \u0434\u043b\u044f \u043a\u043e\u0433\u043e \u0441\u0430\u043c\u0435\n- \u0422\u0440\u0435\u0442\u0456\u0439 \u2014 \u0437\u0430\u043a\u043b\u0438\u043a \u0437 \u043e\u0434\u043d\u0438\u043c \u0434\u0456\u0454\u0441\u043b\u043e\u0432\u043e\u043c\n\n\u0420\u0435\u0448\u0442\u0443 \u043c\u043e\u0436\u043d\u0430 \u043d\u0435 \u0447\u0456\u043f\u0430\u0442\u0438 \u0449\u0435 \u043f\u0430\u0440\u0443 \u0442\u0438\u0436\u043d\u0456\u0432.", "access": {"null": ["numerology", "strategy"], "0": ["numerology", "strategy"], "starter": ["numerology", "strategy", "warmups", "content", "blog", "mentor"], "1month": ["numerology", "strategy", "warmups", "content", "blog", "mentor"], "6months": ["numerology", "strategy", "warmups", "content", "blog", "mentor"], "year": ["numerology", "strategy", "warmups", "content", "blog", "mentor"]}, "quotaFree": ["numerology"], "moduleNames": {"strategy": "\u0417\u043d\u0430\u0439\u0442\u0438 \u0441\u0432\u043e\u044e \u043d\u0456\u0448\u0443 \u0442\u0430 \u043f\u0440\u043e\u0434\u0443\u043a\u0442", "warmups": "\u041f\u0456\u0434\u0433\u043e\u0442\u0443\u0432\u0430\u0442\u0438\u0441\u044f \u0434\u043e \u043f\u0440\u043e\u0434\u0430\u0436\u0443", "content": "\u0417\u043d\u0430\u0439\u0442\u0438 \u0442\u0435\u043c\u0438 \u0434\u043b\u044f \u043a\u043e\u043d\u0442\u0435\u043d\u0442\u0443", "blog": "\u041f\u043e\u043a\u0440\u0430\u0449\u0438\u0442\u0438 \u043c\u0456\u0439 \u0431\u043b\u043e\u0433", "mentor": "\u0420\u043e\u0437\u0456\u0431\u0440\u0430\u0442\u0438 \u043c\u043e\u044e \u0441\u0438\u0442\u0443\u0430\u0446\u0456\u044e", "numerology": "\u0420\u043e\u0437\u0440\u0430\u0445\u0443\u0432\u0430\u0442\u0438 \u041c\u0430\u0442\u0440\u0438\u0446\u044e \u0434\u043e\u043b\u0456"}};
+(function(){
+  var qs = new URLSearchParams(location.search), D = window.__DEMO__;
+  var st = D.scenarios[qs.get('state')] ? qs.get('state') : 'fresh', u = D.scenarios[st].user;
+  var _ev = {};
+  window.Telegram = { WebApp: {
+    initData: 'demo', initDataUnsafe: { user: { id: 424242, first_name: u.first_name || 'Гість',
+      last_name: u.last_name || '', username: 'demo', photo_url: null }, start_param: '' },
+    version: '6.9', ready: function(){}, expand: function(){},
+    openLink: function(l){ window.open(l, '_blank'); },
+    openTelegramLink: function(l){ window.open(l, '_blank'); },
+    close: function(){},
+    onEvent: function(n, cb){ (_ev[n] = _ev[n] || []).push(cb); },
+    offEvent: function(n, cb){ _ev[n] = (_ev[n] || []).filter(function(f){ return f !== cb; }); },
+    HapticFeedback: { impactOccurred: function(){}, notificationOccurred: function(){}, selectionChanged: function(){} }
+  }};
+})();
+</script>
+<script src="demo/shim.js"></script>
+<script src="static/app.js?v=66"></script>
+</body>
+</html>

@@ -1,0 +1,2454 @@
+/* ══════════════════════════════════════════════════════════════
+   LUSY — WebApp
+   Напрям: «тиха нічна глибина». Глибокий графіт з холодним
+   підтоном, один теплий піщаний акцент, майже без тіней.
+   Ієрархія тримається на світлоті поверхонь і на типографіці.
+   ══════════════════════════════════════════════════════════════ */
+
+/* ─── 1. ТОКЕНИ ──────────────────────────────────────────── */
+:root{
+	/* ── Дизайн-токени редизайну (еталон: tma-all-screens-helvetica.html) ──
+	   Значення живуть ТУТ і ніде більше. Старі імена нижче — аліаси на нові:
+	   ними набрано весь застосунок, і переписувати сотню правил заради імені
+	   означало б ризикувати пропустити одне. */
+	--font:'Helvetica Neue',Helvetica,Arial,sans-serif;
+	--track-heading:-0.01em;
+	--track-body:0;
+
+	--bg:#0D0D10;
+	--card:#17171B;
+	--line:rgba(255,255,255,0.09);
+	--text:#FFFFFF;
+	--text-2:#BFBCB6;
+	--accent:#F0CE7A;
+	--on-accent:#201706;
+	--icon-box:#222228;
+	--bar:#2A2A30;
+	--plan-top-bg:#1F1B14;
+	--plan-top-border:rgba(240,206,122,0.5);
+	--locked-title:#D9D4CA;
+	--locked-desc:#9E998F;
+	--locked-icon:#A09CB0;
+	--danger:#FF5A52;
+	--outline-btn-border:rgba(255,255,255,0.14);
+
+	--radius-card:20px;
+	--radius-card-sm:16px;
+	--radius-plan:18px;
+	--radius-tile:14px;
+	--radius-btn:14px;
+	--radius-icon:12px;
+
+	/* ── Аліаси: старі імена → нові токени ── */
+	--bg2:var(--card);          /* картка                         */
+	--bg3:var(--icon-box);      /* квадрат іконки, плитка, поле   */
+	--bg4:var(--bar);           /* ховер / прес                   */
+	--t1:var(--text);
+	--t2:var(--text-2);
+	/* Третього щабля в новій палітрі немає: другорядне — один колір. */
+	--t3:var(--text-2);
+	--gold:var(--accent);
+	--goldl:var(--accent);
+	--goldd:var(--accent);
+	--goldg:rgba(240,206,122,0.10);
+	--gold-line:rgba(240,206,122,0.30);
+	--line2:var(--outline-btn-border);
+
+	/* Сигнальний — лише помилки й «без доступу». */
+	--red:var(--danger);
+	--redd:rgba(255,90,82,0.45);
+	--redl:var(--danger);
+	--redg:rgba(255,90,82,0.12);
+
+	--r:var(--radius-card);
+	--rs:var(--radius-tile);
+
+	/* Один шрифт на весь застосунок. --fb лишається аліасом: ним набрано базу. */
+	--fb:var(--font);
+
+	/* Відступи сітки блоків Матриці з еталона — поза шкалою --s1..--s4,
+	   тому окремими токенами, а не літералами в правилах. */
+	--sp-num:7px;
+	--sp-tile:13px;
+	--sp-tile-gap:10px;
+	--sp-grp:22px;
+	--sp-q:16px;            /* вертикальні поля «тихої» панелі (дисклеймер) */
+
+	/* Рух */
+	--ease:cubic-bezier(.22,.61,.36,1);
+	--sheet:cubic-bezier(.32,.72,0,1);
+
+	/* Ритм і безпечні зони */
+	--pad:18px;
+
+	/* Шкала вертикального ритму. Чотири кроки, усі кратні 4, і саме стільки,
+	   скільки різних сенсів має відстань у цьому інтерфейсі:
+	     --s1 — два шматки ОДНОГО напису (число і його підпис);
+	     --s2 — сусідні елементи однієї сітки (чипи, комірки, вкладки);
+	     --s3 — сусідні рядки всередині однієї панелі;
+	     --s4 — сусідні панелі, тобто межа між смислами.
+	   --s4 навмисне дорівнює --pad: вертикальний проміжок між панелями
+	   збігається з горизонтальним відступом екрана, тож поля навколо контенту
+	   однакові з усіх боків і сітка читається як одне ціле.
+	   На 320 px вони розходяться: --pad стискається до 16, а --s4 лишається 20,
+	   і це свідомо. Горизонталь там справді дефіцитна — кожні 4 px йдуть у
+	   ширину таблиці й чіпів. Вертикаль не дефіцитна ніде: сторінка гортається,
+	   і стискати ритм заради місця, якого не бракує, означало б лише зробити
+	   вузький екран щільнішим саме там, де читати й так важче.
+	   До цієї шкали в модулі нумерології було сім різних значень (10, 11, 12,
+	   14, 16, 18, 20 px), підібраних на око по одному на клас. Різниця в 1–2 px
+	   не читається як задум — вона читається як недбалість, і саме через неї
+	   екрани модуля виглядали зібраними з чужих деталей. */
+	--s1:4px;
+	--s2:8px;
+	--s3:12px;
+	--s4:20px;
+	/* Безпечні зони. Значення тут — фолбек для звичайного браузера; усередині
+	   Telegram їх ПЕРЕЗАПИСУЄ JS (див. applyInsets в app.js), бо env() знає
+	   тільки про виріз пристрою й нічого не знає про кнопки «закрити» й «меню»
+	   самого Telegram, які в повноекранному режимі лежать ПОВЕРХ нашого
+	   контенту. Інлайновий стиль на :root б'є це правило, тому фолбек лишається
+	   безпечним: на старому клієнті все як було. */
+	--sat:env(safe-area-inset-top,0px);
+	--sab:env(safe-area-inset-bottom,0px);
+	--sal:env(safe-area-inset-left,0px);
+	--sar:env(safe-area-inset-right,0px);
+	--navh:75px;
+
+	/* Ширина «телефона». Верстка тут розрахована на одну колонку тексту: на
+	   1200 px вікна Telegram Desktop рядок стає нечитабельним, а нижня
+	   навігація роз'їжджається по краях монітора. 460 px — ширина великого
+	   телефона, тобто той самий макет, під який усе й малювалось. */
+	--appw:460px;
+
+	/* Бічне поле, що центрує контент, коли вікно ширше за --appw.
+	   max(0px, …) обов'язковий: на вузькому екрані (вікно вужче за --appw)
+	   вираз стає від'ємним, і замість «просто на всю ширину» контент вилазить
+	   за екран.
+	   Додаємо --sal/--sar — у ландшафтній орієнтації виріз пристрою забирає
+	   ширину саме з боків.
+
+	   Тут стояло 100vw, і це була помилка. Вьюпортні одиниці за специфікацією
+	   рахуються так, ніби смуги прокрутки немає, а на Windows вона класична й
+	   забирає ~15 px. Тобто 100vw виходило на 15 px більше за ширину, доступну
+	   контенту, --gut — на 7.5 px більше за потрібне, і рамка колонки
+	   (body::before/after, left/right:var(--gut)) стискалась на 7.5 px з
+	   кожного боку. Нижній лист .pws при цьому центрується не через --gut, а
+	   flex-ом усередині fixed-оверлея, тобто по РЕАЛЬНОМУ вьюпорту, — і
+	   вилазив за рамку рівно на цю різницю.
+	   100% дає ту саму базу, що й у решти: усі споживачі --gut — це
+	   горизонтальний padding або left/right у position:fixed, а там відсоток
+	   рахується від ширини блока-контейнера (для fixed — вьюпорт без смуги).
+	   Список споживачів зафіксовано тестом, бо в інших властивостях (translate,
+	   width) відсоток означав би вже розмір самого елемента. */
+	--gut:max(0px, calc((100% - var(--sal) - var(--sar) - var(--appw)) / 2));
+}
+
+/* ─── 2. БАЗА ────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+/* Обовʼязково. Авторський `display` (напр. .btn{display:flex}) б'є UA-правило
+   [hidden]{display:none}, і елемент з атрибутом hidden лишається видимим.
+   Через це дебажна кнопка «Тестова генерація» світилась користувачам. */
+[hidden]{display:none !important}
+
+html,body{
+	margin:0;padding:0;
+	background:var(--bg);
+	color:var(--t1);
+	font-family:var(--font);
+	font-weight:400;letter-spacing:var(--track-body);
+	font-size:15px;
+	line-height:1.55;
+	-webkit-font-smoothing:antialiased;
+	text-rendering:optimizeLegibility;
+	overscroll-behavior-y:none;
+}
+
+body{
+	min-height:100dvh;
+	/* Ледь помітне сяйво зверху — щоб полотно не було мертво-пласким */
+}
+
+img,svg{display:block;max-width:100%}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+a{color:var(--gold);text-decoration:none}
+p{margin:0 0 12px}
+h1,h2,h3{margin:0;font-weight:400}
+strong{font-weight:600;color:var(--t1)}
+::selection{background:var(--goldg);color:var(--t1)}
+
+/* Скролбар ховаємо — це мобільний застосунок */
+::-webkit-scrollbar{width:0;height:0}
+
+/* ─── 3. АНІМАЦІЇ ────────────────────────────────────────── */
+/* Тільки transform + opacity. Жодного layout-thrash. */
+@keyframes scrIn{
+	from{opacity:0;transform:translate3d(0,10px,0)}
+	to  {opacity:1;transform:none}
+}
+@keyframes riseIn{
+	from{opacity:0;transform:translate3d(0,12px,0)}
+	to  {opacity:1;transform:none}
+}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes sheetUp{
+	from{transform:translate3d(0,100%,0)}
+	to  {transform:none}
+}
+@keyframes toastIn{
+	from{opacity:0;transform:translate3d(0,10px,0)}
+	to  {opacity:1;transform:none}
+}
+@keyframes dotPulse{
+	0%,60%,100%{opacity:.25;transform:scale(.82)}
+	30%        {opacity:1;  transform:scale(1)}
+}
+@keyframes okPop{
+	0%  {opacity:0;transform:scale(.7)}
+	60% {opacity:1;transform:scale(1.06)}
+	100%{opacity:1;transform:scale(1)}
+}
+@keyframes breathe{
+	0%,100%{opacity:.55}
+	50%    {opacity:1}
+}
+
+/* ─── 4. ЕКРАНИ ──────────────────────────────────────────── */
+.scr{display:none}
+.scr.on{
+	display:block;
+	/* Бічне поле = центрувальний відступ + звичайний відступ екрана. Саме
+	   padding, а не max-width+margin: фон (радіальне сяйво на body) має
+	   лишатись на всю ширину вікна, інакше на ПК з боків зʼявляться дві мертві
+	   смуги іншого кольору. */
+	padding:calc(var(--sat) + 20px)
+	        calc(var(--gut) + var(--pad))
+	        calc(var(--sab) + var(--navh) + 32px);
+	/* ВАЖЛИВО: `backwards`, а не `both` — і так скрізь, де в кейфреймах є transform.
+	   При `both` браузер після кінця анімації тримає інтерпольоване значення
+	   transform, тобто identity-матрицю, а не ключове слово `none`. Будь-яке
+	   значення крім `none` робить елемент containing block для position:fixed
+	   нащадків — через це .fu-bar у #followup липла до низу екрана, а не вьюпорта.
+	   `backwards` заповнює лише період до старту (потрібно для stagger-затримок)
+	   і нічого не тримає після кінця. */
+	animation:scrIn 280ms var(--ease) backwards;
+}
+
+/* Сплеш і онбординг живуть на весь екран */
+#splash.on,#ob.on{
+	display:flex;
+	flex-direction:column;
+	min-height:100dvh;
+}
+#mflow.on,#mod-access.on,#strategy-detail.on,#my-strategies.on{
+	padding-bottom:calc(var(--sab) + 40px);
+}
+#followup.on{padding-bottom:calc(var(--sab) + 84px)}
+
+/* ─── 5. СПЛЕШ ───────────────────────────────────────────── */
+#splash{
+	position:fixed;inset:0;z-index:60;
+	align-items:center;justify-content:center;
+	background:var(--bg);
+}
+#splash.on{padding:0}
+.sp-name{
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:32px;letter-spacing:.24em;
+	color:var(--t1);
+}
+.sp-sub{
+	margin-top:10px;
+	font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+	color:var(--t3);text-indent:.28em;
+	/* З'являється знизу після того, як слово дописано (~2.4 с). */
+	animation:riseIn 700ms var(--ease) 2.3s backwards;
+}
+
+/* ─── 6. ТИПОГРАФІЧНІ ПРИМІТИВИ ──────────────────────────── */
+.eyebrow{
+	font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+	color:var(--t3);
+}
+.display{
+	margin-top:16px;
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);
+	font-size:40px;line-height:1.1;color:var(--t1);
+}
+.display em{font-style:normal;color:var(--gold)}
+.lede{
+	margin-top:16px;max-width:34ch;
+	font-size:15px;line-height:1.65;color:var(--t2);
+}
+.sect-lbl{
+	margin:28px 0 14px;
+	font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+	color:var(--t2);
+}
+.tag{
+	display:inline-block;
+	padding:6px 12px;border:1px solid var(--line);border-radius:100px;
+	font-size:12px;color:var(--t2);
+}
+.h12{height:12px}
+.h16{height:16px}
+
+/* ─── 7. КНОПКИ ──────────────────────────────────────────── */
+.btn{
+	display:flex;align-items:center;justify-content:center;
+	width:100%;min-height:41px;padding:9px 18px;
+	border-radius:var(--radius-btn);
+	font-size:15px;font-weight:400;letter-spacing:0;line-height:1.3;
+	text-align:center;
+	transition:transform 120ms var(--ease),background-color 180ms var(--ease),border-color 180ms var(--ease),opacity 180ms var(--ease);
+	will-change:transform;
+}
+.btn:active{transform:scale(.97)}
+.btn[disabled]{opacity:.4;pointer-events:none}
+
+/* Primary — єдине суцільне заливання акцентом на весь застосунок */
+.btn.bp{background:var(--accent);color:var(--on-accent);font-weight:500}
+.btn.bp:active{opacity:.85}
+
+/* Ghost — рамка */
+.btn.bg{background:transparent;border:1px solid var(--outline-btn-border);color:var(--text)}
+.btn.bg:active{background:var(--bg3)}
+
+/* Subtle — тихий, для «Закрити» */
+/* --t3 давав контраст 3.86:1 — замало для інтерактивного елемента (треба 4.5). */
+.btn.bs{background:transparent;color:var(--t2)}
+.btn.bs:active{color:var(--t1)}
+
+/* Small */
+.btn.bsm{min-height:41px;padding:9px 18px;font-size:15px}
+
+.bpair{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.bpair .btn{margin-top:0;min-width:0}
+/* .b12 — вужча ліва кнопка (назад/скасувати) і ширша права (дія). */
+.bpair.b12{grid-template-columns:1fr 2fr}
+/* Мітки тут довгі («Мої стратегії», «Потрібен доступ»), а нерівні колонки
+   ламали їх на три рядки. Дві рівні колонки тримають обидві кнопки в один-два
+   рядки незалежно від довжини тексту. */
+#mod-access .bpair{display:grid;grid-template-columns:1fr 1fr;align-items:stretch}
+
+/* Кнопка «назад» і шапка внутрішнього екрана */
+.flhdr{
+	display:flex;align-items:center;gap:12px;
+	margin-bottom:24px;min-height:44px;
+}
+.backbtn{
+	flex:none;
+	width:44px;height:44px;margin-left:-10px;
+	display:flex;align-items:center;justify-content:center;
+	border-radius:50%;
+	font-size:20px;color:var(--t2);
+	transition:transform 120ms var(--ease),background-color 180ms var(--ease);
+}
+.backbtn:active{transform:scale(.9);background:var(--bg3)}
+.fltitle{
+	display:flex;align-items:center;
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:26px;color:var(--t1);
+	line-height:1.2;
+}
+
+/* ─── 8. ПОЛЯ ВВОДУ ──────────────────────────────────────── */
+.igrp{margin-top:20px}
+.ilbl{
+	display:block;margin-bottom:8px;
+	font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+	color:var(--t3);
+}
+.inp{
+	display:block;width:100%;min-height:52px;
+	padding:14px 16px;
+	background:var(--bg3);
+	border:1px solid transparent;
+	border-radius:var(--rs);
+	color:var(--t1);font-size:16px; /* 16px = iOS не зумить при фокусі */
+	outline:none;resize:none;
+	transition:border-color 180ms var(--ease),background-color 180ms var(--ease);
+}
+.inp::placeholder{color:var(--t3)}
+.inp:focus{border-color:var(--gold-line);background:var(--bg4)}
+textarea.inp{line-height:1.6}
+
+.ierr{
+	max-height:0;opacity:0;overflow:hidden;
+	font-size:12px;color:var(--redl);
+	transition:max-height 200ms var(--ease),opacity 200ms var(--ease),margin-top 200ms var(--ease);
+}
+.ierr.show{max-height:48px;opacity:1;margin-top:8px}
+
+/* ─── 9. ОНБОРДИНГ ───────────────────────────────────────── */
+/* Горизонтальне поле мусить лишатись таким самим, як у .scr.on: скорочена
+   властивість padding переписує всі чотири боки, тож var(--pad) без --gut тихо
+   знімає обмеження ширини — і саме цей екран на ПК відкривався розтягнутим на
+   весь монітор. Тут потрібна лише інша ВЕРТИКАЛЬ, горизонталь чіпати не можна. */
+#ob.on{
+	justify-content:space-between;
+	padding:calc(var(--sat) + 48px) calc(var(--gut) + var(--pad)) calc(var(--sab) + 24px);
+}
+.ob-wrap{padding-top:8px}
+.ob-foot{display:flex;flex-direction:column;gap:10px;padding-top:24px}
+
+/* ─── 10. АВТОРИЗАЦІЯ ────────────────────────────────────── */
+/* Те саме, що в #ob.on: своя вертикаль, але горизонталь — спільна з .scr.on. */
+
+.adots{display:flex;gap:6px;margin-bottom:40px}
+
+.abody{flex:1;display:flex;flex-direction:column;justify-content:center;padding-bottom:12%}
+.atitle{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:30px;line-height:1.2;color:var(--t1)}
+.asub{
+	margin-top:12px;max-width:32ch;
+	font-size:14px;line-height:1.65;color:var(--t2);
+}
+#s0 .btn{margin-top:32px}
+
+/* ─── 11. ГОЛОВНА ────────────────────────────────────────── */
+/* Патерн А — заголовок екрана верхнього рівня (home/tar/prof/aut).
+   Без кнопки «назад»: ці екрани доступні з нижньої навігації. */
+.scr-hdr{
+	display:flex;align-items:flex-start;gap:14px;
+	margin-bottom:28px;
+}
+.scr-hdr-txt{flex:1;min-width:0}
+.scr-title{
+	margin:0;
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);
+	font-size:34px;line-height:1.15;color:var(--t1);
+}
+/* Привітання на головній — на 2px менше за заголовки розділів (еталон). */
+#home .scr-title{font-size:32px;line-height:1.2}
+.scr-sub{
+	margin:6px 0 0;max-width:36ch;
+	font-size:13.5px;line-height:1.5;color:var(--t2);
+}
+.scr-sub-dim{color:var(--t3)}
+.scr-sub-dim:not(:empty)::before{content:' · '}
+.scr-hdr-slot{
+	flex:none;display:flex;align-items:center;gap:10px;
+	padding-top:4px;
+}
+
+.avring{
+	flex:none;width:48px;height:48px;border-radius:50%;
+	padding:1px;border:1px solid var(--gold-line);
+}
+.avin{
+	width:100%;height:100%;border-radius:50%;
+	background:var(--bg3) center/cover no-repeat;
+	display:flex;align-items:center;justify-content:center;
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:18px;color:var(--gold);
+}
+/* Фото, яке підставляє setAv(): раніше ці правила жили в JS через cssText. */
+.avin-img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+
+/* Великий аватар на екрані «Про автора». */
+.avring-lg{width:132px;height:132px;padding:3px}
+.avring-lg .avin{
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:44px;letter-spacing:.02em;
+}
+
+
+.sbadge{
+	flex:none;
+	padding:5px 10px;border-radius:100px;
+	border:1px solid var(--line2);
+	font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+	color:var(--t3);
+}
+
+/* Картка лімітів */
+.hcard{
+	padding:19px;border-radius:var(--radius-card);
+	background:var(--bg2);border:1px solid var(--line);
+	animation:riseIn 400ms var(--ease) 40ms backwards;
+}
+.hlabel{
+	font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+	color:var(--accent);
+}
+.htitle{margin-top:6px;font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:28px;line-height:1.2;color:var(--t1)}
+
+.ubars{margin-top:20px;display:flex;flex-direction:column;gap:14px}
+.urow{display:flex;align-items:center;gap:12px}
+.ulbl{flex:none;width:100px;font-size:12.5px;color:var(--t2)}
+.ubar{flex:1;height:3px;border-radius:2px;background:var(--bar);overflow:hidden}
+.ufill{
+	display:block;height:100%;width:0;
+	background:var(--gold);border-radius:3px;
+	/* Плавна інтерполяція прогресу */
+	transition:width 400ms var(--ease);
+}
+.ucnt{
+	flex:none;min-width:38px;text-align:right;
+	font-size:12.5px;color:var(--t2);font-variant-numeric:tabular-nums;
+}
+
+/* Єдина точка входу в доступ на головній — кнопка всередині .hcard.
+   Окремого банера-апселу більше немає: він дублював цю саму дію. */
+.hcard-hint{
+	margin:10px 0 0;
+	font-size:11.5px;line-height:1.5;color:var(--t2);text-align:center;
+}
+
+/* Сітка модулів */
+.mgrid{display:flex;flex-direction:column;gap:8px}
+.mc{
+	position:relative;
+	display:grid;
+	/* Третя колонка — під бейдж PRO / «Безкоштовно» і замок. Саме колонка, а
+	   не абсолютний кут: у кута немає ширини, тож довга назва модуля заповзала
+	   б під бейдж — і побачили б це лише тією мовою, де назва довша. */
+	grid-template-columns:auto 1fr auto;
+	/* Бейдж ділить ширину лише з назвою: опис іде на всю ширину під нею, інакше
+	   довгий опис ("Дізнайся про свій характер…") стискався в 4 рядки. */
+	grid-template-areas:'ico name tag' 'ico desc desc';
+	column-gap:24px;row-gap:3px;
+	width:100%;padding:15px 15px 15px 17px;
+	border-radius:var(--radius-card);
+	background:var(--card);border:1px solid var(--line);
+	text-align:left;
+	transition:transform 120ms var(--ease),border-color 200ms var(--ease),opacity 200ms var(--ease);
+	animation:riseIn 380ms var(--ease) backwards;
+}
+/* Сходинка появи — 34ms, рівно 6 елементів */
+.mc:nth-child(1){animation-delay:0ms}
+.mc:nth-child(2){animation-delay:34ms}
+.mc:nth-child(3){animation-delay:68ms}
+.mc:nth-child(4){animation-delay:102ms}
+.mc:nth-child(5){animation-delay:136ms}
+.mc:nth-child(n+6){animation-delay:170ms}
+.mc:active{transform:scale(.985)}
+
+.mico{
+	grid-area:ico;align-self:center;
+	width:40px;height:40px;border-radius:var(--radius-icon);
+	display:flex;align-items:center;justify-content:center;
+	background:var(--icon-box);
+	font-size:21px;line-height:1;color:var(--accent);
+}
+/* Ромб Матриці — фігура 14×14 (еталон), а не гліф «◆». */
+.mico .rh{display:block;width:14px;height:14px;background:var(--accent);border-radius:1px;transform:rotate(45deg)}
+.mname{grid-area:name;font-size:15px;line-height:21px;color:var(--text)}
+.mdesc{grid-area:desc;font-size:12.5px;line-height:17px;color:var(--text-2)}
+
+/* Кут плитки: замок + бейдж в одному ряду.
+   align-self:start — бейдж тримається верхнього краю, як і був абсолютний
+   кут, але тепер має реальну ширину в сітці. */
+.mc-corner{
+	grid-area:tag;align-self:start;
+	display:flex;align-items:center;gap:10px;
+	pointer-events:none;
+}
+
+/* Бейдж бачить лише той, у кого доступу ще немає: після оплати цінник на
+   плитці зайвий, а п'ять «PRO» над відкритими модулями читаються як «щось
+   не працює». Ховає його applyAccessChrome() в app.js через [hidden], тому
+   тут немає ні правила видимості, ні класу-модифікатора — інакше вимикачів
+   стало б два.
+   Третя колонка .mc при цьому просто схлопується (auto), і довга назва
+   модуля отримує вивільнену ширину. */
+.mtag{
+	display:inline-flex;align-items:center;height:20px;
+	font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+	padding:0 9px;border-radius:10px;
+	white-space:nowrap;
+}
+/* PRO — приглушений: він є на п'яти плитках із шести, і акцентним кольором
+   перетворив би головний екран на суцільну золоту смугу. */
+.mtag-pro{
+	color:var(--locked-icon);
+	background:transparent;
+	border:1px solid var(--line);
+}
+/* «Безкоштовно» — єдиний бейдж, який щось ПРОПОНУЄ, і єдиний акцентний.
+   Акцент у палітрі один (--gold), зеленого «успіху» тут немає навмисно:
+   заводити другий колір заради одного слова — це заводити другу мову
+   інтерфейсу. */
+.mtag-free{
+	color:var(--accent);
+	background:rgba(240,206,122,0.15);
+	border:0;
+}
+
+/* Замок з'являється лише коли app.js додає .locked */
+.mlock-ico{
+	width:13px;height:13px;flex:none;
+	opacity:0;pointer-events:none;
+	transition:opacity 200ms var(--ease);
+}
+/* Безкоштовний модуль не блокується ніколи — резервувати під замок 16px
+   поруч із «Безкоштовно» немає за що. */
+.mc-free .mlock-ico{display:none}
+.mlock-ico svg{
+	width:100%;height:100%;
+	fill:none;stroke:var(--locked-icon);stroke-width:1.8;
+	stroke-linecap:round;stroke-linejoin:round;
+}
+/* Заблокована (PRO) плитка: без прозорості на всю картку — лише кольори
+   (еталон), інакше бейдж PRO й замок теж вицвітали б до нечитабельного. */
+.mc.locked{background:transparent}
+.mc.locked .mlock-ico,
+.mc.mc-trial .mlock-ico{opacity:1}
+.mc.locked .mico{color:var(--locked-icon)}
+.mc.locked .mname{color:var(--locked-title)}
+.mc.locked .mdesc{color:var(--locked-desc)}
+
+/* Тут був бейдж «скоро» (.ntag) і третій рядок сітки плитки (.mc.mnum) —
+   вони обслуговували єдиний модуль-заглушку, нумерологію. Модуль
+   реалізований, прапорця soon не лишилось у жодного модуля, тож правила
+   пішли разом із ним: мертвий CSS змушує наступного шукати, де він
+   застосовується. */
+
+/* ─── 12. ТАРИФИ ─────────────────────────────────────────── */
+
+#tar-back-wrap{margin-bottom:8px}
+
+/* Плашка «доступ уже активний».
+   Золоте тло й золота лінія — той самий акцент, що в .tcard.tpop: плашка має
+   читатись як стан цього екрана, а не як ще одна пропозиція. Але БЕЗ ціни, без
+   стрілки й без :active — вона свідомо не виглядає натискною, інакше стала б
+   шостою «карткою тарифу» просто іншого кольору.
+   Той самий riseIn із затримкою 0, що й у першої картки: плашка зʼявляється
+   разом із нею, а не наздоганяє список окремим рухом. */
+.tar-active{
+	padding:16px 18px;margin-bottom:14px;
+	border-radius:var(--r);
+	background:var(--goldg);border:1px solid var(--gold-line);
+	animation:riseIn 400ms var(--ease) backwards;
+}
+.tar-active-top{display:flex;align-items:center;gap:8px}
+/* Крапка-індикатор: єдиний елемент, який читається як «зараз, у цю мить»,
+   ще до того, як людина прочитає слова. */
+.tar-active-dot{
+	flex:none;width:7px;height:7px;border-radius:50%;
+	background:var(--gold);box-shadow:0 0 0 3px rgba(240,206,122,0.16);
+}
+.tar-active-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.tar-active-plan{margin-top:10px;font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:20px;color:var(--t1);line-height:1.25}
+.tar-active-note{margin-top:8px;font-size:12.5px;line-height:1.6;color:var(--t2)}
+
+/* ── Що дає доступ ──
+   Блок навмисно не має ні тла, ні рамки: .tar-active і .tcard — це «стан» і
+   «пропозиція», обидва в коробках. Якби перелік теж став коробкою, екран
+   перетворився б на три однакові прямокутники, з яких лише один натискний,
+   і людині довелося б тикати, щоб зрозуміти який. Тут — просто текст над
+   картками, той самий рівень, що заголовок екрана. */
+/* Підзаголовок тарифів крупніший за інші (еталон). */
+#tar .scr-hdr{margin-bottom:0}
+#tar .scr-sub{font-size:14.5px}
+/* «Матриця долі безкоштовна…» — одразу під підзаголовком, без лівої риски. */
+.tar-free{margin:14px 0 18px;font-size:14.5px;line-height:1.5;color:var(--text)}
+.tar-free b{font-weight:400;color:var(--accent)}
+
+/* Акордеон «Усі бізнес-модулі в кожному тарифі» — рідний <details>, без JS.
+   За замовчуванням згорнутий. */
+.tar-acc{
+	background:var(--card);border:1px solid var(--line);
+	border-radius:var(--radius-card-sm);
+}
+.tar-acc summary{
+	list-style:none;display:flex;align-items:center;gap:10px;
+	padding:14px 15px;font-size:13.5px;color:var(--text);cursor:pointer;
+}
+.tar-acc summary::-webkit-details-marker{display:none}
+.tar-acc-ok{flex:none;width:18px;height:18px;color:var(--accent)}
+.tar-acc-ch{flex:none;width:18px;height:18px;margin-left:auto;color:var(--text-2);transition:transform 200ms var(--ease)}
+.tar-acc[open] .tar-acc-ch{transform:rotate(180deg)}
+.tar-acc svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tar-acc-list{padding:0 15px 12px 43px}
+.tar-acc-i{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:13.5px;color:var(--text)}
+.tar-acc-i svg{flex:none;width:15px;height:15px;margin-left:-28px;color:var(--accent)}
+/* Модуль, з якого людина прийшла на пейвол, — акцентом. */
+.tar-acc-i.cur{color:var(--accent)}
+
+/* Картки періодів: назва й підпис зліва, ціна й шеврон справа. */
+#tcards,.mpw-tcards{margin-top:22px}
+.tcard{
+	position:relative;
+	display:flex;align-items:center;gap:12px;
+	width:100%;padding:17px 16px 17px 18px;margin-bottom:16px;
+	border-radius:var(--radius-plan);
+	background:var(--card);border:1px solid var(--line);
+	text-align:left;
+	transition:transform 120ms var(--ease),border-color 200ms var(--ease);
+	animation:riseIn 400ms var(--ease) backwards;
+}
+.tcard:nth-of-type(1){animation-delay:0ms}
+.tcard:nth-of-type(2){animation-delay:34ms}
+.tcard:nth-of-type(3){animation-delay:68ms}
+.tcard:nth-of-type(n+4){animation-delay:102ms}
+.tcard:active{transform:scale(.985)}
+/* Виділена картка — 1 місяць (її беруть найчастіше). */
+.tcard.tpop{background:var(--plan-top-bg);border-color:var(--plan-top-border)}
+
+/* Бейдж економії — зверху зліва, виступає над рамкою. */
+.tbadge{
+	position:absolute;top:-9px;left:18px;
+	padding:3px 9px;border-radius:9px;
+	font-size:9.5px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+	line-height:1.3;
+}
+.tbadge.tbr{background:var(--accent);color:var(--on-accent)}
+
+.tcard-name{flex:1;min-width:0;display:flex;flex-direction:column}
+.tname{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:22px;color:var(--text);line-height:1.2}
+.tsub{margin-top:3px;font-size:12.5px;line-height:1.4;color:var(--text-2)}
+.tprice{
+	flex:none;
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);
+	font-size:22px;color:var(--text);line-height:1.2;
+	font-variant-numeric:tabular-nums;white-space:nowrap;
+}
+.tgo{flex:none;width:18px;height:18px;color:var(--text-2)}
+.tgo svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ─── 13. ПРОФІЛЬ ────────────────────────────────────────── */
+
+
+.niche-block{margin-bottom:11px}
+.niche-row{
+	display:flex;align-items:center;justify-content:space-between;gap:13px;
+	width:100%;padding:16px;
+	border-radius:var(--radius-card);
+	background:var(--bg2);border:1px solid var(--line);
+	text-align:left;
+	transition:transform 120ms var(--ease),border-color 200ms var(--ease);
+}
+.niche-row:active{transform:scale(.985)}
+.niche-row-left{display:flex;align-items:center;gap:13px;min-width:0}
+.niche-row-ico{
+	flex:none;width:40px;height:40px;border-radius:var(--radius-icon);
+	display:flex;align-items:center;justify-content:center;
+	background:var(--icon-box);font-size:22px;line-height:1;color:var(--text-2);
+}
+/* Ромб мови — заповнений і на 2px менший (еталон). */
+#prof-lang-block .niche-row-ico{font-size:20px}
+.niche-row-info{min-width:0}
+.niche-row-title{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--text-2)}
+.niche-row-val{
+	margin-top:3px;font-size:15px;color:var(--text);
+	white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.niche-row-val.empty{color:var(--t3);font-style:italic}
+.niche-row-arrow{flex:none;color:var(--text-2);font-size:15px;line-height:1}
+.niche-row-arrow svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8}
+
+/* Видимістю обох блоків керує setVis() через атрибут hidden.
+   Класи .prof-demo/.prof-active тут НЕ ховають нічого: раніше
+   .prof-active{display:none} перебивало removeAttribute('hidden'),
+   і в стані з активним доступом профіль лишався порожнім.
+   Стан за замовчуванням задано атрибутом hidden у розмітці. */
+
+.subcard,.sub-info-card{
+	padding:20px 19px;margin-bottom:12px;
+	border-radius:var(--radius-card);
+	background:var(--bg2);border:1px solid var(--line);
+	animation:riseIn 400ms var(--ease) 40ms backwards;
+}
+.subhd{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.subtier{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:26px;line-height:1.2;color:var(--t1)}
+.subst{
+	padding:4px 10px;border-radius:100px;
+	font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+	border:1px solid var(--line2);color:var(--t3);
+}
+/* «Без доступу» — червоний текст і рамка, без заливки (еталон). */
+.subst.expired{
+	padding:6px 13px;border-radius:14px;
+	font-weight:500;letter-spacing:.1em;
+	border-color:var(--danger);background:transparent;color:var(--danger);
+}
+.subexp{margin-top:12px;font-size:13.5px;line-height:1.5;color:var(--t2)}
+
+.statrow{display:flex;gap:10px;margin:18px 0}
+.sbox{flex:1;min-width:0;padding:12px 4px;border-radius:var(--radius-tile);background:var(--icon-box);text-align:center}
+.snum{
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:24px;color:var(--t1);line-height:1.1;
+	font-variant-numeric:tabular-nums;
+}
+.slbl{margin-top:4px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--t2)}
+
+.si-plan{margin-bottom:14px;font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:24px;color:var(--gold)}
+.si-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0}
+.si-label{font-size:13px;color:var(--t3)}
+.si-val{font-size:13px;color:var(--t1)}
+.si-divider{height:1px;background:var(--line);margin:14px 0}
+.si-usage-title{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--t3)}
+
+.strat-count{margin-left:6px;font-size:13px;color:var(--t2)}
+#btn-my-strategies-demo{margin-top:12px}
+.renew-wait{
+	margin-top:10px;padding:12px 14px;
+	border-radius:var(--rs);background:var(--bg3);
+	font-size:12.5px;line-height:1.6;color:var(--t2);text-align:center;
+	animation:fadeIn 240ms var(--ease) both;
+}
+
+/* ─── 14. ПРО АВТОРА ─────────────────────────────────────── */
+/* Фото автора в проєкті НЕМА. Поки це заглушка — вона мусить читатись як
+   аватар, а не як зламаний hero: 4/5 на всю ширину давало 520px порожнечі.
+   Якщо покласти реальне фото — зроби тут .au-photo-wrap img з aspect-ratio:4/5. */
+/* .au-hero — аватар + імʼя + роль одним блоком. Імʼя тут одне,
+   у заголовку екрана його немає (там назва розділу). */
+.au-hero{
+	display:flex;flex-direction:column;align-items:center;
+	text-align:center;padding:4px 0 24px;
+}
+.au-hero .avring{margin-bottom:18px}
+
+/* Фото автора. Розмір — суть правки: 132-піксельний кружечок з ініціалами не
+   виконував роботи, заради якої цей екран існує (людина вирішує, чи брати
+   розбір, дивлячись саме на автора), тож кадр займає всю ширину колонки.
+   aspect-ratio, а не фіксована висота: файл квадратний, і блок тримає розмір
+   ще до завантаження — інакше поява картинки штовхнула б увесь текст униз.
+   Волосяна золота рамка й те саме скруглення, що в карток, — щоб знімок
+   читався як частина інтерфейсу, а не як вставлена ззовні картинка. */
+.au-photo{
+	width:100%;aspect-ratio:1;margin-bottom:20px;
+	border-radius:var(--r);overflow:hidden;
+	border:1px solid var(--gold-line);background:var(--bg3);
+}
+.au-photo img{display:block;width:100%;height:100%;object-fit:cover}
+
+/* Аватар з ініціалами лишається як запасний варіант: показується лише тоді,
+   коли фото не завантажилось (клас no-photo вішає onerror у розмітці).
+   Без цього під фото завжди висів би ще й кружечок. */
+.au-hero .avring-lg{display:none}
+.au-hero.no-photo .au-photo{display:none}
+.au-hero.no-photo .avring-lg{display:block}
+.au-name{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:28px;color:var(--t1);line-height:1.15}
+.au-role{margin-top:8px;font-size:13px;line-height:1.5;color:var(--text-2)}
+
+.au-quote{
+	margin:0 0 24px;padding:0 0 0 18px;
+	border-left:1px solid var(--gold-line);
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:20px;line-height:1.45;
+	color:var(--text);
+}
+
+.austats{display:flex;gap:10px;margin-bottom:20px}
+.asbox{
+	flex:1;min-width:0;padding:14px 6px;border-radius:var(--radius-tile);
+	background:var(--card);border:1px solid var(--line);text-align:center;
+}
+.asnum{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:24px;color:var(--gold);line-height:1.1}
+.aslbl{margin-top:6px;font-size:11px;line-height:1.35;color:var(--text-2)}
+
+.au-card{
+	padding:20px;margin-bottom:16px;
+	border-radius:var(--r);
+	background:var(--bg2);border:1px solid var(--line);
+}
+.au-card-title{
+	margin-bottom:12px;
+	font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
+}
+.au-card p{max-width:60ch;font-size:14px;line-height:1.65;color:var(--text-2)}
+.au-card p strong{font-weight:500;color:var(--text)}
+.au-actions{display:flex;flex-direction:column;gap:12px}
+.au-card p:last-child{margin-bottom:0}
+
+/* ─── 15. ДОСТУП ДО МОДУЛЯ ───────────────────────────────── */
+.mod-access-card{
+	padding:20px;margin-bottom:12px;
+	border-radius:var(--r);
+	background:var(--bg2);border:1px solid var(--line);
+	animation:riseIn 380ms var(--ease) backwards;
+}
+.mod-access-title{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:22px;color:var(--t1);line-height:1.25}
+.mod-access-sub{
+	margin:10px 0 18px;max-width:46ch;
+	font-size:13.5px;line-height:1.65;color:var(--t2);
+}
+.mod-access-card.blocked .mod-access-title{color:var(--t2)}
+.mod-access-hist-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+/* Пейвол модуля (modPaywallHtml) — ті самі блоки, що на вкладці «Тарифи»:
+   перелік модулів, примітка про безкоштовну нумерологію, картки періодів.
+   Під карткою-замком немає кнопки, тож нижній відступ підпису знімаємо.
+   Модуль, з якого людина прийшла, підсвічено в переліку — щоб було видно,
+   що він теж там, а не продається окремо. */
+.mod-access-card.blocked .mod-access-sub:last-child{margin-bottom:0}
+.mpw-incl{margin-top:22px}
+
+/* ─── 16. ПОТІК МОДУЛЯ ───────────────────────────────────── */
+/* Прогрес: пройдені — крапки, поточний — видовжений */
+.flprog{display:flex;align-items:center;gap:5px;margin-bottom:28px}
+.fp{
+	width:5px;height:5px;border-radius:100px;
+	background:var(--line2);
+	transition:width 320ms var(--ease),background-color 320ms var(--ease);
+}
+.fp.done{background:var(--goldd)}
+.fp.cur{background:var(--gold)}
+.fp.wide{width:26px}
+
+.qcard{
+	padding:24px 20px;
+	border-radius:var(--r);
+	background:var(--bg2);border:1px solid var(--line);
+	animation:scrIn 300ms var(--ease) backwards;
+}
+/* Без uppercase: у «Питання 1 з 8» велика «З» неотличима від цифри 3 */
+.qnum{font-size:11.5px;letter-spacing:.1em;color:var(--goldd)}
+.qtxt{margin-top:10px;font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:25px;line-height:1.3;color:var(--t1)}
+.qsub{margin-top:10px;max-width:44ch;font-size:13px;line-height:1.6;color:var(--t3)}
+
+.chips,.chips-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.chip{
+	display:inline-flex;align-items:center;
+	padding:11px 16px;min-height:44px;
+	border-radius:100px;
+	background:var(--bg3);border:1px solid transparent;
+	font-size:13.5px;color:var(--t2);
+	transition:transform 120ms var(--ease),background-color 180ms var(--ease),color 180ms var(--ease),border-color 180ms var(--ease);
+	animation:riseIn 320ms var(--ease) backwards;
+}
+.chips-grid .chip:nth-child(1){animation-delay:0ms}
+.chips-grid .chip:nth-child(2){animation-delay:30ms}
+.chips-grid .chip:nth-child(3){animation-delay:60ms}
+.chips-grid .chip:nth-child(4){animation-delay:90ms}
+.chips-grid .chip:nth-child(5){animation-delay:120ms}
+.chips-grid .chip:nth-child(n+6){animation-delay:150ms}
+.chip:active{transform:scale(.96)}
+.chip.sel{background:var(--goldg);border-color:var(--gold-line);color:var(--goldl)}
+.custom-row{margin-top:4px}
+
+/* Очікування відповіді ШІ — стан, а не спінер */
+.ai-loading-card{text-align:center}
+.ai-loading-icon{
+	margin-bottom:16px;font-size:30px;line-height:1;
+	animation:breathe 2200ms ease-in-out infinite;
+}
+.ai-loading-title{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:24px;color:var(--t1)}
+.ai-loading-sub{
+	margin:10px auto 0;max-width:36ch;
+	font-size:13px;line-height:1.6;color:var(--t3);
+}
+.ai-loading-dots{display:flex;justify-content:center;gap:5px;margin:20px 0 22px}
+.ai-loading-dots span{
+	width:5px;height:5px;border-radius:50%;background:var(--gold);
+	animation:dotPulse 1200ms ease-in-out infinite;
+}
+.ai-loading-dots span:nth-child(2){animation-delay:160ms}
+.ai-loading-dots span:nth-child(3){animation-delay:320ms}
+
+.ai-loading-steps{
+	display:flex;flex-direction:column;gap:2px;
+	padding-top:18px;border-top:1px solid var(--line);
+	text-align:left;
+}
+.ai-step{
+	padding:9px 12px;border-radius:var(--rs);
+	/* opacity було .45 → контраст ~1.5:1, майбутні кроки просто не читались.
+	   Навіть .8 дає лише 3.9:1, тож приглушення тримає сам колір --t3 (5.4:1),
+	   а активний крок і так виділяється кольором --t1 плюс підкладкою --bg3. */
+	font-size:13px;color:var(--t3);
+	transition:opacity 300ms var(--ease),color 300ms var(--ease),background-color 300ms var(--ease);
+}
+.ai-step.active{opacity:1;color:var(--t1);background:var(--bg3)}
+.ai-step.done{opacity:.7;color:var(--gold)}
+
+/* Єдиний компонент завантаження. .tc — по центру. */
+.loading{padding:32px 0}
+.loading.tc{text-align:center}
+.loading.tc .typing{justify-content:center}
+.loading-cap{margin-top:10px;font-size:13px;color:var(--t2)}
+
+/* Три крапки — універсальний індикатор очікування */
+.typing{display:flex;align-items:center;gap:5px;padding:8px 0}
+.typing span{
+	width:5px;height:5px;border-radius:50%;background:var(--t3);
+	animation:dotPulse 1200ms ease-in-out infinite;
+}
+.typing span:nth-child(2){animation-delay:160ms}
+.typing span:nth-child(3){animation-delay:320ms}
+
+/* ─── 17. ВІДПОВІДЬ ШІ ───────────────────────────────────── */
+.airesp{
+	padding:24px 20px;
+	border-radius:var(--r);
+	background:var(--bg2);border:1px solid var(--line);
+	animation:scrIn 320ms var(--ease) backwards;
+}
+.aibadge{
+	display:inline-block;margin-bottom:16px;
+	padding:5px 11px;border-radius:100px;
+	background:var(--goldg);border:1px solid var(--gold-line);
+	font-size:11px;letter-spacing:.08em;color:var(--goldl);
+}
+.copy-btn{
+	display:flex;align-items:center;justify-content:center;gap:8px;
+	width:100%;min-height:44px;margin-bottom:20px;
+	border-radius:var(--rs);
+	background:transparent;border:1px solid var(--line2);
+	font-size:13px;color:var(--t2);
+	transition:transform 120ms var(--ease),color 200ms var(--ease),border-color 200ms var(--ease);
+}
+.copy-btn svg{fill:none;stroke:currentColor}
+.copy-btn:active{transform:scale(.97)}
+.copy-btn.copied{color:var(--gold);border-color:var(--gold-line)}
+
+/* Текст розбору — головна поверхня для читання. ~60ch. */
+.aitxt{max-width:60ch;font-size:15px;line-height:1.75;color:var(--t2)}
+.aitxt p{margin:0 0 14px}
+.aitxt strong{color:var(--t1)}
+.aitxt em{color:var(--goldl);font-style:italic}
+
+.md-h1{margin:28px 0 12px;font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:27px;line-height:1.25;color:var(--t1)}
+.md-h2{margin:24px 0 10px;font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:22px;line-height:1.3;color:var(--t1)}
+/* Теж без uppercase — заголовки від ШІ часто містять цифри поряд з «з»/«у» */
+.md-h3{margin:20px 0 8px;font-size:14px;font-weight:600;letter-spacing:.02em;color:var(--goldl)}
+.md-h1:first-child,.md-h2:first-child,.md-h3:first-child{margin-top:0}
+
+.md-ul,.md-ol{margin:0 0 14px;padding-left:20px}
+.md-ul li,.md-ol li{margin-bottom:6px}
+.md-ul{list-style:none;padding-left:16px}
+.md-ul li{position:relative;padding-left:16px}
+.md-ul li::before{
+	content:'';position:absolute;left:0;top:.75em;
+	width:5px;height:1px;background:var(--goldd);
+}
+.md-ol li::marker{color:var(--goldd);font-variant-numeric:tabular-nums}
+
+.md-hr{margin:24px 0;border:0;height:1px;background:var(--line)}
+
+.md-code{
+	padding:2px 6px;border-radius:6px;
+	background:var(--bg3);
+	font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+	font-size:13px;color:var(--goldl);
+}
+
+.md-table{
+	display:block;width:100%;margin:0 0 16px;
+	overflow-x:auto;border-collapse:collapse;font-size:13px;
+}
+.md-table th,.md-table td{
+	padding:9px 12px;text-align:left;white-space:nowrap;
+	border-bottom:1px solid var(--line);
+}
+.md-table th{
+	font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+	/* 11px — дрібний текст, тож потрібні 4.5:1; --t3 давав 3.68:1. */
+	color:var(--t2);font-weight:400;
+}
+.md-table td{color:var(--t2)}
+
+.md-link{color:var(--gold);border-bottom:1px solid var(--gold-line)}
+
+/* ─── 18. МОЇ РОЗБОРИ ────────────────────────────────────── */
+.strat-card{
+	padding:16px 18px;margin-bottom:8px;
+	border-radius:var(--r);
+	background:var(--bg2);border:1px solid var(--line);
+	transition:transform 120ms var(--ease),border-color 200ms var(--ease);
+	animation:riseIn 380ms var(--ease) backwards;
+}
+#strategies-list .strat-card:nth-child(1){animation-delay:0ms}
+#strategies-list .strat-card:nth-child(2){animation-delay:34ms}
+#strategies-list .strat-card:nth-child(3){animation-delay:68ms}
+#strategies-list .strat-card:nth-child(4){animation-delay:102ms}
+#strategies-list .strat-card:nth-child(5){animation-delay:136ms}
+#strategies-list .strat-card:nth-child(n+6){animation-delay:170ms}
+.strat-card:active{transform:scale(.985)}
+.strat-card-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--goldd)}
+.strat-card-niche{
+	margin-top:6px;font-size:14.5px;line-height:1.5;color:var(--t1);
+	display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.strat-card-date{margin-top:8px;font-size:11.5px;color:var(--t3)}
+
+#strategy-detail-meta{margin-bottom:16px;font-size:12px;color:var(--t3)}
+
+/* Порожній стан пояснює, що тут зʼявиться.
+   Назва НЕ .empty — app.js додає .empty до .niche-row-val, класи б зіткнулись. */
+.empty-state{padding:48px 12px;text-align:center;animation:fadeIn 320ms var(--ease) both}
+.empty-mark{
+	width:52px;height:52px;margin:0 auto 18px;border-radius:50%;
+	border:1px solid var(--line2);
+	display:flex;align-items:center;justify-content:center;
+	font-size:18px;color:var(--goldd);
+}
+.empty-title{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:22px;color:var(--t1);line-height:1.3}
+.empty-sub{margin:10px auto 0;max-width:34ch;font-size:13px;line-height:1.65;color:var(--t3)}
+.empty-state .btn{margin:24px auto 0;max-width:280px}
+
+/* ─── 19. УТОЧНЕННЯ ──────────────────────────────────────── */
+.fu-limit-bar{
+	display:flex;align-items:center;justify-content:space-between;
+	padding:12px 16px;margin-bottom:12px;
+	border-radius:var(--rs);
+	background:var(--bg2);border:1px solid var(--line);
+}
+.fu-limit-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3)}
+.fu-limit-val{font-size:13px;color:var(--t1);font-variant-numeric:tabular-nums}
+
+.fu-source{
+	margin-bottom:16px;overflow:hidden;
+	border-radius:var(--r);
+	background:var(--bg2);border:1px solid var(--line);
+}
+.fu-source>summary{
+	display:flex;align-items:center;
+	padding:14px 18px;min-height:44px;
+	list-style:none;cursor:pointer;
+	font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);
+}
+.fu-source>summary::-webkit-details-marker{display:none}
+.fu-source>summary::after{content:'+';margin-left:auto;font-size:16px;color:var(--t3)}
+.fu-source[open]>summary::after{content:'–'}
+.fu-source>.aitxt{padding:0 18px 18px}
+
+#followup-chat{display:flex;flex-direction:column;gap:16px}
+.fu-msg{animation:riseIn 300ms var(--ease) backwards}
+.fu-msg-q{
+	max-width:86%;margin-left:auto;
+	padding:12px 16px;
+	border-radius:var(--r) var(--r) 4px var(--r);
+	background:var(--bg3);
+	font-size:14.5px;line-height:1.6;color:var(--t1);
+}
+.fu-msg-badge{
+	margin-bottom:8px;
+	font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--goldd);
+}
+.fu-msg-a{max-width:60ch;font-size:14.5px;line-height:1.75;color:var(--t2)}
+.fu-msg-a p{margin:0 0 12px}
+.fu-msg-a p:last-child{margin-bottom:0}
+
+.fu-loading{padding-top:4px;animation:fadeIn 200ms var(--ease) both}
+
+.fu-limit-out{
+	margin-top:20px;padding:20px;
+	border-radius:var(--r);
+	background:var(--bg2);border:1px solid var(--line);
+	text-align:center;
+	animation:riseIn 320ms var(--ease) backwards;
+}
+.fu-limit-out-title{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:21px;color:var(--t1);line-height:1.3}
+.fu-limit-out-sub{margin:10px auto 18px;max-width:34ch;font-size:13px;line-height:1.6;color:var(--t3)}
+
+/* Панель вводу прилипає до низу.
+   app.js перемикає .fu-bar через style.display='block'|'none',
+   тому саме розкладку тримає внутрішній .fu-row. */
+.fu-bar{
+	/* fixed рахується від ВЬЮПОРТА, а не від body, тож обмеження ширини
+	   контенту на цю панель не діє взагалі — без --gut вона лишиться
+	   розтягнутою на весь монітор під вузькою колонкою діалогу. */
+	position:fixed;left:var(--gut);right:var(--gut);bottom:0;z-index:30;
+	padding:10px var(--pad) calc(10px + var(--sab));
+	background:var(--bg);
+	border-top:1px solid var(--line);
+}
+.fu-row{display:flex;align-items:flex-end;gap:8px}
+.fu-input{
+	flex:1;min-height:44px;max-height:120px;
+	padding:11px 14px;border-radius:22px;
+}
+.fu-send{
+	flex:none;width:44px;height:44px;border-radius:50%;
+	display:flex;align-items:center;justify-content:center;
+	background:var(--gold);
+	transition:transform 120ms var(--ease),opacity 180ms var(--ease);
+}
+.fu-send svg{width:18px;height:18px;fill:var(--on-accent);stroke:none}
+.fu-send:active{transform:scale(.92)}
+
+/* ─── 20. НИЖНЯ НАВІГАЦІЯ ────────────────────────────────── */
+.bnav{
+	/* Те саме, що й у .fu-bar: без --gut на ПК іконки навігації розлітаються
+	   до країв монітора, за півекрана від контенту, до якого належать. */
+	position:fixed;left:var(--gut);right:var(--gut);bottom:0;z-index:40;
+	display:none;
+	/* Висота 75 без безпечної зони (еталон): 14 зверху + іконка 20 + 6 +
+	   підпис ~12 + решта знизу. */
+	padding:14px var(--pad) calc(23px + var(--sab));
+	background:var(--bg);
+	border-top:1px solid var(--line);
+}
+.bnav.on{display:flex;animation:fadeIn 220ms var(--ease) both}
+.ni{
+	flex:1;
+	display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:6px;
+	color:var(--text-2);
+	transition:color 200ms var(--ease),transform 120ms var(--ease);
+}
+.ni:active{transform:scale(.94)}
+.ni svg{
+	width:20px;height:20px;
+	fill:none;stroke:currentColor;stroke-width:1.5;
+	stroke-linecap:round;stroke-linejoin:round;
+}
+.ni-l{font-size:10px;letter-spacing:0;line-height:1.2}
+.ni.a{color:var(--accent)}
+
+/* ─── 21. PAYWALL (нижній лист) ──────────────────────────── */
+.pwo,.nm-overlay{
+	/* Оверлей навмисно лишається на всю ширину: це затемнення, воно має гасити
+	   весь екран. Обмежений і центрований — лише лист усередині (.pws нижче),
+	   тому додано justify-content. */
+	position:fixed;inset:0;z-index:80;
+	display:flex;align-items:flex-end;justify-content:center;
+	background:rgba(5,6,8,.72);
+	opacity:0;pointer-events:none;
+	transition:opacity 240ms var(--ease);
+}
+.pwo.open,.nm-overlay.open{opacity:1;pointer-events:auto}
+
+.pws,.nm-sheet{
+	position:relative;
+	/* Ширина листа = ширина контенту під ним. Інакше на ПК пейвол розтягується
+	   на все вікно й виглядає як інший застосунок. */
+	width:100%;max-width:var(--appw);
+	max-height:92dvh;overflow-y:auto;
+	padding:8px var(--pad) calc(24px + var(--sab));
+	border-radius:24px 24px 0 0;
+	background:var(--bg2);
+	border-top:1px solid var(--line2);
+	transform:translate3d(0,100%,0);
+	transition:transform 280ms var(--sheet);
+}
+.pwo.open .pws,
+.nm-overlay.open .nm-sheet{transform:none}
+
+/* Ручка листа */
+.pwh{width:36px;height:3px;margin:6px auto 20px;border-radius:3px;background:var(--line2)}
+.sheet-x{
+	position:absolute;top:8px;right:10px;
+	/* 44×44 — мінімальна зона дотику. Візуально хрестик лишається дрібним,
+	   бо його розмір задає font-size, а не бокс кнопки. */
+	width:44px;height:44px;border-radius:50%;
+	display:flex;align-items:center;justify-content:center;
+	font-size:22px;line-height:1;color:var(--t3);
+	transition:transform 120ms var(--ease),color 180ms var(--ease);
+}
+.sheet-x:active{transform:scale(.9);color:var(--t1)}
+
+.pwtitle{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:27px;line-height:1.2;color:var(--t1);text-align:center}
+.pwsub{margin:10px auto 0;max-width:32ch;font-size:13px;line-height:1.6;color:var(--t3);text-align:center}
+/* Червоний тут семантичний (статус помилки), а не другий акцент —
+   app.js і сам інлайнить var(--redl) у текстах помилок. */
+#pw-error .pwtitle{color:var(--redl)}
+
+.tqs{display:flex;flex-direction:column;gap:8px;margin:24px 0 20px}
+.tq{
+	display:flex;align-items:center;gap:14px;
+	padding:14px 16px;min-height:60px;
+	border-radius:var(--rs);
+	background:var(--bg3);border:1px solid transparent;
+	transition:transform 120ms var(--ease),background-color 200ms var(--ease),border-color 200ms var(--ease);
+}
+.tq:active{transform:scale(.985)}
+.tq.sel{background:var(--goldg);border-color:var(--gold-line)}
+.tqr{
+	flex:none;width:20px;height:20px;border-radius:50%;
+	border:1px solid var(--line2);
+	display:flex;align-items:center;justify-content:center;
+	font-size:11px;color:transparent;
+	transition:border-color 200ms var(--ease),color 200ms var(--ease),background-color 200ms var(--ease);
+}
+.tq.sel .tqr{background:var(--gold);border-color:var(--gold);color:var(--on-accent)}
+.tqi{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.tqn{font-size:14.5px;color:var(--t1)}
+.tqd{font-size:11.5px;color:var(--t3)}
+.tqp{flex:none;font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:21px;color:var(--t1);font-variant-numeric:tabular-nums}
+.tq.sel .tqp{color:var(--goldl)}
+
+.pw-info{
+	margin-bottom:16px;padding:14px 16px;
+	border-radius:var(--rs);background:var(--bg3);
+	font-size:12.5px;line-height:1.6;color:var(--t2);
+	animation:fadeIn 240ms var(--ease) both;
+}
+.pw-hint{margin-top:12px;font-size:11.5px;line-height:1.55;color:var(--t3);text-align:center}
+.pw-ok{
+	width:56px;height:56px;margin:8px auto 20px;border-radius:50%;
+	display:flex;align-items:center;justify-content:center;
+	background:var(--goldg);border:1px solid var(--gold-line);
+	font-size:24px;color:var(--gold);
+	animation:okPop 420ms var(--ease) backwards;
+}
+#pw-action,#pw-loading,#pw-redirect,#pw-error,#pw-success,#pw-register{animation:fadeIn 240ms var(--ease) both}
+
+/* Рядок контексту: ЧОМУ відкрито шторку доступу. Єдине місце,
+   де тексти розрізняються — самі кнопки скрізь однакові. */
+.pw-reason{
+	margin:0 auto 18px;max-width:34ch;
+	padding:10px 14px;border-radius:var(--rs);
+	background:var(--goldg);border:1px solid var(--gold-line);
+	font-size:12.5px;line-height:1.55;color:var(--goldl);text-align:center;
+}
+.pw-info-dim{color:var(--t3)}
+#pw-loading,#pw-redirect,#pw-error,#pw-success{padding-bottom:8px}
+#pw-redirect .btn,#pw-error .btn,#pw-success .btn{margin-top:24px}
+
+/* ─── 22. МОДАЛКА НІШІ ───────────────────────────────────── */
+.nm-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.nm-title{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:25px;color:var(--t1)}
+.nm-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.nm-item{
+	display:flex;align-items:center;justify-content:space-between;gap:12px;
+	padding:12px 14px;min-height:52px;
+	border-radius:var(--rs);
+	background:var(--bg3);border:1px solid transparent;
+	transition:transform 120ms var(--ease),background-color 180ms var(--ease),border-color 180ms var(--ease);
+}
+.nm-item:active{transform:scale(.985)}
+.nm-item.sel{background:var(--goldg);border-color:var(--gold-line)}
+.nm-item-left{display:flex;align-items:center;gap:12px;min-width:0}
+.nm-item-name{
+	font-size:14.5px;color:var(--t1);
+	white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+/* Прапор мови — інлайновий SVG (див. LANG_FLAGS в app.js): емодзі-прапори
+   не мають кольорових гліфів у Segoe UI Emoji, тобто на всьому Windows.
+   .lang-val вирівнює прапор із назвою в обох місцях, де вони показуються:
+   рядок у профілі й пункт у модалці. */
+.lang-val{display:flex;align-items:center;gap:9px;min-width:0}
+.flag-svg{
+	flex:none;width:22px;height:15px;
+	border-radius:2.5px;
+	/* Білий у російському й у британському впритул зливається з карткою —
+	   без рамки прапор виглядав би обрізаним. */
+	box-shadow:0 0 0 1px rgba(255,255,255,.16);
+	display:block;
+}
+/* Успадковує розмір від .nm-item-name / .niche-row-val, тому тут лише обрізка. */
+.lang-val .lang-name{
+	min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+	font-size:14.5px;color:var(--t1);
+}
+.nm-check{
+	flex:none;width:20px;height:20px;
+	display:flex;align-items:center;justify-content:center;
+	color:var(--gold);
+	opacity:0;transform:scale(.7);
+	transition:opacity 180ms var(--ease),transform 180ms var(--ease);
+}
+.nm-check svg{width:100%;height:100%;fill:none;stroke:currentColor}
+.nm-item.sel .nm-check{opacity:1;transform:none}
+.nm-custom-row{margin-bottom:14px;animation:fadeIn 220ms var(--ease) both}
+
+/* ─── 23. СПІЛЬНІ БЛОКИ ──────────────────────────────────── */
+/* Підвалина результату — однакова в усіх 5 модулів. */
+.aibadge-glyph{
+	margin-right:8px;font-size:14px;color:var(--gold);
+	vertical-align:-1px;
+}
+/* Той самий гліф у заголовку підекрана (.flhdr). */
+.fltitle-glyph{margin-right:12px;color:var(--gold)}
+/* Ромб — фігура, а не гліф: «◆» у різних шрифтах має різний розмір і
+   базову лінію, а еталон задає рівно 18×18. */
+.rh-ico{display:inline-block;flex:none;width:18px;height:18px;margin:0 15px 0 3px;
+	background:var(--accent);border-radius:1px;transform:rotate(45deg)}
+/* Дія №1 на всю ширину, далі пара рівних другорядних. */
+.res-actions{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.res-actions>.btn{margin-top:0;width:100%}
+.res-actions .bpair{margin-top:0}
+.res-saved{
+	margin-top:14px;
+	font-size:12px;color:var(--t3);text-align:center;
+}
+
+/* Картка-повідомлення (помилка / вичерпаний ліміт) — той самий .qcard. */
+.qcard-msg{text-align:center;padding:32px 20px}
+.qcard-msg .qsub{margin-left:auto;margin-right:auto}
+.qcard-lock{
+	margin:0 auto 14px;width:34px;height:34px;color:var(--t3);
+}
+.qcard-lock svg{
+	width:100%;height:100%;fill:none;stroke:currentColor;
+	stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+}
+
+/* Замок на заблокованому модулі — той самий SVG, той самий розмір. */
+.mod-access-lock{
+	margin-bottom:14px;width:30px;height:30px;color:var(--t3);
+}
+.mod-access-lock svg{
+	width:100%;height:100%;fill:none;stroke:currentColor;
+	stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;
+}
+
+/* Кнопка з іконкою попереду (замок + текст). */
+.ico-lead{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.ico-lead svg{
+	flex:none;width:15px;height:15px;fill:none;stroke:currentColor;
+	stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;
+}
+
+/* Єдиний блок помилки в тілі екрана. */
+.err-block{
+	padding:16px 18px;border-radius:var(--rs);
+	background:var(--redg);border:1px solid var(--redl);
+	font-size:13px;line-height:1.6;color:var(--redl);
+}
+
+/* Гліф модуля в картці історії — узгоджений із .mico. */
+.strat-card-glyph{margin-right:7px;color:var(--gold)}
+
+/* CTA всередині .hcard не має відриватись від картки. */
+.hcard-cta{margin-top:18px;width:100%}
+
+/* ─── 23a. НУМЕРОЛОГІЯ · МАТРИЦЯ ДОЛІ ────────────────────── */
+/*
+   ТЗ модуля просить «світлий фон, яскраві акценти», а застосунок увесь
+   темний («тиха нічна глибина»). Перефарбовувати весь WebApp заради одного
+   модуля не можна — це зламало б решту екранів. Компроміс: світлою стає
+   САМА СХЕМА (панель .num-svg-wrap), як на авторському чарті, а оболонка
+   лишається темною. Заразом це єдиний спосіб зберегти чакральні кольори
+   читабельними: яскраві жовтий і блакитний на темному фоні дають різкий, «неоновий»
+   контраст, якого в методиці немає.
+*/
+
+/* ── Панель ─────────────────────────────────────────────────────────────── *
+   ЄДИНИЙ прямокутник модуля. Раніше картка, десятиліття, дискламація,
+   спойлер і мовна плашка були п'ятьма окремими правилами з однаковим
+   background і border, але з чотирма різними падінгами (16/18, 14/16, 13/15,
+   12/15, 10/13) і двома різними радіусами (--r і --rs). Спільний фон робив їх
+   схожими, а розбіжні падінги — ні: ліві краї тексту стояли на п'яти різних
+   вертикалях, і екран розсипався.
+   Тут падінг один і дорівнює --pad, тобто збігається з полем самого екрана:
+   текст у панелі стоїть рівно на 20 px від краю, як і текст поза нею.
+   Радіус один — --r. Шостій панелі, яка з'явиться потім, більше нічого не
+   треба вигадувати: вона просто бере .num-panel. */
+.num-panel{
+	padding:var(--pad);
+	border-radius:var(--r);
+	background:var(--bg2);border:1px solid var(--line);
+}
+/* Єдиний дозволений варіант — «тихий»: службовий текст (дискламація, мовна
+   плашка, спойлер) не має важити стільки ж, скільки картка з розбором.
+   Стискається ЛИШЕ вертикаль. Горизонталь лишається --pad навмисне: щойно
+   тихій панелі дати вужчий бічний падінг, її текст поїде відносно решти, і
+   повернеться та сама розсипана ліва межа, заради якої все це й зводилось. */
+.num-panel-q{padding:var(--sp-q) 19px;border-radius:var(--radius-card-sm)}
+
+/* ── Стек ───────────────────────────────────────────────────────────────── *
+   ВЛАСНИК вертикального проміжку. Одне місце на весь модуль.
+   Раніше проміжок належав дітям: кожен клас ніс свій margin-bottom, дехто ще
+   й margin-top. Наслідок — проміжок існував лише там, де хтось не забув його
+   оголосити. Три кнопки на головній, кнопка після дискламації в сумісності,
+   кнопка в картці пари стояли впритул, бо .btn margin не має і не повинна
+   мати: кнопка не знає, що буде над нею.
+   Тепер знає контейнер — він єдиний, хто справді бачить обох сусідів.
+
+   Перший рядок — це і є механізм володіння: стек обнуляє власні margin усіх
+   прямих дітей, тож дитина фізично не може принести свій проміжок. Другий —
+   роздає проміжок між сусідами. `* + *` означає, що перша дитина ніколи не
+   отримує відступу зверху, а остання — знизу, тому стек не додає порожнечі
+   ні на початку екрана, ні перед його підвалом.
+
+   `:empty{display:none}` потрібен через сумісність: #num-compat-body лежить у
+   розмітці порожнім і наповнюється лише після розрахунку. Порожній div має
+   нульову висоту, але сусідом лишається — і давав би 20 px пустоти під
+   формою до першого розрахунку. Без бокса він не сусід.
+
+   Крок задає --g, і оголошує його стек НА СВОЇХ ДІТЯХ (`.num-stack > *`), а
+   не на собі. Різниця не косметична — на ній цей код уже один раз зламався.
+   `var()` завжди резолвиться на тому елементі, до якого застосоване
+   оголошення, а `margin-top` застосовується до ДИТИНИ. Тож коли крок стояв на
+   самому стеку (`.num-stack{--g:...}`), вкладена панель-стек перебивала його
+   власним значенням і брала свій внутрішній крок як зовнішній: <details> на
+   екрані схеми відходив від кнопки на 12 px замість 20, і рівно так само
+   стиснулись би картки в блоках. Оголошення на дітях цю тінь знімає:
+   вкладений стек більше не задає --g собі, він задає його своїм дітям, а свій
+   власний бере від батька. */
+.num-stack > *{--g:var(--s4);margin-top:0;margin-bottom:0}
+.num-stack > * + *{margin-top:var(--g)}
+.num-stack > :empty{display:none}
+
+/* Усередині панелі рядки стоять щільніше, ніж панелі між собою: інакше
+   картка розповзається і перестає читатись як один об'єкт.
+   Селектор цілиться в дітей панелі, а не в саму панель — з тієї ж причини. */
+.num-panel.num-stack > *,
+.num-sheet-body.num-stack > *{--g:var(--s3)}
+
+/* Три іменованих винятки. Кожен — не «підправити на око», а інший СЕНС
+   відстані, якого рівний крок передати не може. */
+
+/* 1. Підпис точок — це другий рядок заголовка, а не наступний рядок картки.
+      Тому найтісніший крок шкали. */
+.num-stack > .num-card-pts{margin-top:var(--s1)}
+/* 2. Заголовок секції у шторці має тяжіти до свого тексту, а не стояти
+      посередині. Зверху — крок панелі, знизу — звичайний крок стеку.
+      `* + ` обов'язковий: перша секція не має відриватись від шапки. */
+.num-stack > * + .num-sect{margin-top:var(--s4)}
+/* 3. Схема — єдиний елемент, ширший за свій зміст: світла панель уже дає
+      достатньо повітря, і повний крок над кнопкою під нею виглядав розривом. */
+.num-stack > .num-svg-wrap + *{margin-top:var(--s3)}
+
+/* Дискламації. Не «дрібний шрифт у підвалі»: рамка й відступ роблять їх
+   частиною екрана, бо юридично вони обов'язкові (legal_payment.uk.txt). */
+.num-legal{font-size:12.5px;line-height:1.6;color:var(--text-2)}
+.num-legal-med{border-color:var(--redd);color:var(--t2)}
+
+.num-sub{font-size:13px;line-height:1.6;color:var(--t2)}
+
+/* ── Перелік блоків під схемою ─────────────────────────────────────────── */
+
+/* Панель «розрахунок готовий». Не декоративна: після зникнення смуги вкладок
+   екран схеми став єдиною сторінкою модуля, і без явного маркера дата
+   народження висіла б підписом невідомо до чого. Крапка каже, що рахувати
+   більше нічого не треба — усе далі вже про читання.
+   Крапка золота, а не зелена: палітра має ЄДИНИЙ акцент, і сигнальний
+   червоний тут — виняток лише для помилок. Зелений «успіх» довелося б
+   заводити новим кольором заради одного кружечка на 8 px. */
+.num-ready-top{display:flex;align-items:center;gap:var(--s2)}
+.num-ready-dot{
+	/* 100px, а не 50%: у модулі «повністю кругле» пишеться саме так (та сама
+	   ідіома, що в кольоровій крапці таблиці здоров'я). Третього радіуса в
+	   модулі немає — за цим стежить test_module_panels_share_one_radius. */
+	width:8px;height:8px;border-radius:100px;
+	background:var(--gold);flex:0 0 auto;
+}
+.num-ready-t{font-size:13px;color:var(--t2)}
+
+/* Заклик обрати блок. Тон секційного заголовка, але не .num-sect: це речення
+   до людини, а не назва розділу, тому без капсу й розрядки. */
+.num-pick{font-size:13.5px;line-height:1.5;color:var(--text-2)}
+/* Кнопки старту Матриці стоять тісніше за панелі (еталон: 12px). */
+#num-home-body > .btn + .btn{margin-top:var(--s3)}
+
+/* Сітка блоків. Кнопки з переносом — НЕ горизонтальна стрічка.
+   Спершу на цьому місці стояла смуга вкладок зі скролом: п'ять назв в один
+   рядок на 320 px не влазять. Смугу навмисне виводили за поля екрана
+   (від'ємний margin рівно на --pad і такий самий padding назад) — за
+   міркуванням, що обрізаний край-у-край чіп читається як «тут можна
+   гортати», на відміну від градієнтної маски, яка лише ХОВАЄ обрізане.
+   Міркування не підтвердилось на пристрої: «Прогностика», обрізана правим
+   краєм, прочиталась як «щось не влізло», а не як «прокрути», і решта
+   вкладок лишалась невідомою тому, хто про жест не здогадався. Аргумент
+   спростований спостереженням — тому замінений, а не переспораний.
+   Тепер блоків двадцять, і горизонтальна стрічка стала б неможливою вже
+   арифметично — але правило тут те саме й діє воно з тієї ж причини.
+   Сам по собі перенос проблеми не знімає: кнопки природної ширини лишили б
+   праворуч у кожному ряду рвану порожнечу — той самий сигнал «щось не
+   влізло», але вже без прокрутки, якою його можна було виправити. Тому ряди
+   заповнюються до краю (flex-grow на самих кнопках, див. .num-bbtn). */
+.num-bgrid{display:flex;flex-direction:column;gap:var(--sp-tile-gap)}
+/* Назва категорії. Крок перед нею більший, ніж між кнопками: категорія
+   починає новий смисл, а не продовжує ряд. :first-child — щоб перша назва не
+   відривалась від заклику над сіткою. */
+.num-bcat{
+	font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--accent);
+	margin-top:var(--s3);
+}
+.num-bgrid > .num-bcat:first-child{margin-top:0}
+.num-bgroup{display:flex;flex-wrap:wrap;gap:var(--sp-tile-gap)}
+.num-bbtn{
+	/* Розтягуємо, але не з нуля: flex-basis:auto лишає природну ширину точкою
+	   відліку, тож довша назва отримує більше місця, ніж коротша, і ряд не
+	   ділиться порівну між «Таланти» й «Дитячо-батьківський сценарій». */
+	flex:1 1 auto;min-width:0;
+	display:flex;flex-direction:column;gap:var(--sp-num);
+	padding:var(--sp-tile) 14px;
+	border-radius:var(--rs);
+	background:var(--card);border:1px solid var(--line);
+	text-align:left;
+	transition:border-color 180ms var(--ease),transform 120ms var(--ease);
+}
+.num-bbtn:active{transform:scale(.985)}
+.num-bbtn:hover{border-color:var(--gold-line)}
+.num-bbtn-t{font-size:14px;line-height:1.35;color:var(--text)}
+/* Числа блоку — те, що перетворює перелік назв на ВЛАСНУ матрицю. Тому вони
+   золоті й помітні, а не сірий супровід підпису. */
+.num-bbtn-n{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:17px;color:var(--accent);white-space:nowrap}
+
+/* ── Схема ─────────────────────────────────────────────────────────────── */
+/* Теж .num-panel — заради спільного радіуса й рамки. Світлий фон і палітра —
+   з еталонного фото замовниці. Падінг мінімальний: схема має власні поля
+   всередині viewBox, а кожен піксель ширини тут — кегль вікової шкали. */
+.num-svg-wrap{
+	--num-paper:#F5F0F3;
+	padding:var(--s1);
+	background:var(--num-paper);border-color:var(--line2);
+}
+.num-svg{display:block;width:100%;height:auto}
+/* Схема на весь екран (numZoomOpen). Тло — той самий «папір», що й у
+   панелі: збільшена схема має читатись як та сама схема, а не як новий
+   екран. Відступи — з безпечних зон: у повноекранному режимі Telegram
+   кладе свої кнопки ПОВЕРХ контенту. Ширину SVG задає JS (масштаб). */
+.num-zoom{
+	--num-paper:#F5F0F3;
+	position:fixed;inset:0;z-index:70;
+	background:var(--num-paper);
+}
+.num-zoom-view{
+	/* Безпечні зони — у межах області, а не в padding: відступи модуля
+	   беруться лише зі шкали --s1..--s4. Знизу — місце під панель кнопок. */
+	position:absolute;
+	top:var(--sat);right:var(--sar);bottom:calc(var(--sab) + 72px);left:var(--sal);
+	display:flex;overflow:auto;padding:var(--s3);
+	overscroll-behavior:contain;-webkit-overflow-scrolling:touch;
+	touch-action:pan-x pan-y;
+}
+/* margin:auto, а не justify/align-content:center: auto-поля центрують
+   малу схему й обнуляються, щойно вона більша за екран, — тоді як
+   центрування флексом обрізало б її лівий і верхній край без прокрутки. */
+.num-zoom-view .num-svg{flex:none;margin:auto;max-width:none}
+.num-zoom-bar{
+	position:absolute;left:50%;bottom:calc(var(--sab) + 16px);
+	transform:translateX(-50%);
+	display:flex;gap:var(--s1);padding:var(--s1);
+	border-radius:100px;background:rgba(26,26,26,.88);
+}
+.num-zoom-b{
+	min-width:44px;height:44px;padding:0 14px;border-radius:100px;
+	color:#FFFFFF;font-size:22px;line-height:1;
+	display:flex;align-items:center;justify-content:center;
+}
+.num-zoom-x{font-size:14px;font-weight:600;padding:0 18px}
+body.num-zoom-on{overflow:hidden}
+
+/* Пара — лише розрахунок (numPairCalcOnly): кружки нічого не відкривають,
+   тож і не вдають кнопок. */
+.num-static .num-pt{cursor:default}
+
+/* Каркас: тонкі — віковий восьмикутник, коло й осі; товсті — квадрат і ромб. */
+.num-frame{stroke:#1A1A1A;stroke-width:1.4;stroke-linejoin:round}
+.num-frame .num-fig{stroke-width:3.2}
+.num-dash{stroke:#1A1A1A;stroke-width:1.3;stroke-dasharray:6 5}
+
+/* Кружок позиції. Обведення — спільне для всіх точок. */
+.num-pt circle{stroke:#1A1A1A;stroke-width:3}
+
+/* Білий — лише для точок БЕЗ власного кольору, і саме тому селектор звужений
+   через :not([fill]).
+   Тут була пастка, яка коштувала модулю 14 значень: `fill` у розмітці —
+   презентаційний атрибут, а він програє будь-якому CSS-правилу. Загальне
+   `.num-pt circle{fill:#FFFFFF}` знебарвлювало всі 16 чакральних кружків, і
+   білий текст `on-fill` опинявся на білому тлі. Селектор `:not([fill])`
+   робить повтор пастки неможливим: кружок із власним кольором просто не
+   потрапляє під правило, тож CSS не має чим його перебити. */
+.num-pt circle:not([fill]){fill:#FFFFFF}
+/* Кольоровий кружок — як на еталоні: білий обідок і тонка тінь-обвідка. */
+.num-pt circle[fill]{stroke:#FFFFFF;stroke-width:2.4;filter:url(#num-ring)}
+
+.num-pt text{
+	fill:#1A1A1A;font-family:var(--fb);font-weight:700;
+	text-anchor:middle;dominant-baseline:central;
+	pointer-events:none;user-select:none;
+}
+/* Білі цифри — на всіх чакральних заливках, крім жовтої, як на еталоні. */
+.num-pt text.on-fill{fill:#FFFFFF}
+.num-pt-lg circle{stroke-width:3.4}
+.num-pt-lg circle[fill]{stroke-width:3}
+.num-pt-badge circle[fill]{stroke-width:1.5}
+.num-pt{cursor:pointer}
+.num-svg:not(.num-static) .num-pt:hover circle,
+.num-pt.sel circle{stroke:var(--accent);stroke-width:4}
+.num-pt:focus-visible{outline:none}
+.num-pt:focus-visible circle{stroke:#8A5CF6;stroke-width:4}
+
+/* Бейджі-літери: вершини (.num-vtx) і К / О / Н (.num-inner-lbl). */
+.num-vtx circle:not([fill]),.num-inner-lbl circle{fill:#1A1A1A}
+.num-vtx circle[fill]{stroke:#FFFFFF;stroke-width:1.5}
+.num-vtx text,.num-inner-lbl text{
+	fill:#FFFFFF;font-family:var(--fb);font-size:13px;font-weight:700;
+	text-anchor:middle;dominant-baseline:central;
+}
+
+.num-sigil{font-family:var(--fb);font-size:54px;text-anchor:middle;dominant-baseline:central}
+.num-sigil-money{fill:#4FC70E}
+.num-sigil-heart{fill:#F20D0D}
+
+/* --- 23a-bis. РОДОВІ ЛІНІЇ, ЗК, ВІКОВА ШКАЛА ------------------ */
+/* Кольори ліній живуть ТУТ, а не інлайном: лінія й наконечник — два різні
+   елементи одного кольору (marker не успадковує stroke лінії), і інлайн
+   гарантував би, що при першій зміні відтінку один із двох забудуть. */
+.num-rod line{stroke-width:3.2;fill:none}
+.num-rod text{fill:#1A1A1A;font-family:var(--fb);font-size:14px;text-anchor:middle}
+.num-rod-male line{stroke:#4A55A8}
+.num-rod-female line{stroke:#D1453B}
+.num-arrow-m path{fill:#4A55A8}
+.num-arrow-f path{fill:#D1453B}
+
+.num-zk circle,.num-zk path{fill:#F2DD70}
+.num-zk circle{stroke:#FFFFFF;stroke-width:1.5}
+.num-zk text{fill:#1A1A1A;font-family:var(--fb);text-anchor:middle;dominant-baseline:central}
+.num-zk-s{font-size:13px;font-weight:700}
+.num-zk-l{font-size:14px;letter-spacing:.04em}
+
+/* Вікова шкала — завжди на схемі, як на еталоні. Якір тексту задають
+   класи -s/-e: text-anchor у CSS перебив би презентаційний атрибут. */
+.num-age-scale text{font-family:var(--fb);dominant-baseline:central}
+.num-age-s{text-anchor:start}
+.num-age-e{text-anchor:end}
+.num-age-v{fill:#1A1A1A;font-size:14px}
+.num-age-vb{font-size:15px;font-weight:700}
+.num-age-l{fill:#333333;font-size:10.5px;font-style:italic}
+.num-age-y{fill:#1A1A1A;font-size:14px;font-weight:700}
+.num-age-a{font-size:15.5px}
+.num-age-dot{fill:#1A1A1A}
+.num-age-mk{fill:var(--num-paper);stroke:#1A1A1A;stroke-width:1.3}
+.num-age-arr{stroke-width:1.4}
+
+/* Підсумкові коди над схемою. */
+.num-codes{display:grid;grid-template-columns:1fr auto;gap:var(--s1) var(--s3);align-items:baseline}
+.num-codes:empty{display:none}
+.num-code-k{font-size:12px;line-height:1.45;color:var(--t3)}
+.num-code-v{
+	font-size:14px;line-height:1.45;color:var(--t1);text-align:right;
+	font-variant-numeric:tabular-nums;
+}
+
+/*
+   Друк. Замовниця роздає розрахунок ученицям — це аркуш, а не екран.
+   Повноекранний перегляд на аркуш не потрапляє: схема — у своїй панелі.
+*/
+@media print{
+	.bnav,.scr-hdr-slot,.backbtn,.btn,.num-bgrid,.num-pick,
+	.num-ready,.num-sheet,.toast{display:none !important}
+	body{background:#fff}
+	.scr.on{padding:0;animation:none}
+	.num-svg-wrap{--num-paper:#fff;background:#fff;border:none;padding:0;page-break-inside:avoid}
+	.num-zoom{display:none !important}
+	.num-codes{color:#000}
+}
+
+/* .num-toggle-row видалено: обгортка навколо однієї кнопки існувала лише щоб
+   принести їй margin-bottom, а обидва її оголошення (width:100% і margin-top:0)
+   дублювали те, що .btn уже має або чого в .btn ніколи не було. Кнопка тепер
+   пряма дитина стеку екрана і бере проміжок звідти. */
+
+/* ── Списки й картки ───────────────────────────────────────────────────── */
+/* .num-details, .num-plist, .num-pcell* видалені разом із блоком «Усі 33
+   позиції списком»: єдина розмітка, яка їх носила, зникла з index.html.
+   Зразком «підпис і число одним написом у два рядки» лишаються .num-node
+   і .num-ecell — саме на них дивитись, якщо така комірка знадобиться знову. */
+
+/* .num-card видалено — це був .num-panel з іншим падінгом.
+   .num-card-hd видалено — клас не траплявся в жодному з 36 рендерерів модуля
+   й у розмітці; заголовок і підпис стоять двома рядками, а не в один flex. */
+.num-card-title{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:24px;line-height:1.2;color:var(--t1)}
+.num-card-pts{font-size:11.5px;letter-spacing:.06em;color:var(--t3)}
+.num-vals{display:flex;flex-wrap:wrap;gap:var(--s2)}
+/* Кнопка-число. Вона ж — вхід у тлумачення енергії, тому це <button>. */
+.num-val{
+	min-width:44px;min-height:44px;padding:0 10px;
+	border-radius:var(--rs);
+	background:var(--bg3);border:1px solid var(--line);
+	font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:20px;color:var(--goldl);
+	transition:transform 120ms var(--ease),border-color 180ms var(--ease);
+}
+.num-val:active{transform:scale(.96)}
+.num-val:hover{border-color:var(--gold-line)}
+.num-hint{font-size:13px;line-height:1.7;color:var(--t2)}
+
+/* ── Сторінка блоку ────────────────────────────────────────────────────── */
+
+/* Числа блоку. Окремий клас, а не .num-vals: тут кнопка несе не саме число, а
+   ще й підпис точки та позначку повтору, тому вона вища й має власну
+   внутрішню верстку. */
+.num-bnums{display:flex;flex-wrap:wrap;gap:var(--s2)}
+.num-bn{
+	display:flex;flex-direction:column;align-items:center;gap:var(--s1);
+	min-width:56px;min-height:44px;padding:var(--s2) 10px;
+	border-radius:var(--rs);
+	background:var(--bg3);border:1px solid var(--line);
+	transition:transform 120ms var(--ease),border-color 180ms var(--ease);
+}
+.num-bn:active{transform:scale(.96)}
+.num-bn:hover{border-color:var(--gold-line)}
+.num-bn-v{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:20px;color:var(--goldl)}
+/* Позначка повтору. Число, що випало двічі, показується ОДИН раз — інакше
+   «9 · 9» читається як помилка розрахунку, а не як посилена якість. Тому «×2»
+   мусить бути видимим: без нього повтор просто зникає зі сторінки. */
+.num-bn-x{font-size:11px;color:var(--gold)}
+.num-bn-l{font-size:10.5px;line-height:1.3;color:var(--t3);text-align:center}
+
+/* Розділ методички всередині картки числа («У ресурсі», «Рекомендації»…).
+   Заголовок дрібний і не золотий: золото в цьому модулі маркує САМЕ ЧИСЛО,
+   і якщо ним підсвітити ще й п'ять підзаголовків у кожній картці, число
+   перестане бути помітним рівно там, де воно головне. */
+.num-sec{margin-top:var(--s3)}
+.num-sec-h{
+	font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--t2);
+	margin-bottom:var(--s1);
+}
+
+/* Число, яке відкриває тлумачення. Пунктир, а не кнопка: у таблиці здоров'я
+   немає місця ні на 44 px, ні на слово «детальніше», а число без жодної
+   позначки читалось би як просто число — і три методички лишилися б
+   недосяжними, хоч і завантаженими. Висоту дає padding комірки. */
+.num-tapn{
+	font:inherit;color:inherit;line-height:inherit;
+	padding:0 3px;border-bottom:1px dashed var(--gold-line);
+}
+.num-tapn:active{color:var(--goldl)}
+.num-tap-hint{text-align:center}
+
+/* Застереження методички. Помітне, але не тривожне: це обов'язкова рамка
+   («не встановлює діагноз», «не гарантує конкретної події»), а не помилка —
+   червона картка тут злякала б людину, яка просто відкрила блок здоров'я.
+   Тому та сама золота лінія, що й у решти модуля, лише товща. */
+.num-disclaimer{border-left:3px solid var(--goldd)}
+.num-disclaimer-h{
+	font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+	color:var(--gold);
+}
+
+/* Плашка «це загальний опис, а не зональний». Рамка зліва, а не колір тексту:
+   вона мусить читатись як службова примітка НАД текстом, а не як частина
+   тлумачення. Замовниця прямо заборонила підміняти зональний текст загальним
+   описом Аркана — ця плашка і є те, що відрізняє чесний тимчасовий стан від
+   мовчазної підміни. Приберете її — і заборона порушена. */
+.num-fallback{
+	padding-left:var(--s2);border-left:2px solid var(--goldd);
+	font-size:11.5px;line-height:1.55;color:var(--t3);
+}
+
+/* Запрошення на консультацію. Золота рамка — єдине місце на сторінці, де
+   панель виділена: це єдина комерційна дія екрана. */
+.num-consult{border-color:var(--gold-line)}
+
+/* ── Карта здоров'я ────────────────────────────────────────────────────── */
+/* Таблиця лежить у .num-panel, як і все інше на екранах модуля. Досі вона
+   була єдиним блоком без панелі й висіла просто на фоні екрана — через це
+   екран здоров'я вибивався з решти шести.
+   Бічний падінг комірок нульовий: перша й остання колонки мають стояти рівно
+   на межі тексту панелі, інакше таблиця виглядає вкладеною ще на рівень
+   глибше. Проміжок між колонками дає gap рядка, а не падінг комірки. */
+.num-htable{width:100%;border-collapse:collapse;font-size:13.5px}
+.num-htable th,
+.num-htable td{padding:var(--s3) 4px;text-align:center;border-bottom:1px solid var(--line)}
+.num-htable th:first-child,
+.num-htable td:first-child{padding-left:0}
+.num-htable th:last-child,
+.num-htable td:last-child{padding-right:0}
+.num-htable tr:last-child td{border-bottom:none;padding-bottom:0}
+.num-htable thead th{padding-top:0}
+.num-htable th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);font-weight:400}
+.num-htable td:first-child,
+.num-htable th:first-child{text-align:left}
+.num-hname{display:flex;align-items:center;gap:var(--s2);color:var(--t1)}
+.num-hdot{flex:none;width:11px;height:11px;border-radius:100px}
+.num-htable .num-hnum{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:19px;color:var(--t1)}
+.num-htable tr.num-hsum td{color:var(--t2);border-top:1px solid var(--line2)}
+.num-htable tr.num-htotal td{color:var(--goldl)}
+.num-htable tr.num-hsum td:first-child,
+.num-htable tr.num-htotal td:first-child{
+	font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3);
+}
+
+/* ── Прогностика ───────────────────────────────────────────────────────── */
+/* .num-decade видалено — це теж був .num-panel з іншим падінгом. */
+.num-decade-hd{
+	display:flex;align-items:baseline;gap:var(--s2);
+}
+.num-decade-age{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:24px;color:var(--goldl)}
+.num-decade-lbl{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--t3)}
+.num-nodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:var(--s2)}
+.num-node{
+	display:flex;flex-direction:column;gap:var(--s1);
+	padding:var(--s2) 4px;border-radius:var(--rs);
+	background:var(--bg3);text-align:center;
+}
+.num-node-lbl{font-size:10.5px;color:var(--t3)}
+.num-node-v{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:18px;color:var(--t1)}
+
+/* ── Значення Арканів (екран num-energies) ─────────────────────────────── */
+.num-egrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:var(--s2)}
+.num-ecell{
+	display:flex;flex-direction:column;align-items:center;gap:var(--s1);
+	padding:var(--s3) 6px;min-height:76px;
+	border-radius:var(--rs);
+	background:var(--bg2);border:1px solid var(--line);
+	transition:transform 120ms var(--ease),border-color 180ms var(--ease);
+}
+.num-ecell:active{transform:scale(.97)}
+.num-ecell:hover{border-color:var(--gold-line)}
+.num-ecell-n{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:26px;color:var(--goldl);line-height:1}
+.num-ecell-t{font-size:10.5px;line-height:1.35;color:var(--t3);text-align:center}
+
+/* ── Шторка деталі ─────────────────────────────────────────────────────── */
+.num-sheet{max-height:86vh;display:flex;flex-direction:column}
+.num-sheet-body{overflow-y:auto;-webkit-overflow-scrolling:touch}
+/* Тут стояв компенсаційний margin-top:-10px. Компенсував він .nm-hd з її
+   margin-bottom:18px — відстань, розрахована на шторку БЕЗ підзаголовка.
+   Від'ємний відступ лікував наслідок і при цьому мовчки ламався б від будь-якої
+   зміни .nm-hd. Причина знята в самій причині: шапка нумерологічної шторки
+   (і тільки її — інші шторки .nm-hd ділять) віддає проміжок стеку тіла. */
+.num-sheet .nm-hd{margin-bottom:var(--s3)}
+.num-sheet-sub{font-size:12px;letter-spacing:.05em;color:var(--t3)}
+.num-para{font-size:13.5px;line-height:1.72;color:var(--t2)}
+.num-sect{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.num-sect-minus{color:var(--redl)}
+.num-ul{padding-left:19px}
+.num-ul li{font-size:13.5px;line-height:1.7;color:var(--t2)}
+.num-ul li + li{margin-top:var(--s2)}
+
+/* Явна декларація неперекладеного контенту. Тихо підставити українську
+   англомовному користувачу заборонено — він має бачити, що це не баг. */
+.num-lang-note{
+	background:var(--goldg);border-color:var(--gold-line);
+	font-size:12px;line-height:1.6;color:var(--goldl);
+}
+
+.num-row{
+	display:flex;align-items:baseline;justify-content:space-between;gap:var(--s3);
+	padding:var(--s3) 0;border-bottom:1px solid var(--line);
+}
+/* Група рядків — один об'єкт у стеку панелі, а не N окремих дітей: інакше
+   стек розсунув би рядки й розрізав суцільну лінійку роздільників. */
+.num-rows > .num-row:first-child{padding-top:0}
+.num-rows > .num-row:last-child{padding-bottom:0}
+.num-row:last-child{border-bottom:none}
+.num-row-k{font-size:13px;color:var(--t2)}
+.num-row-v{font-family:var(--font);font-weight:300;letter-spacing:var(--track-heading);font-size:24px;color:var(--t1);white-space:nowrap}
+
+/* ─── 24. ТОСТ ───────────────────────────────────────────── */
+.toast{
+	/* Центруємо полями, а не left:50%+translateX(-50%): transform у тоста вже
+	   зайнятий анімацією появи, і змішування двох сенсів в одній властивості
+	   зламало б або зсув, або анімацію. */
+	position:fixed;
+	left:calc(var(--gut) + var(--pad));
+	right:calc(var(--gut) + var(--pad));
+	bottom:calc(var(--sab) + var(--navh) + 16px);
+	z-index:100;
+	padding:13px 16px;border-radius:var(--rs);
+	background:var(--bg4);border:1px solid var(--line2);
+	font-size:13.5px;line-height:1.5;color:var(--t1);text-align:center;
+	opacity:0;transform:translate3d(0,10px,0);pointer-events:none;
+	transition:opacity 220ms var(--ease),transform 220ms var(--ease);
+}
+.toast.show{opacity:1;transform:none}
+.toast.err{border-color:var(--redl);color:var(--redl)}
+
+/* ─── 25. ФОКУС І ВУЗЬКІ ЕКРАНИ ──────────────────────────── */
+:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
+
+/* Широке вікно (Telegram Desktop). Контент уже центрований через --gut, але без
+   візуальної межі колонка «висить» посеред порожнечі й читається як зламана
+   верстка, а не як задум. Дві волосяні лінії коштують нуль і дають рамку.
+   Поріг 560 = --appw(460) + 50 з кожного боку: нижче межі стояли б упритул до
+   тексту, і рамка виглядала б як обрізаний контент. */
+@media (min-width:560px){
+	body::before,body::after{
+		content:'';
+		position:fixed;top:0;bottom:0;width:1px;z-index:90;
+		background:var(--line);
+		pointer-events:none;
+	}
+	body::before{left:var(--gut)}
+	body::after {right:var(--gut)}
+}
+
+@media (max-width:340px){
+	:root{--pad:16px}
+	.display{font-size:34px}
+	.scr-title{font-size:27px}
+	.qtxt{font-size:22px}
+	.tprice{font-size:29px}
+	.avring-lg{width:112px;height:112px}
+	.avring-lg .avin{font-size:38px}
+}
+
+/* Рух — за бажанням системи. Лишаємо тільки opacity. */
+@media (prefers-reduced-motion:reduce){
+	*,*::before,*::after{
+		animation-duration:.01ms !important;
+		animation-iteration-count:1 !important;
+		transition-duration:.01ms !important;
+		scroll-behavior:auto !important;
+	}
+	.scr.on,.qcard,.airesp,.mc,.tcard,.strat-card,
+	.fu-msg,.hcard,.subcard,.sub-info-card,.chip,
+	.mod-access-card,.empty-state,.sp-name,.sp-sub,
+	.fu-limit-out,.pw-ok{
+		animation:fadeIn 1ms linear both;
+		transform:none !important;
+	}
+	.pws,.nm-sheet{transition:none}
+	.btn:active,.mc:active,.tcard:active,.chip:active,
+	.tq:active,.nm-item:active,.ni:active,.strat-card:active,
+	.niche-row:active,.backbtn:active,
+	.copy-btn:active,.fu-send:active,.sheet-x:active{
+		transform:none;
+	}
+	.ai-loading-icon,.ai-loading-dots span,.typing span{
+		animation:none;opacity:1;
+	}
+}
+
+/* Модалка «Навчитися розраховувати самостійно» */
+.learn-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px}
+.learn-list li{position:relative;padding-left:16px;font-size:13.5px;line-height:1.6;color:var(--t2)}
+.learn-list li::before{content:"";position:absolute;left:3px;top:.62em;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.learn-facts{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--t1)}
+/* Акцентна кнопка оплати: м'яке світіння + «блик», що пробігає раз на кілька секунд. */
+.btn.learn-pay{position:relative;overflow:hidden;animation:learnPulse 2.6s ease-in-out infinite}
+.btn.learn-pay::after{
+	content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;
+	background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+	transform:skewX(-20deg);animation:learnShine 3.4s ease-in-out infinite;pointer-events:none;
+}
+@keyframes learnPulse{
+	0%,100%{box-shadow:0 0 0 0 rgba(240,206,122,.0),0 4px 16px rgba(240,206,122,.18)}
+	50%{box-shadow:0 0 0 6px rgba(240,206,122,.12),0 4px 24px rgba(240,206,122,.4)}
+}
+@keyframes learnShine{0%,55%{left:-60%}100%{left:130%}}
+@media (prefers-reduced-motion:reduce){
+	.btn.learn-pay,.btn.learn-pay::after{animation:none}
+}
+
+/* Панель дати на екрані схеми: підпис, дата великим, компактна кнопка «змінити». */
+.num-date-row{display:flex;align-items:center;justify-content:space-between;gap:var(--s3)}
+.num-date-txt{min-width:0}
+.num-date-lbl{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--t3,var(--t2))}
+.num-date-big{margin-top:4px;font-family:var(--font);font-weight:300;font-size:30px;line-height:1.15;letter-spacing:.02em;color:var(--t1);overflow-wrap:anywhere}
+.num-date-btn{
+	flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;
+	min-height:40px;padding:0 16px 0 12px;border-radius:100px;
+	background:var(--goldg);border:1px solid var(--gold-line);
+	color:var(--gold);font-size:14px;font-weight:500;
+	transition:transform 120ms var(--ease),background-color 180ms var(--ease);
+}
+.num-date-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.num-date-btn:active{transform:scale(.96)}
+
+/* Екран «інша дата»: усе по центру й рівними проміжками. */
+.num-other-form{text-align:center;gap:var(--s4,20px);padding-top:28px;padding-bottom:28px}
+.num-other-form .igrp{margin-top:0}
+.num-other-form .ilbl{text-align:center}
+.num-other-form .inp{text-align:center;font-size:20px;letter-spacing:.06em}
+
+/* Напис LUSY, що «пишеться» ручкою: штрихи малюються по черзі (--d — затримка,
+   --t — тривалість кожного). Штрих до початку невидимий (opacity:0): інакше
+   округла кінцівка нульової довжини dash-а малює крапку в початку лінії ще до
+   того, як її «почали писати». */
+.sp-name .sp-pen{display:block;width:210px;height:auto;overflow:visible}
+.sp-pen path{
+	fill:none;stroke:var(--gold);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;
+	stroke-dasharray:1;stroke-dashoffset:1;opacity:0;
+	animation:spWrite var(--t,.5s) cubic-bezier(.35,.1,.5,1) var(--d,0s) both;
+}
+@keyframes spWrite{
+	from{stroke-dashoffset:1;opacity:0}
+	1%{stroke-dashoffset:.99;opacity:1}
+	to{stroke-dashoffset:0;opacity:1}
+}
+@media (prefers-reduced-motion:reduce){
+	.sp-pen path{animation:none;stroke-dashoffset:0;opacity:1}
+}
+
+/* ─── Сплеш: магічний фон ───────────────────────────────────
+   Усе поверх фону й під написом, нічого не заважає читанню. Зірочки — крихітні
+   золоті точки, що по черзі мерехтять; сяйво — дуже м'яка пляма за словом;
+   іскри — чотирипроменеві зірочки, що спалахують на верхівках літер. */
+#splash{overflow:hidden}
+.sp-glow{
+	position:absolute;left:50%;top:50%;width:340px;height:340px;margin:-170px 0 0 -170px;
+	background:radial-gradient(closest-side,rgba(240,206,122,.16),rgba(240,206,122,.05) 55%,transparent 100%);
+	opacity:0;animation:spGlow 1.8s ease-out .2s forwards;pointer-events:none;
+}
+@keyframes spGlow{to{opacity:1}}
+.sp-stars{position:absolute;inset:0;pointer-events:none}
+.sp-stars i{
+	position:absolute;left:var(--x);top:var(--y);width:var(--s);height:var(--s);
+	border-radius:50%;background:var(--gold);
+	box-shadow:0 0 6px 1px rgba(240,206,122,.55);
+	opacity:0;animation:spTwinkle var(--p) ease-in-out var(--d) infinite;
+}
+@keyframes spTwinkle{
+	0%,100%{opacity:0;transform:scale(.4)}
+	50%{opacity:.9;transform:scale(1)}
+}
+.sp-name{position:relative}
+.sp-spark{
+	position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;background:var(--gold);
+	clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);
+	filter:drop-shadow(0 0 4px rgba(240,206,122,.9));
+	opacity:0;transform:scale(0) rotate(0deg);
+	animation:spSpark .9s cubic-bezier(.2,.7,.3,1) var(--d) forwards;
+}
+@keyframes spSpark{
+	0%{opacity:0;transform:scale(0) rotate(-30deg)}
+	35%{opacity:1;transform:scale(1.15) rotate(0deg)}
+	100%{opacity:0;transform:scale(.3) rotate(40deg)}
+}
+@media (prefers-reduced-motion:reduce){
+	.sp-stars i{animation:none;opacity:.5;transform:none}
+	.sp-spark{display:none}
+	.sp-glow{animation:none;opacity:1}
+}
+
+/* ─── Мої послуги ─────────────────────────────────────────── */
+/* Плитка на головній: виділена золотом (рамка, світіння, назва великими), щоб
+   читалась як головна дія, а не ще один модуль. */
+.mc.mc-svc{
+	background:linear-gradient(135deg,rgba(240,206,122,.12),rgba(240,206,122,.03) 60%,var(--card));
+	border-color:var(--gold-line);
+	box-shadow:0 0 0 1px rgba(240,206,122,.06),0 6px 22px rgba(240,206,122,.07);
+}
+.mc-svc .mname{color:var(--gold);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:14px}
+.mc-svc .mico{background:rgba(240,206,122,.12);color:var(--gold)}
+.svc-chev{display:inline-flex;width:20px;height:20px;color:var(--gold)}
+.svc-chev svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mc-svc .mc-corner,.mc-biz .mc-corner{align-self:center}
+
+.svc-pick{color:var(--gold)}
+.btn.svc-item{justify-content:space-between;text-align:left;gap:12px;padding:15px 16px;min-height:54px}
+.svc-item-t{flex:1;font-size:15px;line-height:1.35}
+.svc-panel{gap:var(--s3,14px)}
+.svc-b{font-family:var(--font);font-weight:400;font-size:17px;line-height:1.35;letter-spacing:.02em;color:var(--t1)}
+.svc-h{margin-top:6px}
+.svc-sh{display:flex;flex-direction:column;gap:4px}
+.svc-shh{font-size:14px;font-weight:500;color:var(--t1)}
+.btn.svc-cta{position:relative;overflow:hidden;animation:learnPulse 2.6s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.btn.svc-cta{animation:none}}
+
+/* Підекрани без нижньої навігації: не резервуємо під неї місце, скрол
+   зупиняється трохи нижче останньої кнопки. */
+#svc-detail.on,#biz-list.on{padding-bottom:calc(var(--sab) + 28px)}
+
+/* ─── Головна: три великі картки ──────────────────────────── */
+#mgrid{gap:12px}
+#mgrid .mc{min-height:118px;padding:20px 18px 20px 18px;align-items:center;overflow:hidden}
+#mgrid .mc > *{position:relative;z-index:1}
+/* Великий напівпрозорий знак у кутку — «карта». */
+#mgrid .mc::after{
+	content:"";position:absolute;right:-10px;bottom:-26px;z-index:0;
+	font-size:120px;line-height:1;color:var(--gold);opacity:.07;pointer-events:none;
+}
+#mgrid .mc-hero::after{content:"\25C6"}
+#mgrid .mc-svc::after{content:"\2726"}
+#mgrid .mc-biz::after{content:"\25CE"}
+.mc.mc-hero{
+	background:linear-gradient(135deg,rgba(240,206,122,.18),rgba(240,206,122,.04) 62%,var(--card));
+	border-color:var(--gold-line);
+	box-shadow:0 0 0 1px rgba(240,206,122,.06),0 8px 26px rgba(240,206,122,.09);
+}
+.mc-hero .mname{color:var(--gold);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:15px}
+.mc-hero .mico{background:rgba(240,206,122,.14)}
+.mc.mc-biz{
+	background:linear-gradient(135deg,rgba(150,196,160,.09),rgba(150,196,160,.02) 62%,var(--card));
+}
+.mc-biz .mico{color:#bfe0c6;background:rgba(170,160,255,.12)}
+.mc-biz .svc-chev{color:#bfe0c6}
+#mgrid .mc .mdesc{font-size:13px;line-height:18px}
+#mgrid .mc .mname{font-size:15.5px}
+
+/* ─── Мої послуги: випадання списку й відгук на дотик ─────── */
+.btn.svc-item{animation:svcDrop 560ms cubic-bezier(.2,.9,.25,1) calc(var(--i,0) * 70ms) backwards}
+@keyframes svcDrop{
+	0%{opacity:0;transform:translateY(-18px) scale(.95)}
+	60%{opacity:1;transform:translateY(3px) scale(1.01)}
+	100%{opacity:1;transform:none}
+}
+.btn.svc-item.tap{animation:svcTap 180ms cubic-bezier(.3,.7,.4,1)}
+@keyframes svcTap{
+	0%{transform:scale(1)}
+	45%{transform:scale(.95)}
+	100%{transform:scale(1.015)}
+}
+@media (prefers-reduced-motion:reduce){
+	.btn.svc-item,.btn.svc-item.tap{animation:none}
+}
+
+/* ═══ Головна й хаб: кольорові «карти» ═══════════════════════
+   Кожна картка має свій колір (--c — RGB-трійка): жовтий, синій, фіолетовий.
+   Фон, рамка, іконка, шеврон і знак у кутку беруть його звідти. */
+.mc-hero{--c:240,206,122}
+.mc-svc{--c:226,160,130}
+.mc-biz{--c:150,196,160}
+#biz-grid .mc:nth-child(1){--c:150,196,160}  /* шавлія */
+#biz-grid .mc:nth-child(2){--c:226,160,130}  /* мідь */
+#biz-grid .mc:nth-child(3){--c:240,206,122}  /* жовтий */
+#biz-grid .mc:nth-child(4){--c:236,224,202}  /* шампань */
+#biz-grid .mc:nth-child(5){--c:208,122,142}  /* вино-рожевий */
+
+#mgrid .mc,#biz-grid .mc{
+	position:relative;overflow:hidden;
+	background:linear-gradient(135deg,rgba(var(--c),.17),rgba(var(--c),.04) 62%,var(--card));
+	border-color:rgba(var(--c),.38);
+	box-shadow:0 0 0 1px rgba(var(--c),.05),0 8px 24px rgba(var(--c),.08);
+}
+#mgrid .mc .mico,#biz-grid .mc .mico{color:rgb(var(--c));background:rgba(var(--c),.15)}
+#mgrid .mc .mico .rh{background:rgb(var(--c))}
+.mico-svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+#mgrid .mc .mname,#biz-grid .mc .mname{color:rgb(var(--c))}
+#mgrid .mc-biz .mname{text-transform:uppercase;letter-spacing:.08em;font-weight:600;font-size:15px}
+#mgrid .mc .svc-chev,#biz-grid .mc .svc-chev{color:rgb(var(--c))}
+#mgrid .mc::after,#biz-grid .mc::after{
+	content:"";position:absolute;right:-10px;bottom:-26px;z-index:0;
+	font-size:120px;line-height:1;color:rgb(var(--c));opacity:.08;pointer-events:none;
+}
+#mgrid .mc-hero::after{content:"\25C6"}
+#mgrid .mc-svc::after{
+	content:"";width:130px;height:130px;right:-8px;bottom:-22px;
+	background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgb(226,160,130)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 5h14a2 2 0 012 2v8a2 2 0 01-2 2h-7l-4.5 3.5V17H5a2 2 0 01-2-2V7a2 2 0 012-2z'/%3E%3Cpath d='M8 10h8M8 13h5'/%3E%3C/svg%3E") no-repeat center/contain;
+}
+#mgrid .mc-biz::after{content:"\25CE"}
+#biz-grid .mc:nth-child(1)::after{content:"\2726"}
+#biz-grid .mc:nth-child(2)::after{content:"\25CE"}
+#biz-grid .mc:nth-child(3)::after{content:"\25C7"}
+#biz-grid .mc:nth-child(4)::after{content:"\25C8"}
+#biz-grid .mc:nth-child(5)::after{content:"\25D0"}
+#biz-grid{gap:12px}
+#biz-grid .mc{min-height:118px;padding:20px 18px;align-items:center}
+#biz-grid .mc > *{position:relative;z-index:1}
+#biz-grid .mc .mname{font-size:16px;font-weight:500}
+#biz-grid .mc .mdesc{font-size:13px;line-height:18px}
+#biz-grid .mc.locked{background:linear-gradient(135deg,rgba(var(--c),.12),rgba(var(--c),.03) 62%,var(--card))}
+
+/* Поява карток: випадають зверху з пружинкою, по черзі, і по кожній пробігає
+   один блиск. */
+#mgrid .mc,#biz-grid .mc{animation:cardDrop 720ms cubic-bezier(.2,.9,.25,1) backwards}
+#mgrid .mc:nth-child(1),#biz-grid .mc:nth-child(1){animation-delay:60ms}
+#mgrid .mc:nth-child(2),#biz-grid .mc:nth-child(2){animation-delay:200ms}
+#mgrid .mc:nth-child(3),#biz-grid .mc:nth-child(3){animation-delay:340ms}
+#biz-grid .mc:nth-child(4){animation-delay:480ms}
+#biz-grid .mc:nth-child(5){animation-delay:620ms}
+@keyframes cardDrop{
+	0%{opacity:0;transform:translateY(-34px) scale(.93) rotate(-1.2deg)}
+	55%{opacity:1;transform:translateY(6px) scale(1.012) rotate(.25deg)}
+	78%{transform:translateY(-2px) scale(.998)}
+	100%{opacity:1;transform:none}
+}
+#mgrid .mc::before,#biz-grid .mc::before{
+	content:"";position:absolute;top:0;bottom:0;left:-70%;width:40%;z-index:2;pointer-events:none;
+	background:linear-gradient(100deg,transparent,rgba(var(--c),.28),transparent);
+	transform:skewX(-20deg);animation:cardShine 1.2s ease-out 1s 1 backwards;
+}
+#mgrid .mc:nth-child(2)::before,#biz-grid .mc:nth-child(2)::before{animation-delay:1.15s}
+#mgrid .mc:nth-child(3)::before,#biz-grid .mc:nth-child(3)::before{animation-delay:1.3s}
+#biz-grid .mc:nth-child(4)::before{animation-delay:1.45s}
+#biz-grid .mc:nth-child(5)::before{animation-delay:1.6s}
+@keyframes cardShine{from{left:-70%}to{left:140%}}
+@media (prefers-reduced-motion:reduce){
+	#mgrid .mc,#biz-grid .mc,#mgrid .mc::before,#biz-grid .mc::before{animation:none}
+}
+
+/* ─── Пейвол модуля: компактно, платіжні картки мерехтять ─── */
+.mpw-head{display:flex;align-items:center;gap:14px;padding:14px 16px;margin-bottom:0}
+.mpw-head .mod-access-lock{margin:0;flex:none;width:28px;height:28px;color:var(--gold)}
+.mpw-head-txt{min-width:0}
+.mpw-head .mod-access-title{font-size:20px;color:var(--t1)}
+.mpw-head .mod-access-sub{margin:4px 0 0;font-size:13px}
+.mpw-incl{margin-top:12px}
+.mpw-tcards{margin-top:14px}
+.mpw-tcards .tcard{
+	margin-bottom:12px;padding:15px 14px 15px 16px;
+	border-color:var(--plan-top-border);
+	background-image:linear-gradient(100deg,transparent 35%,rgba(240,206,122,.22) 50%,transparent 65%);
+	background-size:260% 100%;background-repeat:no-repeat;background-position:130% 0;
+	animation:riseIn 400ms var(--ease) backwards,tcShimmer 3.2s ease-in-out 0.8s infinite,tcGlow 2.6s ease-in-out infinite;
+}
+.mpw-tcards .tcard:nth-of-type(2){animation-delay:34ms,1.1s,0s}
+.mpw-tcards .tcard:nth-of-type(3){animation-delay:68ms,1.4s,0s}
+.mpw-tcards .tcard:nth-of-type(n+4){animation-delay:102ms,1.7s,0s}
+.mpw-tcards .tcard.tpop{box-shadow:0 0 0 1px rgba(240,206,122,.25)}
+.mpw-tcards .tprice{color:var(--gold)}
+@keyframes tcShimmer{
+	0%,35%{background-position:130% 0}
+	75%,100%{background-position:-30% 0}
+}
+@keyframes tcGlow{
+	0%,100%{box-shadow:0 0 0 0 rgba(240,206,122,0)}
+	50%{box-shadow:0 0 18px 1px rgba(240,206,122,.22)}
+}
+@media (prefers-reduced-motion:reduce){.mpw-tcards .tcard{animation:none}}
+
+/* Шеврон «Мої послуги» / «Покращити мій блог» — по центру картки, а не біля
+   першого рядка: кутова колонка займає обидва рядки сітки. */
+#mgrid .mc-svc,#mgrid .mc-biz{grid-template-areas:'ico name tag' 'ico desc tag'}
+#mgrid .mc-svc .mc-corner,#mgrid .mc-biz .mc-corner{align-self:center;justify-self:end}
+
+/* Підпис вибору періоду — в один рядок. */
+#pw-action .pwsub{max-width:none;white-space:nowrap}
+
+/* ═══ Головна за референсом: велика картка Матриці + два рядки ═══════════
+   Шапка із серифним привітанням, велика темно-золота картка з власною іконкою
+   й кнопкою всередині, нижче — «Мої послуги» та «Мій блог» спокійними темними
+   рядками з кольоровою іконкою (срібно-блакитна / фіолетова). */
+#home .scr-hdr{margin-bottom:4px;align-items:center}
+#home .scr-title{
+	font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
+	font-weight:400;font-size:34px;line-height:1.12;letter-spacing:.005em;
+}
+#home .scr-hdr .avring{width:52px;height:52px;border-color:rgba(240,206,122,.5)}
+#home .sect-lbl{
+	margin:22px 0 14px;font-size:14.5px;letter-spacing:.06em;
+	text-transform:none;color:var(--t1);
+}
+
+/* Картка Матриці */
+#mgrid .mc.mc-hero{
+	grid-template-columns:1fr auto;
+	grid-template-areas:'tag ico' 'name ico' 'desc ico' 'cta cta';
+	column-gap:6px;row-gap:6px;align-items:start;
+	padding:18px 18px 18px;min-height:0;
+	background:
+		radial-gradient(120% 90% at 82% 18%,rgba(240,206,122,.16),transparent 60%),
+		linear-gradient(150deg,rgba(60,48,26,.92),rgba(24,22,20,.96) 62%,var(--card));
+	border-color:rgba(240,206,122,.32);
+	box-shadow:0 10px 30px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,236,190,.08);
+}
+#mgrid .mc-hero::after{content:none}
+#mgrid .mc-hero .mc-corner{align-self:start;justify-self:start;margin-bottom:6px}
+#mgrid .mc-hero .mtag{
+	height:24px;padding:0 12px;font-size:12px;letter-spacing:.03em;text-transform:none;
+	color:var(--gold);background:rgba(240,206,122,.07);border:1px solid rgba(240,206,122,.45);
+}
+#mgrid .mc-hero .mname{
+	font-family:'Iowan Old Style','Palatino Linotype',Palatino,Georgia,'Times New Roman',serif;
+	font-weight:400;font-size:31px;line-height:1.04;letter-spacing:.005em;
+	text-transform:none;color:#F6EBCB;align-self:end;
+}
+#mgrid .mc-hero .mdesc{font-size:14px;line-height:1.4;color:var(--t2);max-width:21ch}
+#mgrid .mc-hero .mico{
+	grid-area:ico;align-self:center;justify-self:end;
+	width:124px;height:124px;border-radius:0;background:none;margin:-2px -4px 0 0;
+}
+.mx-ico{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 0 10px rgba(240,206,122,.28))}
+.mx-orbit{transform-box:fill-box;transform-origin:center;animation:mxSpin 70s linear infinite}
+.mx-star{transform-box:fill-box;transform-origin:center;animation:mxPulse 3.4s ease-in-out infinite}
+.mx-glow{animation:mxBreath 3.4s ease-in-out infinite}
+@keyframes mxSpin{to{transform:rotate(360deg)}}
+@keyframes mxPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.22) rotate(8deg);opacity:.85}}
+@keyframes mxBreath{0%,100%{opacity:.55}50%{opacity:1}}
+
+/* Кнопка всередині картки (це span: сама картка — <button>) */
+.mc-cta{
+	grid-area:cta;align-self:stretch;margin-top:12px;
+	display:flex;align-items:center;justify-content:space-between;
+	height:52px;padding:0 18px 0 22px;border-radius:14px;
+	font-size:16px;font-weight:600;letter-spacing:.01em;color:#1B1507;
+	background:linear-gradient(100deg,#E9C877,#F7E4A6 50%,#D9B25B);
+	box-shadow:0 6px 18px rgba(240,206,122,.22),inset 0 1px 0 rgba(255,255,255,.45);
+	position:relative;overflow:hidden;
+}
+.mc-cta span{flex:1;text-align:center;margin-left:20px}
+.mc-cta svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.mc-cta::after{
+	content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;
+	background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+	transform:skewX(-20deg);animation:ctaShine 4.2s ease-in-out 1.6s infinite;
+}
+@keyframes ctaShine{0%,60%{left:-60%}100%{left:140%}}
+
+/* Два рядки */
+#mgrid .mc-svc{--c:150,176,196}
+
+#mgrid .mc.mc-svc,#mgrid .mc.mc-biz{
+	min-height:0;padding:16px 16px 16px 14px;column-gap:14px;row-gap:2px;
+	grid-template-columns:auto 1fr auto;grid-template-areas:'ico name tag' 'ico desc tag';
+	background:linear-gradient(135deg,rgba(var(--c),.09),rgba(255,255,255,.025) 60%,var(--card));
+	border-color:rgba(255,255,255,.09);
+	box-shadow:0 6px 18px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05);
+}
+#mgrid .mc-svc::after,#mgrid .mc-biz::after{content:none}
+#mgrid .mc-svc .mico,#mgrid .mc-biz .mico{
+	width:56px;height:56px;border-radius:0;background:none;color:rgb(var(--c));
+	filter:drop-shadow(0 0 8px rgba(var(--c),.3));
+}
+.mr-ico{width:52px;height:52px}
+.mr-spark{transform-box:fill-box;transform-origin:center;animation:mxPulse 3.2s ease-in-out infinite}
+#mgrid .mc-svc .mname,#mgrid .mc-biz .mname{
+	font-size:18px;font-weight:600;letter-spacing:.005em;text-transform:none;color:var(--t1);
+}
+#mgrid .mc-svc .mdesc,#mgrid .mc-biz .mdesc{font-size:13.5px;line-height:1.35;color:var(--t2)}
+#mgrid .mc-svc .svc-chev,#mgrid .mc-biz .svc-chev{color:var(--t1);width:22px;height:22px}
+@media (prefers-reduced-motion:reduce){
+	.mx-orbit,.mx-star,.mx-glow,.mr-spark,.mc-cta::after{animation:none}
+}
+
+/* Іконки більші й виразніші */
+#mgrid .mc-hero .mico{width:142px;height:142px;margin:-6px -8px -2px 0}
+#mgrid .mc-svc .mico,#mgrid .mc-biz .mico{width:66px;height:66px;filter:drop-shadow(0 0 10px rgba(var(--c),.35))}
+.mr-ico{width:100%;height:100%}
+
+/* Профіль під аватаркою; «Мої послуги» — вкладка меню без кнопки «назад». */
+.avring-btn{cursor:pointer;transition:transform 120ms var(--ease)}
+.avring-btn:active{transform:scale(.94)}
+#svc-list .backbtn{display:none}
+#prof .scr-hdr > .backbtn{flex:none;align-self:center}
+#tar .scr-hdr{margin-bottom:18px}
+#tar .scr-sub{max-width:none}
+
+/* Заголовок вкладки «Послуги» — того ж розміру, що в «Про автора». */
+#svc-list .fltitle{font-size:34px;line-height:1.15}
+#svc-list .flhdr{margin-bottom:20px}
+/* «Про автора»: менше повітря між заголовком і фото. */
+#aut .scr-hdr{margin-bottom:10px}
+#aut .au-hero{padding-top:0}
+#btn-pick-plan{margin-top:16px}
+#tar-plans .sect-lbl{margin-top:24px}
+
+/* Блок «Що ти можеш отримати» — завжди відкритий, без згортання. */
+.tar-acc-hd{display:flex;align-items:center;gap:10px;padding:14px 15px 6px;font-size:14px;color:var(--text)}
+.tar-box .tar-acc-list{padding-top:2px}
+#tar-free-note{
+	margin:12px 0 0;padding:13px 15px;font-size:13.5px;line-height:1.5;color:var(--t1);
+	border:1px solid var(--gold-line);background:rgba(240,206,122,.06);border-radius:var(--radius-card-sm);
+}
+#tar-free-note b{color:var(--gold);font-weight:500}
+#pw-action .pwsub{font-size:13px}
+
+#mgrid .mc-svc{--c:150,176,196}
+#mgrid .mc-biz{--c:190,166,216}
+#mgrid .mc-svc .mico,#mgrid .mc-biz .mico{filter:none}
+
+/* «Мій блог»: ілюстрація зверху й список із короткими описами. */
+.blog-hero{margin:2px 0 18px}
+.blog-hero svg{display:block;width:100%;height:auto;max-height:170px}
+.bh-bars rect{transform-box:fill-box;transform-origin:bottom;animation:bhGrow 900ms cubic-bezier(.2,.9,.25,1) backwards}
+.bh-bars rect:nth-child(2){animation-delay:140ms}
+.bh-bars rect:nth-child(3){animation-delay:280ms}
+@keyframes bhGrow{from{transform:scaleY(.05);opacity:0}to{transform:none;opacity:1}}
+.bh-spark{transform-box:fill-box;transform-origin:center;animation:mxPulse 3.4s ease-in-out infinite}
+.bh-spark.b{animation-delay:1.2s}
+@media (prefers-reduced-motion:reduce){.bh-bars rect,.bh-spark{animation:none}}
+.tli{display:grid;grid-template-columns:20px 1fr;column-gap:12px;row-gap:2px;padding:9px 0}
+.tli svg{grid-row:1 / span 2;width:16px;height:16px;margin-top:3px;color:var(--accent)}
+.tli-t{font-size:14.5px;color:var(--t1)}
+.tli-d{font-size:12.5px;line-height:1.4;color:var(--t2)}
+.tar-box .tar-acc-list{padding:2px 15px 8px}
+.mc-until{display:block;margin-top:5px;font-size:12.5px;color:var(--gold)}
+#btn-open-blog{margin-top:10px}
+
+/* Екран модуля: компактний пейвол і проста історія. */
+.ma-hist-lbl{margin:2px 0 10px}
+.mpw-incl{margin-top:12px}
+.mpw-incl .tli{padding:6px 0}
+.tli.compact{grid-template-columns:20px 1fr}
+.tli.compact svg{grid-row:auto}
+.tli.cur .tli-t{color:var(--gold)}
+#ma-btn-pick{margin-top:14px}
+.mpw-plans{margin-top:6px}
+
+/* «Мої послуги»: емодзі окремо від тексту, у власній плитці. */
+.btn.svc-item{justify-content:flex-start;gap:14px;padding:12px 14px;min-height:68px}
+.svc-emo{flex:none;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:14px;
+	font-size:26px;line-height:1;background:rgba(240,206,122,.10);border:1px solid rgba(240,206,122,.18)}
+.svc-item .svc-chev{margin-left:auto}
+
+/* Сторінка успішної оплати */
+.pw-burst{position:relative;width:96px;height:96px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center}
+.pw-burst .pw-ok{margin:0;width:68px;height:68px;font-size:30px;box-shadow:0 0 0 0 rgba(240,206,122,.35);animation:okPop 520ms var(--ease) backwards,okRing 2.4s ease-out 500ms infinite}
+@keyframes okRing{0%{box-shadow:0 0 0 0 rgba(240,206,122,.38)}100%{box-shadow:0 0 0 26px rgba(240,206,122,0)}}
+.pw-burst .sp{position:absolute;width:8px;height:8px;background:var(--gold);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:spTw 2.6s ease-in-out infinite}
+.pw-burst .s1{top:2px;left:14px}.pw-burst .s2{top:10px;right:6px;animation-delay:.5s;width:11px;height:11px}
+.pw-burst .s3{bottom:6px;left:2px;animation-delay:1s;width:6px;height:6px}.pw-burst .s4{bottom:0;right:16px;animation-delay:1.5s}
+.pw-burst .s5{top:-4px;left:50%;animation-delay:.9s;width:6px;height:6px}
+@keyframes spTw{0%,100%{opacity:.25;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}}
+#pw-success .pwtitle,#pw-success .pwsub{text-align:center}
+.pw-ok-open{margin:18px 0 6px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--t2)}
+.pw-ok-list{margin-bottom:14px;padding:4px 14px;border-radius:var(--rs);background:var(--bg3)}
+#btn-pw-success-close{margin-top:8px}
+@media (prefers-reduced-motion:reduce){.pw-burst .pw-ok,.pw-burst .sp{animation:none}}
+
+/* Екран модуля: «потрібен доступ» — зверху, з коротким струсом. */
+.mpw-head{animation:lockShake 700ms cubic-bezier(.36,.07,.19,.97) 200ms both}
+.mpw-head .mod-access-lock{animation:lockWobble 4.5s ease-in-out 1.6s infinite;transform-origin:50% 20%}
+@keyframes lockShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-6px)}40%,60%{transform:translateX(6px)}}
+@keyframes lockWobble{0%,12%,100%{transform:rotate(0)}3%{transform:rotate(-12deg)}6%{transform:rotate(10deg)}9%{transform:rotate(-6deg)}}
+@media (prefers-reduced-motion:reduce){.mpw-head,.mpw-head .mod-access-lock{animation:none}}
+.ma-hist{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0}
+.tli svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
