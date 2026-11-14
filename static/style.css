@@ -2460,3 +2460,36 @@ body.num-zoom-on{overflow:hidden}
 .bh-top{opacity:0;animation:bhTop .6s ease-out 1.35s forwards,mxPulse 3.4s ease-in-out 2s infinite}
 @keyframes bhTop{to{opacity:1}}
 @media (prefers-reduced-motion:reduce){.bh-reveal{animation:none;stroke-dashoffset:0}.bh-top{animation:none;opacity:1}}
+
+/* Поступова поява при прокрутці */
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.8,.3,1);transition-delay:calc(var(--i,0) * 80ms)}
+.rv.in{opacity:1;transform:none}
+.tli svg path{stroke-dasharray:26;stroke-dashoffset:26}
+.tli.in svg path{stroke-dashoffset:0;transition:stroke-dashoffset .6s ease calc(var(--i,0) * 80ms + 200ms)}
+.blog-hero svg{animation:bhFloat 6s ease-in-out infinite}
+@keyframes bhFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none;transition:none}.tli svg path{stroke-dashoffset:0}.blog-hero svg{animation:none}}
+
+/* Заголовок списку: жовтий, більший, без значка */
+.tar-acc-hd{padding:16px 16px 6px;font-size:19px;line-height:1.3;color:var(--gold);letter-spacing:.005em}
+
+/* Матриця: компактна картка дати народження */
+.num-dcard{display:flex;align-items:center;gap:14px;padding:12px 14px;border-radius:var(--radius-card-sm);
+	background:var(--card);border:1px solid var(--gold-line)}
+.num-dico{flex:none;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+	background:rgba(240,206,122,.12);color:var(--gold)}
+.num-dico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.num-dtxt{display:flex;flex-direction:column;min-width:0}
+.num-dk{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--t2)}
+.num-dv{font-size:24px;line-height:1.2;font-weight:300;letter-spacing:.03em;color:var(--t1)}
+.num-dh{margin-top:2px;font-size:11.5px;line-height:1.35;color:var(--t3,var(--t2))}
+
+/* Матриця: компактний блок послуг */
+.num-consult{padding:14px 15px;gap:10px}
+.num-consult .num-para{font-size:13px;line-height:1.5}
+.num-svcgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nbtn{display:flex;align-items:center;justify-content:center;text-align:center;min-height:44px;padding:8px 10px;
+	border-radius:var(--radius-card-sm);border:1px solid var(--line);background:transparent;
+	font-size:13px;line-height:1.25;color:var(--t1);transition:transform 120ms var(--ease),background-color 180ms var(--ease)}
+.nbtn.wide{grid-column:1 / -1}
+.nbtn:active{transform:scale(.97);background:var(--bg3)}

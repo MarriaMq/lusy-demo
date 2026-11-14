@@ -299,7 +299,6 @@ var I18N = {
        каже num_lang_note. Мовчазної підстановки немає — є декларація. */
     num_title: 'Destiny Matrix',
     num_title_pair: 'Couple matrix',
-    num_you: 'Your matrix',
     num_birthdate: 'Date of birth',
     num_no_birthdate: 'Your profile has no date of birth. Enter it below \u2014 the matrix will be calculated once and your profile will stay unchanged.',
     num_btn_calc: 'Calculate the matrix',
@@ -377,6 +376,7 @@ var I18N = {
     svc_tile_name: 'My services',
     svc_tile_desc: 'Consultations, learning and support',
     num_forecast_btn: 'Order a forecast for 2027',
+    num_date_hint: 'The matrix is calculated from this birth date in your profile',
     num_call_btn: 'Book a free call about personal mentoring',
     num_call_msg: 'Hello! I would like to book a free call about personal mentoring. Could you tell me how to do it?',
     num_learn_btn: 'Learn to calculate it yourself',
@@ -695,7 +695,6 @@ var I18N = {
        українською, і про це прямо каже num_lang_note. */
     num_title: 'Матрица судьбы',
     num_title_pair: 'Матрица пары',
-    num_you: 'Твоя матрица',
     num_birthdate: 'Дата рождения',
     num_no_birthdate: 'В профиле нет даты рождения. Введи её ниже \u2014 матрица посчитается разово, профиль не изменится.',
     num_btn_calc: 'Рассчитать матрицу',
@@ -773,6 +772,7 @@ var I18N = {
     svc_tile_name: 'Мои услуги',
     svc_tile_desc: 'Консультации, обучение и поддержка',
     num_forecast_btn: 'Заказать прогностику на 2027 год',
+    num_date_hint: 'Матрицу рассчитаем по этой дате рождения из твоего профиля',
     num_call_btn: 'Заказать бесплатный созвон о личном наставничестве',
     num_call_msg: 'Здравствуйте! Хочу заказать бесплатный созвон о личном наставничестве. Подскажите, пожалуйста, как это сделать?',
     num_learn_btn: 'Научиться рассчитывать самостоятельно',
@@ -1460,14 +1460,33 @@ var TAR_INCL = [
   { id:'warmups',  key:'tar_i_warmups',  uk:'Підготовка до продажу' },
   { id:'numerology', key:'tar_i_numerology', uk:'Матриця долі' }
 ];
+/* Поступова поява при прокрутці: елементи з .rv зʼявляються, коли потрапляють
+   у видиму зону (затримка — через --i). Без IntersectionObserver показуємо одразу. */
+var _rvObs = null;
+function revealWatch(){
+  var els = document.querySelectorAll('.rv:not(.in)');
+  if(!('IntersectionObserver' in window)){
+    Array.prototype.forEach.call(els, function(el){ el.classList.add('in'); });
+    return;
+  }
+  if(!_rvObs){
+    _rvObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add('in'); _rvObs.unobserve(en.target); }
+      });
+    }, {threshold: 0.12});
+  }
+  Array.prototype.forEach.call(els, function(el){ _rvObs.observe(el); });
+}
 function renderTariffIncludes(){
   var wrap = document.getElementById('tar-incl-list');
   if(!wrap) return;
-  wrap.innerHTML = TAR_INCL.map(function(it){
-    return '<div class="tli">'+CHECK_SVG
+  wrap.innerHTML = TAR_INCL.map(function(it, i){
+    return '<div class="tli rv" style="--i:'+i+'">'+CHECK_SVG
       +'<span class="tli-t">'+escHtml(t(it.key, it.uk))+'</span>'
       +'<span class="tli-d">'+escHtml(modDesc(it.id))+'</span></div>';
   }).join('');
+  revealWatch();
 }
 
 function renderAuthorStats(){
@@ -2103,8 +2122,7 @@ function modPaywallHtml(id, title, sub, reason, extra){
     +'</div></div>';
   h += extra || '';
   h += '<div class="tar-acc tar-box mpw-incl">'
-    +'<div class="tar-acc-hd"><span class="tar-acc-ok" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-4.8"/></svg></span>'
-    +'<span>'+escHtml(t('tar_incl_title','Що ти отримаєш після оплати?'))+'</span></div>'
+    +'<div class="tar-acc-hd"><span>'+escHtml(t('tar_incl_title','Що ти отримаєш після оплати?'))+'</span></div>'
     +'<div class="tar-acc-list">'
     + TAR_INCL.map(function(it){
         return '<div class="tli compact'+(it.id === id ? ' cur' : '')+'">'+CHECK_SVG
@@ -5044,11 +5062,13 @@ function numRenderHome(otherOnly){
     h +=   '<button class="btn bp" id="num-other-go">' + escHtml(t('num_btn_calc','Розрахувати матрицю')) + '</button>';
     h += '</div>';
   } else {
-    h += '<div class="num-panel num-stack">';
-    h +=   '<div class="num-card-title">' + escHtml(name || t('num_you','Твоя матриця')) + '</div>';
-    h +=   '<div class="num-row"><span class="num-row-k">' + escHtml(t('num_birthdate','Дата народження')) + '</span>' +
-           '<span class="num-row-v">' + escHtml(bd) + '</span></div>';
-    h += '</div>';
+    h += '<div class="num-dcard">'
+      +'<span class="num-dico" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="3"/><path d="M8 3v4M16 3v4M4 10h16"/></svg></span>'
+      +'<span class="num-dtxt">'
+      +'<span class="num-dk">' + escHtml(name ? name + ' · ' + t('num_birthdate','Дата народження') : t('num_birthdate','Дата народження')) + '</span>'
+      +'<span class="num-dv">' + escHtml(bd) + '</span>'
+      +'<span class="num-dh">' + escHtml(t('num_date_hint','Матрицю розрахуємо за цією датою з твого профілю')) + '</span>'
+      +'</span></div>';
     h += '<button class="btn bp" id="num-btn-calc">' +
          escHtml(t('num_btn_calc','Розрахувати матрицю')) + '</button>';
     h += '<button class="btn bg" id="num-btn-other">' +
@@ -5952,12 +5972,14 @@ function numConsultHtml(){
   return '<div class="num-panel num-stack num-consult">'
     +'<p class="num-para">'+escHtml(t('num_consult_text',
        'Це коротке тлумачення твого результату. На особистій консультації ми зможемо детальніше розібрати, як ці енергії проявляються саме у твоєму житті, де знаходиться твій ресурс і що може заважати його реалізації.'))+'</p>'
-    +'<button class="btn bp" data-nact="consult">'+escHtml(t('num_consult_btn','Розібрати детальніше з Аліною'))+'</button>'
+    +'<button class="btn bp bsm" data-nact="consult">'+escHtml(t('num_consult_btn','Розібрати детальніше з Аліною'))+'</button>'
     +'</div>'
-    +'<button class="btn bg" data-nact="call">'+escHtml(t('num_call_btn','Замовити безкоштовний зідзвон про особисте наставництво'))+'</button>'
-    +'<button class="btn bg" data-nact="learn">'+escHtml(t('num_learn_btn','Навчитись розраховувати самостійно'))+'</button>'
-    +'<button class="btn bg" data-nact="forecast">'+escHtml(t('num_forecast_btn','Замовити прогностику на 2027 рік'))+'</button>'
-    +'<button class="btn bg" data-nact="services">'+escHtml(t('num_svc_btn','Мої послуги'))+'</button>';
+    +'<div class="num-svcgrid">'
+    +'<button class="nbtn wide" data-nact="call">'+escHtml(t('num_call_btn','Замовити безкоштовний зідзвон про особисте наставництво'))+'</button>'
+    +'<button class="nbtn" data-nact="learn">'+escHtml(t('num_learn_btn','Навчитись розраховувати самостійно'))+'</button>'
+    +'<button class="nbtn" data-nact="forecast">'+escHtml(t('num_forecast_btn','Замовити прогностику на 2027 рік'))+'</button>'
+    +'<button class="nbtn wide" data-nact="services">'+escHtml(t('num_svc_btn','Мої послуги'))+'</button>'
+    +'</div>';
 }
 function numWireConsult(root){
   if(!root) return;
