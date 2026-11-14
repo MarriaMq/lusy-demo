@@ -2452,3 +2452,4 @@ body.num-zoom-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.mpw-head,.mpw-head .mod-access-lock{animation:none}}
 .ma-hist{display:flex;justify-content:space-between;align-items:center;margin:12px 0 0}
 .tli svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+#home .scr-hdr{margin-bottom:22px}
