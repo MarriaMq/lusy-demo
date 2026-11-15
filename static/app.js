@@ -6590,12 +6590,20 @@ function svcTileHtml(){
     +'</button>';
 }
 
+var SVC_ICONS = {
+  forecast: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="18" ry="3" fill="#000" opacity=".35"/><path d="M17 47h30l-4 9H21z" fill="url(#m3d)"/><path d="M15 45h30l-4 9H19z" fill="url(#m3f)"/><circle cx="33" cy="29" r="19" fill="#4b3a7a"/><circle cx="32" cy="28" r="19" fill="url(#m3v)"/><ellipse cx="25" cy="20" rx="7" ry="4.500" transform="rotate(-35 25 20)" fill="#fff" fill-opacity=".5"/><path d="M36 26C36.600 31 38.500 33 43 34C38.500 35 36.600 37 36 42C35.400 37 33.500 35 29 34C33.500 33 35.400 31 36 26Z" fill="url(#m3y)" transform="translate(-1 -3)"/></svg>',
+  club: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="18" ry="3" fill="#000" opacity=".35"/><path d="M32 55C16 43 8 33 8 23a12 12 0 0124-4 12 12 0 0124 4c0 10-8 20-24 32z" transform="translate(2 2.500)" fill="#6f2f62"/><path d="M32 55C16 43 8 33 8 23a12 12 0 0124-4 12 12 0 0124 4c0 10-8 20-24 32z" fill="url(#m3h)"/><path d="M14 20c1-5 6-8 10-7" stroke="#fff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round" fill="none"/></svg>',
+  school: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="18" ry="3" fill="#000" opacity=".35"/><path d="M18 34v10c0 4 6.500 8 14 8s14-4 14-8V34l-14 6z" transform="translate(2 2)" fill="#5f4f30"/><path d="M18 34v10c0 4 6.500 8 14 8s14-4 14-8V34l-14 6z" fill="url(#m3d)"/><path d="M6 27L32 14l26 13-26 13z" transform="translate(0 3)" fill="#7e6a44"/><path d="M6 27L32 14l26 13-26 13z" fill="url(#m3f)"/><path d="M6 27L32 14l26 13" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.300" stroke-linejoin="round"/><path d="M54 29v15" stroke="url(#m3y)" stroke-width="2.500" stroke-linecap="round"/><circle cx="54" cy="47" r="3.500" fill="url(#m3y)"/></svg>',
+  mentoring: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="18" ry="3" fill="#000" opacity=".35"/><path d="M19 13H45L56 26 32 54 8 26z" fill="url(#m3f)"/><path d="M8 26H56L32 54z" fill="url(#m3b)"/><path d="M19 13L25 26 32 13zM32 13L39 26 45 13z" fill="#fff" fill-opacity=".34"/><path d="M25 26L32 54 39 26z" fill="#1d3b60" fill-opacity=".3"/><path d="M19 13H45L56 26 32 54 8 26z" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.200" stroke-linejoin="round"/></svg>',
+  consult: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="18" ry="3" fill="#000" opacity=".35"/><path d="M30 9C32 25 38 31 54 33C38 35 32 41 30 57C28 41 22 35 6 33C22 31 28 25 30 9Z" transform="translate(2 2)" fill="#8a6a22"/><path d="M30 9C32 25 38 31 54 33C38 35 32 41 30 57C28 41 22 35 6 33C22 31 28 25 30 9Z" fill="url(#m3y)"/><path d="M50 7C50.600 11 52 12.400 56 13C52 13.600 50.600 15 50 19C49.400 15 48 13.600 44 13C48 12.400 49.400 11 50 7Z" fill="url(#m3c)"/><path d="M13 44C13.500 47 14.500 48 17.500 48.500C14.500 49 13.500 50 13 53C12.500 50 11.500 49 8.500 48.500C11.500 48 12.500 47 13 44Z" fill="url(#m3c)"/></svg>',
+  course: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="18" ry="3" fill="#000" opacity=".35"/><path d="M8 42h48v10a2 2 0 01-2 2H10a2 2 0 01-2-2z" fill="url(#m3r)"/><rect x="50" y="42" width="6" height="12" fill="#fff" fill-opacity=".35"/><path d="M12 30h42v10a2 2 0 01-2 2H14a2 2 0 01-2-2z" fill="url(#m3b)"/><rect x="48" y="30" width="6" height="12" fill="#fff" fill-opacity=".35"/><path d="M10 18h40v10a2 2 0 01-2 2H12a2 2 0 01-2-2z" fill="url(#m3f)"/><rect x="44" y="18" width="6" height="12" fill="#fff" fill-opacity=".45"/><path d="M14 22h22M16 35h20M12 47h24" stroke="#fff" stroke-opacity=".35" stroke-width="1.600" stroke-linecap="round"/></svg>'
+};
 function svcRenderItems(){
   var box = document.getElementById('svc-items');
   if(box){
     box.innerHTML = SERVICES.map(function(sv, i){
       return '<button class="btn bg svc-item" style="--i:'+i+'" data-svc="'+escHtml(sv.id)+'">'
-        +'<span class="svc-emo" aria-hidden="true">'+escHtml(sv.emoji)+'</span>'
+        +'<span class="svc-emo" aria-hidden="true">'+(SVC_ICONS[sv.id] || escHtml(sv.emoji))+'</span>'
         +'<span class="svc-item-t">'+escHtml(sv.title)+'</span>'
         +'<span class="svc-chev" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></span>'
         +'</button>';
@@ -6609,7 +6617,7 @@ function svcOpenDetail(id){
   if(!sv) return;
   SVC_CUR = sv;
   var title = document.getElementById('svc-detail-title');
-  if(title) title.textContent = sv.emoji+' '+sv.title;
+  if(title) title.innerHTML = '<span class="svc-tico" aria-hidden="true">'+(SVC_ICONS[sv.id] || '')+'</span>'+escHtml(sv.title);
   var h = '';
   sv.blocks.forEach(function(b){
     var k = b[0];
