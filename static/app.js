@@ -1565,6 +1565,7 @@ function unwindScreen(to){
 
 function show(id){
   document.querySelectorAll('.scr').forEach(function(s){ s.classList.remove('on'); });
+  if(id === 'home' && !_homeSfxDone){ _homeSfxDone = true; sfxOpen(); }
   var el = document.getElementById(id);
   if(el) el.classList.add('on');
   _curScreen = id;
@@ -1935,23 +1936,15 @@ function sfxTone(freq, t0, dur, vol){
   o.start(t0); o.stop(t0 + dur + 0.05);
 }
 /* Дзвінкий висхідний акорд із «блиском» — оплата пройшла. */
-/* Шурхіт пера: короткі «серпанки» шуму з фільтром, у такт штрихам напису. */
-function sfxScratch(t0, dur){
-  var n = Math.max(1, Math.floor(_ac.sampleRate * dur));
-  var buf = _ac.createBuffer(1, n, _ac.sampleRate), d = buf.getChannelData(0);
-  for(var i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1);
-  var src = _ac.createBufferSource(); src.buffer = buf;
-  var f = _ac.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 2.2;
-  f.frequency.setValueAtTime(2600, t0); f.frequency.linearRampToValueAtTime(4600, t0 + dur);
-  var g = _ac.createGain();
-  g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(0.05, t0 + dur * 0.25);
-  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  src.connect(f); f.connect(g); g.connect(_ac.destination);
-  src.start(t0); src.stop(t0 + dur + 0.02);
+/* Дзвіночок із металевим «блиском»: основна нота + дві верхні гармоніки. */
+function sfxBell(f, t0, dur, vol){
+  sfxTone(f, t0, dur, vol);
+  sfxTone(f * 2.76, t0, dur * 0.5, vol * 0.22);
+  sfxTone(f * 5.4, t0, dur * 0.25, vol * 0.08);
 }
-/* Заставка: шурхіт пера під час «писання» слова й м'який дзвіночок наприкінці.
-   Грає, лише якщо браузер дозволяє звук без дотику (в Telegram — зазвичай так). */
+var _sfxPent = [1046.5, 1174.7, 1318.5, 1568, 1760, 2093, 2349.3, 2637, 3136];
+/* Заставка: «магічний дощ» — безліч дзвіночків, що красиво ллються вниз, як
+   монетки або зірки, і мʼякий низький «подих» під ними. */
 function sfxSplash(){
   try{
     var AC = window.AudioContext || window.webkitAudioContext;
@@ -1959,11 +1952,32 @@ function sfxSplash(){
     if(!_ac) _ac = new AC();
     var go = function(){
       if(!_ac || _ac.state !== 'running') return;
-      var t0 = _ac.currentTime + 0.05;
-      [[0, .25], [.26, .29], [.56, .25], [.83, .12], [.96, .2]].forEach(function(st){ sfxScratch(t0 + st[0], st[1]); });
-      sfxTone(1318.5, t0 + 1.12, 0.9, 0.09);
-      sfxTone(1760, t0 + 1.2, 0.9, 0.07);
-      sfxTone(2637, t0 + 1.28, 0.7, 0.04);
+      var t0 = _ac.currentTime + 0.05, idx = _sfxPent.length - 1, i, t;
+      sfxTone(261.6, t0, 1.9, 0.035);
+      sfxTone(392, t0 + 0.1, 1.8, 0.025);
+      for(i = 0; i < 30; i++){
+        t = t0 + i * 0.052 + Math.random() * 0.025;
+        idx = Math.max(0, Math.min(_sfxPent.length - 1, idx + (Math.random() < 0.72 ? -1 : 1)));
+        if(idx === 0 && Math.random() < 0.5) idx = _sfxPent.length - 3;
+        sfxBell(_sfxPent[idx], t, 0.55 + Math.random() * 0.5, 0.028 + Math.random() * 0.02);
+      }
+    };
+    if(_ac.state === 'suspended'){ var pr = _ac.resume(); if(pr && pr.then) pr.then(go, function(){}); }
+    else go();
+  }catch(e){}
+}
+/* Звук відкриття головної: теплий висхідний мотив із трьох дзвіночків. */
+var _homeSfxDone = false;
+function sfxOpen(){
+  try{
+    if(!_ac) return;
+    var go = function(){
+      if(!_ac || _ac.state !== 'running') return;
+      var t0 = _ac.currentTime + 0.03;
+      sfxBell(783.99, t0, 1.3, 0.07);
+      sfxBell(1174.7, t0 + 0.13, 1.3, 0.07);
+      sfxBell(1568, t0 + 0.27, 1.6, 0.06);
+      sfxTone(392, t0, 1.6, 0.03);
     };
     if(_ac.state === 'suspended'){ var pr = _ac.resume(); if(pr && pr.then) pr.then(go, function(){}); }
     else go();
@@ -6638,12 +6652,12 @@ function svcTileHtml(){
 }
 
 var SVC_ICONS = {
-  forecast: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M20 48h26l-3.500 8h-19z" fill="url(#m3d)"/><path d="M19 46h26l-3.500 8h-19z" fill="url(#m3f)"/><circle cx="33" cy="29" r="18" fill="#6f5c38"/><circle cx="32" cy="28" r="18" fill="url(#m3g)"/><ellipse cx="25" cy="20" rx="6.500" ry="4" transform="rotate(-35 25 20)" fill="#fff" fill-opacity=".55"/><path d="M33 22C33.600 27 35.500 29 40 30C35.500 31 33.600 33 33 38C32.400 33 30.500 31 26 30C30.500 29 32.400 27 33 22Z" fill="url(#m3c)"/></svg>',
-  club: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M32 55C16 43 8 33 8 23a12 12 0 0124-4 12 12 0 0124 4c0 10-8 20-24 32z" transform="translate(2 2.500)" fill="#7a4a22"/><path d="M32 55C16 43 8 33 8 23a12 12 0 0124-4 12 12 0 0124 4c0 10-8 20-24 32z" fill="url(#m3c)"/><path d="M14 20c1-5 6-8 10-7" stroke="#fff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round" fill="none"/></svg>',
+  forecast: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M20 48h26l-3.500 8h-19z" fill="url(#m3d)"/><path d="M19 46h26l-3.500 8h-19z" fill="url(#m3f)"/><circle cx="33" cy="29" r="18" fill="#5d4a92"/><circle cx="32" cy="28" r="18" fill="url(#m3v)"/><ellipse cx="25" cy="20" rx="6.500" ry="4" transform="rotate(-35 25 20)" fill="#fff" fill-opacity=".55"/><path d="M33 22C33.600 27 35.500 29 40 30C35.500 31 33.600 33 33 38C32.400 33 30.500 31 26 30C30.500 29 32.400 27 33 22Z" fill="url(#m3c)"/></svg>',
+  club: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M32 55C16 43 8 33 8 23a12 12 0 0124-4 12 12 0 0124 4c0 10-8 20-24 32z" transform="translate(2 2.500)" fill="#8a3f78"/><path d="M32 55C16 43 8 33 8 23a12 12 0 0124-4 12 12 0 0124 4c0 10-8 20-24 32z" fill="url(#m3h)"/><path d="M14 20c1-5 6-8 10-7" stroke="#fff" stroke-opacity=".6" stroke-width="3" stroke-linecap="round" fill="none"/></svg>',
   school: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M18 34v10c0 4 6.500 8 14 8s14-4 14-8V34l-14 6z" transform="translate(2 2)" fill="#5f4f30"/><path d="M18 34v10c0 4 6.500 8 14 8s14-4 14-8V34l-14 6z" fill="url(#m3d)"/><path d="M6 27L32 14l26 13-26 13z" transform="translate(0 3)" fill="#7e6a44"/><path d="M6 27L32 14l26 13-26 13z" fill="url(#m3f)"/><path d="M6 27L32 14l26 13" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="1.300" stroke-linejoin="round"/><path d="M54 29v15" stroke="url(#m3c)" stroke-width="2.500" stroke-linecap="round"/><circle cx="54" cy="47" r="3.500" fill="url(#m3c)"/></svg>',
-  mentoring: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M19 13H45L56 26 32 54 8 26z" fill="url(#m3f)"/><path d="M8 26H56L32 54z" fill="url(#m3c)"/><path d="M19 13L25 26 32 13zM32 13L39 26 45 13z" fill="#fff" fill-opacity=".32"/><path d="M25 26L32 54 39 26z" fill="#5a4a2c" fill-opacity=".3"/><path d="M19 13H45L56 26 32 54 8 26z" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.200" stroke-linejoin="round"/></svg>',
+  mentoring: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M19 13H45L56 26 32 54 8 26z" fill="url(#m3f)"/><path d="M8 26H56L32 54z" fill="url(#m3b)"/><path d="M19 13L25 26 32 13zM32 13L39 26 45 13z" fill="#fff" fill-opacity=".32"/><path d="M25 26L32 54 39 26z" fill="#5a4a2c" fill-opacity=".3"/><path d="M19 13H45L56 26 32 54 8 26z" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="1.200" stroke-linejoin="round"/></svg>',
   consult: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M30 9C32 25 38 31 54 33C38 35 32 41 30 57C28 41 22 35 6 33C22 31 28 25 30 9Z" transform="translate(2 2)" fill="#8a6a22"/><path d="M30 9C32 25 38 31 54 33C38 35 32 41 30 57C28 41 22 35 6 33C22 31 28 25 30 9Z" fill="url(#m3y)"/><path d="M50 7C50.600 11 52 12.400 56 13C52 13.600 50.600 15 50 19C49.400 15 48 13.600 44 13C48 12.400 49.400 11 50 7Z" fill="url(#m3c)"/><path d="M13 44C13.500 47 14.500 48 17.500 48.500C14.500 49 13.500 50 13 53C12.500 50 11.500 49 8.500 48.500C11.500 48 12.500 47 13 44Z" fill="url(#m3c)"/></svg>',
-  course: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M8 42h48v10a2 2 0 01-2 2H10a2 2 0 01-2-2z" fill="url(#m3c)"/><rect x="50" y="42" width="6" height="12" fill="#fff" fill-opacity=".35"/><path d="M12 30h42v10a2 2 0 01-2 2H14a2 2 0 01-2-2z" fill="url(#m3y)"/><rect x="48" y="30" width="6" height="12" fill="#fff" fill-opacity=".35"/><path d="M10 18h40v10a2 2 0 01-2 2H12a2 2 0 01-2-2z" fill="url(#m3f)"/><rect x="44" y="18" width="6" height="12" fill="#fff" fill-opacity=".45"/><path d="M14 22h22M16 35h20M12 47h24" stroke="#fff" stroke-opacity=".35" stroke-width="1.600" stroke-linecap="round"/></svg>'
+  course: '<svg class="svc-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M8 42h48v10a2 2 0 01-2 2H10a2 2 0 01-2-2z" fill="url(#m3r)"/><rect x="50" y="42" width="6" height="12" fill="#fff" fill-opacity=".35"/><path d="M12 30h42v10a2 2 0 01-2 2H14a2 2 0 01-2-2z" fill="url(#m3b)"/><rect x="48" y="30" width="6" height="12" fill="#fff" fill-opacity=".35"/><path d="M10 18h40v10a2 2 0 01-2 2H12a2 2 0 01-2-2z" fill="url(#m3f)"/><rect x="44" y="18" width="6" height="12" fill="#fff" fill-opacity=".45"/><path d="M14 22h22M16 35h20M12 47h24" stroke="#fff" stroke-opacity=".35" stroke-width="1.600" stroke-linecap="round"/></svg>'
 };
 function svcRenderItems(){
   var box = document.getElementById('svc-items');
