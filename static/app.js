@@ -6351,10 +6351,11 @@ var SVC_ICO =
   +'</svg>';
 var BLOG_ICO =
   '<svg class="mr-ico" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-  +'<path d="M53 8C37 9 22 19 17 33c-1.500 4-1.500 9 0 13 12-1 27-9 32-21 3-6 4-12 4-17z" stroke="#C3A9DD" stroke-width="2"/>'
-  +'<path d="M16 46L44 18M16 46L10 56" stroke="#C3A9DD" stroke-width="2"/>'
-  +'<path d="M26 36c4-4 8-6 12-6" stroke="#C3A9DD" stroke-width="1.500" opacity=".7"/>'
-  +'<path class="mr-spark" d="M47 44C47.800 49 50 51.200 55 52C50 52.800 47.800 55 47 60C46.200 55 44 52.800 39 52C44 51.200 46.200 49 47 44Z" fill="#E8C070" stroke="none"/>'
+  +'<rect x="9.500" y="9.500" width="45" height="45" rx="11.500" stroke="#C3A9DD" stroke-width="2.200"/>'
+  +'<circle cx="19" cy="19" r="2.800" stroke="#C3A9DD" stroke-width="2"/>'
+  +'<path d="M25.500 18h19M25.500 21.500H38" stroke="#C3A9DD" stroke-width="2"/>'
+  +'<path class="blog-trend" d="M18 43.500L27.500 34.500L36.500 39.500L46.500 29" stroke="#E8C070" stroke-width="2.400"/>'
+  +'<path class="blog-trend" d="M40 28.500H46.500V35" stroke="#E8C070" stroke-width="2.400"/>'
   +'</svg>';
 
 function bizTileHtml(){

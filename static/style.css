@@ -2579,3 +2579,8 @@ body.num-zoom-on{overflow:hidden}
 .num-zoom-hint{background:rgba(13,13,16,.74)}
 .zh-t{padding:7px 14px;border-radius:100px;background:rgba(13,13,16,.85);border:1px solid var(--gold-line)}
 .zh-svg .zh-arrow{stroke-dasharray:2 7;stroke-width:2.2}
+
+/* Іконка блогу: стрілка зростання «малюється» при появі. */
+.blog-trend{stroke-dasharray:60;stroke-dashoffset:60;animation:blogTrend 1.1s ease-out .5s forwards}
+@keyframes blogTrend{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.blog-trend{animation:none;stroke-dashoffset:0}}
