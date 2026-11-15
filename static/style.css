@@ -2548,3 +2548,34 @@ body.num-zoom-on{overflow:hidden}
 .num-other-form .num-card-title{margin-bottom:14px}
 .num-other-form .igrp{margin-top:6px}
 #num-scheme-compat{margin-top:12px}
+
+/* Збільшення схеми: компактна кнопка-лупа в кутку замість широкої кнопки. */
+.num-svg-wrap{position:relative}
+.num-zoom-fab{position:absolute;top:12px;right:12px;z-index:3;width:40px;height:40px;border-radius:50%;
+	display:flex;align-items:center;justify-content:center;
+	background:rgba(13,13,16,.82);border:1px solid var(--gold-line);color:var(--gold);
+	box-shadow:0 4px 14px rgba(0,0,0,.35);transition:transform 120ms var(--ease)}
+.num-zoom-fab:active{transform:scale(.92)}
+.num-zoom-fab svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+
+/* Підказка-жест: приглушена схема й дві точки дотику, що розходяться. */
+.num-zoom-hint{position:absolute;inset:0;z-index:2;border-radius:inherit;cursor:pointer;
+	display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+	background:rgba(13,13,16,.6);opacity:0;pointer-events:none}
+.num-zoom-hint.go{pointer-events:auto;animation:zhFade 3.8s ease forwards}
+.zh-svg{width:120px;height:120px;overflow:visible}
+.zh-svg .zh-a circle:first-child,.zh-svg .zh-b circle:first-child{fill:rgba(240,206,122,.22);stroke:var(--gold);stroke-width:2}
+.zh-svg .zh-core{fill:var(--gold)}
+.zh-svg .zh-arrow,.zh-svg .zh-head{fill:none;stroke:var(--gold);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.7}
+.zh-a{animation:zhA 1.6s ease-in-out infinite}
+.zh-b{animation:zhB 1.6s ease-in-out infinite}
+.zh-svg .zh-arrow,.zh-svg .zh-head{animation:zhArrow 1.6s ease-in-out infinite}
+.zh-t{font-size:13px;color:var(--gold);text-align:center;padding:0 14px}
+@keyframes zhA{0%,15%{transform:translate(0,0)}70%,100%{transform:translate(-22px,22px)}}
+@keyframes zhB{0%,15%{transform:translate(0,0)}70%,100%{transform:translate(22px,-22px)}}
+@keyframes zhArrow{0%,15%{opacity:.15}70%,100%{opacity:.8}}
+@keyframes zhFade{0%{opacity:0}10%{opacity:1}78%{opacity:1}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.zh-a,.zh-b,.zh-svg .zh-arrow,.zh-svg .zh-head{animation:none}}
+.num-zoom-hint{background:rgba(13,13,16,.74)}
+.zh-t{padding:7px 14px;border-radius:100px;background:rgba(13,13,16,.85);border:1px solid var(--gold-line)}
+.zh-svg .zh-arrow{stroke-dasharray:2 7;stroke-width:2.2}

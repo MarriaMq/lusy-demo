@@ -319,6 +319,7 @@ var I18N = {
     num_zk_short: 'CZ',
     num_zk_full: 'COMFORT ZONE',
     num_zoom_in: 'Enlarge the chart',
+    num_zoom_tip: 'Tap the chart to enlarge',
     num_zoom_plus: 'Zoom in',
     num_zoom_minus: 'Zoom out',
     num_years: 'years',
@@ -714,6 +715,7 @@ var I18N = {
     num_zk_short: 'ЗК',
     num_zk_full: 'ЗОНА КОМФОРТА',
     num_zoom_in: 'Увеличить схему',
+    num_zoom_tip: 'Коснись схемы, чтобы увеличить',
     num_zoom_plus: 'Увеличить',
     num_zoom_minus: 'Уменьшить',
     num_years: 'лет',
@@ -5190,6 +5192,17 @@ function numSchemeSub(){
   return fmt(t('num_sub_self','Матриця за датою {a}'), { a: NUM.birthdate || '—' });
 }
 
+/* Підказка «можна збільшити»: приглушує схему й показує дві точки дотику, що
+   розходяться. Один раз за відкриття застосунку; згасає сама, а тап по ній
+   відкриває збільшену схему. */
+function numShowZoomHint(){
+  var el = document.getElementById('num-zoom-hint');
+  if(!el) return;
+  if(NUM.mode === 'pair' || el.dataset.shown === '1'){ return; }
+  el.dataset.shown = '1';
+  el.hidden = false;
+  el.classList.remove('go'); void el.offsetWidth; el.classList.add('go');
+}
 function numRenderScheme(){
   var m = NUM.active;
   if(!m) return;
@@ -5204,6 +5217,8 @@ function numRenderScheme(){
     if(lbl) lbl.textContent = t('num_lbl_self', 'Матриця за датою');
     if(sub) sub.textContent = NUM.birthdate || '—';
   }
+
+  numShowZoomHint();
 
   /* «Змінити» і «Розрахувати сумісність» — лише на власній матриці; екран пари — кінцевий. */
   setVis('num-change-date', NUM.mode !== 'pair');
@@ -7183,6 +7198,13 @@ document.addEventListener('DOMContentLoaded', function(){
   var numHints = document.getElementById('num-hints-toggle');
   if(numHints) numHints.addEventListener('click', numToggleHints);
 
+  var zoomHint = document.getElementById('num-zoom-hint');
+  if(zoomHint){
+    zoomHint.addEventListener('animationend', function(e){
+      if(e.animationName === 'zhFade') zoomHint.hidden = true;
+    });
+    zoomHint.addEventListener('click', function(){ zoomHint.hidden = true; numZoomOpen(); });
+  }
   var numZoom = document.getElementById('num-zoom-toggle');
   if(numZoom) numZoom.addEventListener('click', numZoomOpen);
   [['num-zoom-plus',  function(){ numZoomStep(NUM_ZOOM_STEP); }],

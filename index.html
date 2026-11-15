@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0D0D10">
 <title>LUSY — наставник</title>
-<link rel="stylesheet" href="static/style.css?v=66d1794731757">
+<link rel="stylesheet" href="static/style.css?v=69d1794732294">
 <!-- ?v — кеш-бастер, а не піна версії: сервер query ігнорує й завжди віддає
      свіжий SDK. Без нього браузер може підсунути закешовану збірку старішу за
      Bot API 8.0, і повний екран разом із safeAreaInset тихо не ввімкнеться —
@@ -540,6 +540,17 @@
 	</div>
 
 	<div class="num-panel num-svg-wrap" id="num-svg-wrap">
+	<button class="num-zoom-fab" id="num-zoom-toggle" aria-label="Збільшити схему" data-i18n-aria="num_zoom_in">
+		<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21M10.5 7.5v6M7.5 10.5h6"/></svg>
+	</button>
+	<div class="num-zoom-hint" id="num-zoom-hint" hidden>
+		<svg class="zh-svg" viewBox="0 0 120 120" aria-hidden="true">
+			<path class="zh-arrow" d="M58 62L26 94M62 58L94 26" />
+			<g class="zh-a"><circle cx="46" cy="74" r="13"/><circle class="zh-core" cx="46" cy="74" r="5"/></g>
+			<g class="zh-b"><circle cx="74" cy="46" r="13"/><circle class="zh-core" cx="74" cy="46" r="5"/></g>
+		</svg>
+		<span class="zh-t" data-i18n="num_zoom_tip">Торкнись схеми, щоб збільшити</span>
+	</div>
 	<svg class="num-svg" id="num-svg" viewBox="-42 48 1084 904" role="img"
 	     aria-labelledby="num-svg-title">
 		<title id="num-svg-title" data-i18n="num_svg_alt">Схема Матриці долі</title>
@@ -772,7 +783,6 @@
 	     телефоні, а щипок у WebApp вимкнений (maximum-scale=1). Кнопка
 	     відкриває схему НА ВЕСЬ ЕКРАН (#num-zoom нижче) — так попросила
 	     замовниця замість прокрутки всередині панелі. -->
-	<button class="btn bg bsm" id="num-zoom-toggle" data-i18n="num_zoom_in">Збільшити схему</button>
 	<div class="num-stack" id="num-consult-scheme"></div>
 
 	<!-- Підсумкові коди — одразу під схемою (на прохання замовниці).
@@ -1135,7 +1145,7 @@ window.__DEMO__ = {"scenarios": {"new": {"profile_complete": false, "user": {"fi
   }};
 })();
 </script>
-<script src="demo/shim.js?v=1794731757"></script>
-<script src="static/app.js?v=83d1794731757"></script>
+<script src="demo/shim.js?v=1794732294"></script>
+<script src="static/app.js?v=84d1794732294"></script>
 </body>
 </html>
