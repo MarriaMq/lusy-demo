@@ -2622,3 +2622,18 @@ body.num-zoom-on{overflow:hidden}
 .btn.svc-item{min-height:74px;gap:12px;padding:10px 14px 10px 10px}
 .svc-tico{display:inline-flex;width:38px;height:38px;margin-right:10px;vertical-align:middle}
 .svc-tico .svc-ico{width:100%;height:100%}
+
+/* Усі жовті кнопки — золотий метал із блиском (як «Розрахувати матрицю»). */
+.btn.bp{
+	position:relative;overflow:hidden;color:#1B1507;font-weight:600;
+	background:linear-gradient(100deg,#E9C877 0%,#F7E4A6 48%,#D9B25B 100%);
+	box-shadow:0 6px 18px rgba(240,206,122,.22),inset 0 1px 0 rgba(255,255,255,.5),inset 0 -1px 0 rgba(120,84,20,.25);
+}
+.btn.bp::after{
+	content:"";position:absolute;top:0;bottom:0;left:-60%;width:38%;pointer-events:none;
+	background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);
+	transform:skewX(-20deg);animation:ctaShine 5.2s ease-in-out 1.4s infinite;
+}
+.btn.bp:disabled{opacity:.55}
+.tbadge.tbr{background:linear-gradient(100deg,#E9C877,#F7E4A6 55%,#D9B25B);color:#1B1507;box-shadow:inset 0 1px 0 rgba(255,255,255,.5)}
+@media (prefers-reduced-motion:reduce){.btn.bp::after{animation:none}}
