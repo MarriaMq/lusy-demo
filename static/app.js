@@ -176,7 +176,6 @@ var I18N = {
     tar_incl_title: 'What you get after payment?',
     tar_i_numerology: 'Destiny Matrix',
     tar_pick_btn_renew: 'Extend access',
-    tar_open_blog: 'Open the sections',
     biz_until: 'Access open until {date}',
     tar_i_mentor: 'Review of my situation',
     tar_i_blog: 'Improving my blog',
@@ -258,9 +257,8 @@ var I18N = {
     pw_ok_title: 'Payment successful',
     pw_ok_until: 'Plan “{plan}” is valid until {date}',
     pw_ok_plan: 'Plan “{plan}” activated',
-    pw_ok_open: 'Open my blog',
+    pw_ok_open: 'Go to my blog',
     pw_ok_open_what: 'Now open:',
-    btn_home: 'Back to home',
 
     /* ── Навігація ── */
     nav_home: 'Home',
@@ -574,7 +572,6 @@ var I18N = {
     tar_incl_title: 'Что ты получишь после оплаты?',
     tar_i_numerology: 'Матрица судьбы',
     tar_pick_btn_renew: 'Продлить доступ',
-    tar_open_blog: 'Открыть разделы',
     biz_until: 'Доступ открыт до {date}',
     tar_i_mentor: 'Разбор моей ситуации',
     tar_i_blog: 'Улучшение моего блога',
@@ -656,9 +653,8 @@ var I18N = {
     pw_ok_title: 'Оплата прошла успешно',
     pw_ok_until: 'Тариф «{plan}» действует до {date}',
     pw_ok_plan: 'Тариф «{plan}» активирован',
-    pw_ok_open: 'Открыть мой блог',
+    pw_ok_open: 'Перейти к моему блогу',
     pw_ok_open_what: 'Теперь доступно:',
-    btn_home: 'На главную',
 
     /* ── Навігація ── */
     nav_home: 'Главная',
@@ -1279,6 +1275,15 @@ function planDisplayName(plan){
    Хто саме бачить бейдж, вирішує applyAccessChrome() за станом підписки —
    тут розмітка малюється завжди, бо на момент першого рендера стан із
    сервера ще не приїхав. */
+var _bizTilesHtml = '';
+/* Ті самі розділи, що на екрані «Мій блог» зі схованою глибиною, — але прямо
+   на вкладці, коли доступ активний. Без id: вони вже є в #biz-grid. */
+function renderTarModules(){
+  var box = document.getElementById('tar-modules');
+  if(!box) return;
+  box.innerHTML = _bizTilesHtml.replace(/ id="m-[a-z]+"/g, '');
+  applyAccessChrome();
+}
 function renderModuleGrid(){
   var grid = document.getElementById('mgrid');
   if(!grid) return;
@@ -1317,6 +1322,8 @@ function renderModuleGrid(){
      що в MODULE_ORDER. */
   var bizGrid = document.getElementById('biz-grid');
   if(bizGrid) bizGrid.innerHTML = tiles.slice(1).join('');
+  _bizTilesHtml = tiles.slice(1).join('');
+  renderTarModules();
   grid.innerHTML = [tiles[0], svcTileHtml(), bizTileHtml()].join('');
   /* Грід перемальовується не лише на старті, а й на зміні мови й після
      завантаження профілю. Без цього виклику свіжозроблені бейджі поверталися
@@ -1819,9 +1826,15 @@ function renderTariffsBanner(){
 
   var active = S.subscription.active;
   setVis(box, !!active);
-  var pickB = document.getElementById('btn-pick-plan'), openB = document.getElementById('btn-open-blog');
+  var pickB = document.getElementById('btn-pick-plan');
   if(pickB) pickB.textContent = active ? t('tar_pick_btn_renew','Продовжити доступ') : t('tar_pick_btn','Обрати тариф');
-  if(openB) setVis(openB, !!active);
+  /* З активним доступом вкладка показує самі розділи (їх можна відкрити одразу),
+     а не опис того, що буде після оплати. */
+  setVis('tar-modules', !!active);
+  setVis('tar-acc', !active);
+  var tarSub = document.querySelector('#tar .scr-sub');
+  if(tarSub) tarSub.hidden = !!active;
+  if(active){ renderTarModules(); }
   if(!active) return;
 
   var planName = planDisplayName(S.subscription.plan) || S.subscription.plan_name || '';
@@ -1884,6 +1897,40 @@ var PW_PANELS = ['pw-action','pw-loading','pw-redirect','pw-error','pw-success']
 
 function _pwShow(id){
   PW_PANELS.forEach(function(s){ setVis(s, s === id); });
+  /* Сторінка успішної оплати — на весь екран, решта станів — шторка знизу. */
+  var pw = document.getElementById('pw');
+  if(pw) pw.classList.toggle('full', id === 'pw-success');
+}
+
+/* ─── Звуки (WebAudio, без файлів) ───────────────────────────────────────
+   Контекст створюється при першому дотику (так вимагають iOS і Android), а
+   звук грається пізніше — коли оплата підтвердилась. */
+var _ac = null;
+function sfxUnlock(){
+  try{
+    if(!_ac){ var AC = window.AudioContext || window.webkitAudioContext; if(AC) _ac = new AC(); }
+    if(_ac && _ac.state === 'suspended') _ac.resume();
+  }catch(e){}
+}
+function sfxTone(freq, t0, dur, vol){
+  var o = _ac.createOscillator(), g = _ac.createGain();
+  o.type = 'sine'; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol, t0 + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(_ac.destination);
+  o.start(t0); o.stop(t0 + dur + 0.05);
+}
+/* Дзвінкий висхідний акорд із «блиском» — оплата пройшла. */
+function sfxSuccess(){
+  try{
+    sfxUnlock();
+    if(!_ac) return;
+    var t0 = _ac.currentTime + 0.02;
+    [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){ sfxTone(f, t0 + i * 0.11, 0.9, 0.16); });
+    [2093, 2637, 3136].forEach(function(f, i){ sfxTone(f, t0 + 0.42 + i * 0.07, 0.5, 0.05); });
+  }catch(e){}
+  try{ if(tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success'); }catch(e){}
 }
 
 /* Рядок контексту над списком періодів: пояснює, чому шит відкрився. */
@@ -1999,6 +2046,9 @@ function _startPolling(){
         S._subscriptionJustActivated=true; _pwShow('pw-success');
         renderPaySuccess(data.subscription);
         renderState();
+        /* За вікном успіху вже відкрита вкладка «Мій блог» з активним доступом. */
+        show('tar');
+        sfxSuccess();
       }
     }).catch(function(){});
     if(attempts>=maxAttempts){ clearInterval(_pollTimer); _pollTimer=null; }
@@ -6959,6 +7009,8 @@ document.addEventListener('DOMContentLoaded', function(){
     if(card.dataset.mod) handleModClick(card.dataset.mod);
   }
   if(mgrid) mgrid.addEventListener('click', gridClick);
+  var tarModsEl = document.getElementById('tar-modules');
+  if(tarModsEl) tarModsEl.addEventListener('click', gridClick);
   var bizGridEl = document.getElementById('biz-grid');
   if(bizGridEl) bizGridEl.addEventListener('click', gridClick);
 
@@ -6966,8 +7018,6 @@ document.addEventListener('DOMContentLoaded', function(){
   /* Делеговано, як і сітка модулів: картки тепер рендеряться з TARIFFS і
      перемальовуються при зміні мови, тож слухач, повішений на конкретний
      вузол, помер би разом із ним — мовчки, після першого перемикання мови. */
-  var openBlog = document.getElementById('btn-open-blog');
-  if(openBlog) openBlog.addEventListener('click', bizOpenList);
   var pickBtn = document.getElementById('btn-pick-plan');
   if(pickBtn) pickBtn.addEventListener('click', function(){
     hapticTap();
@@ -7046,11 +7096,12 @@ document.addEventListener('DOMContentLoaded', function(){
   var btnRetry = document.getElementById('btn-pw-retry');
   if(btnRetry) btnRetry.addEventListener('click', function(){ _pwShow('pw-action'); });
   var okBlog = document.getElementById('btn-pw-success-blog');
-  if(okBlog) okBlog.addEventListener('click', function(){ closePW(); show('home'); bizOpenList(); });
+  if(okBlog) okBlog.addEventListener('click', function(){ closePW(); show('tar'); window.scrollTo(0, 0); });
   ['btn-pw-redirect-close','btn-pw-error-close','btn-pw-success-close','btn-pw-close'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.addEventListener('click', closePW);
   });
+  document.addEventListener('pointerdown', sfxUnlock, {passive:true});
   document.getElementById('btn-pay').addEventListener('click', function(){
     if(!S.registered){ closePW(); show('ob'); return; }
     pay();

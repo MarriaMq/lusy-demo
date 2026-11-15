@@ -8,7 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0D0D10">
 <title>LUSY — наставник</title>
-<link rel="stylesheet" href="static/style.css?v=71d1794736327">
+<link rel="stylesheet" href="static/style.css?v=73d1794736525">
 <!-- ?v — кеш-бастер, а не піна версії: сервер query ігнорує й завжди віддає
      свіжий SDK. Без нього браузер може підсунути закешовану збірку старішу за
      Bot API 8.0, і повний екран разом із safeAreaInset тихо не ввімкнеться —
@@ -223,6 +223,7 @@
 	     ОДИН раз над картками: усі три періоди дають однаковий доступ, різниця
 	     лише в періоді. Перелік — рідний <details> (згорнутий), наповнює його
 	     renderTariffIncludes() з реєстру MODULES. -->
+	<div class="mgrid tar-modules" id="tar-modules" hidden></div>
 	<div class="tar-acc tar-box rv" id="tar-acc" style="--i:1">
 		<div class="tar-acc-hd rv"><span data-i18n="tar_incl_title">Що ти отримаєш після оплати?</span></div>
 		<div class="tar-acc-list" id="tar-incl-list"></div>
@@ -231,7 +232,6 @@
 	<!-- Картки періодів рендеряться з реєстру TARIFFS у app.js: ціна там одна,
 	     а ціна за місяць і економія — похідні від неї. Тап по картці — оплата. -->
 	<button class="btn bp rv" style="--i:2" id="btn-pick-plan" data-i18n="tar_pick_btn">Обрати тариф</button>
-	<button class="btn bg" id="btn-open-blog" data-i18n="tar_open_blog" hidden>Відкрити розділи</button>
 	<div id="tar-plans" hidden>
 		<div class="sect-lbl" data-i18n="tar_pick_lbl">Обери період доступу</div>
 		<div id="tcards"></div>
@@ -1054,8 +1054,7 @@
 			<div class="pwsub" id="pw-success-text"></div>
 			<div class="pw-ok-open" data-i18n="pw_ok_open_what">Тепер відкрито:</div>
 			<div class="pw-ok-list" id="pw-success-list"></div>
-			<button class="btn bp" id="btn-pw-success-blog" data-i18n="pw_ok_open">Відкрити мій блог</button>
-			<button class="btn bg" id="btn-pw-success-close" data-i18n="btn_home">На головну</button>
+			<button class="btn bp" id="btn-pw-success-blog" data-i18n="pw_ok_open">Перейти до мого блогу</button>
 		</div>
 
 	</div>
@@ -1150,7 +1149,7 @@ window.__DEMO__ = {"scenarios": {"new": {"profile_complete": false, "user": {"fi
   }};
 })();
 </script>
-<script src="demo/shim.js?v=1794736327"></script>
-<script src="static/app.js?v=86d1794736327"></script>
+<script src="demo/shim.js?v=1794736525"></script>
+<script src="static/app.js?v=87d1794736525"></script>
 </body>
 </html>

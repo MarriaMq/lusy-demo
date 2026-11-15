@@ -2591,3 +2591,27 @@ body.num-zoom-on{overflow:hidden}
 .ni.a svg.ico3d{filter:drop-shadow(0 0 6px rgba(240,206,122,.5));transform:translateY(-1px) scale(1.06)}
 .ni{gap:3px}
 #mgrid .mc-svc .mico,#mgrid .mc-biz .mico{filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))}
+
+/* Успіх оплати — на весь екран. */
+.pwo.full{align-items:stretch;background:var(--bg)}
+.pwo.full .pws{max-height:none;height:100dvh;border-radius:0;border-top:0;background:var(--bg);
+	display:flex;flex-direction:column;justify-content:center;padding-top:calc(var(--sat) + 24px)}
+.pwo.full .pwh{display:none}
+.pwo.full #pw-success{width:100%}
+.tli:not(.rv) svg path{stroke-dashoffset:0}
+/* Розділи на вкладці «Мій блог» при активному доступі */
+.tar-modules{margin:4px 0 16px;gap:12px}
+.tar-modules .mc{min-height:104px}
+#tar-active .tar-active-note{display:none}
+
+.tar-modules .mc:nth-child(1){--c:150,196,160}
+.tar-modules .mc:nth-child(2){--c:226,160,130}
+.tar-modules .mc:nth-child(3){--c:240,206,122}
+.tar-modules .mc:nth-child(4){--c:236,224,202}
+.tar-modules .mc:nth-child(5){--c:208,122,142}
+.tar-modules .mc{position:relative;overflow:hidden;align-items:center;padding:20px 18px;
+	background:linear-gradient(135deg,rgba(var(--c),.17),rgba(var(--c),.04) 62%,var(--card));
+	border-color:rgba(var(--c),.38);box-shadow:0 0 0 1px rgba(var(--c),.05),0 8px 24px rgba(var(--c),.08)}
+.tar-modules .mc .mico{color:rgb(var(--c));background:rgba(var(--c),.15)}
+.tar-modules .mc .mname{color:rgb(var(--c));font-size:16px;font-weight:500}
+.tar-modules .mc .mdesc{font-size:13px;line-height:18px}
