@@ -2568,7 +2568,7 @@ function renderMntQ(){
 
   var numEl = document.createElement('div');
   numEl.className = 'qnum';
-  numEl.textContent = 'Питання ' + (mnt.q + 1) + ' з ' + total;
+  numEl.textContent = qNumText(mnt.q, total);
   wrap.appendChild(numEl);
 
   var txtEl = document.createElement('div');
@@ -2868,7 +2868,7 @@ function renderBlogQ(){
 
   var numEl = document.createElement('div');
   numEl.className = 'qnum';
-  numEl.textContent = 'Питання ' + (blog.q + 1) + ' з ' + total;
+  numEl.textContent = qNumText(blog.q, total);
   wrap.appendChild(numEl);
 
   var txtEl = document.createElement('div');
@@ -3166,7 +3166,7 @@ function renderContQ(){
 
   var numEl = document.createElement('div');
   numEl.className = 'qnum';
-  numEl.textContent = 'Питання ' + (cont.q + 1) + ' з ' + total;
+  numEl.textContent = qNumText(cont.q, total);
   wrap.appendChild(numEl);
 
   var txtEl = document.createElement('div');
@@ -3478,7 +3478,7 @@ function renderWarmQ(){
 
   var numEl = document.createElement('div');
   numEl.className = 'qnum';
-  numEl.textContent = 'Питання ' + (warm.q + 1) + ' з ' + total;
+  numEl.textContent = qNumText(warm.q, total);
   wrap.appendChild(numEl);
 
   var txtEl = document.createElement('div');
@@ -3720,7 +3720,7 @@ function renderStratQ(){
   /* Заголовок */
   var numEl = document.createElement('div');
   numEl.className = 'qnum';
-  numEl.textContent = 'Питання ' + (strat.q + 1) + ' з ' + total;
+  numEl.textContent = qNumText(strat.q, total);
   wrap.appendChild(numEl);
 
   var txtEl = document.createElement('div');
@@ -4335,6 +4335,14 @@ function escHtml(s){
   return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+/* Поле вводу росте разом із текстом (без обрізання й без прокрутки всередині). */
+document.addEventListener('input', function(e){
+  var el = e.target;
+  if(el && el.tagName === 'TEXTAREA' && el.classList.contains('inp') && el.closest('.qcard')){
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight + 2, 280) + 'px';
+  }
+});
 function showToast(msg, isError){
   var el=document.getElementById('toast-el');
   el.textContent=msg;
@@ -4737,7 +4745,19 @@ function tryShowScreen(screenId){
    ВИБІР НІШІ ПЕРЕД МОДУЛЕМ (якщо ще не збережена)
    ═══════════════════════════════════════════════════ */
 
+/* Єдиний лічильник «Питання N з M»: якщо спершу питаємо нішу, вона — питання 1,
+   а решта зсуваються на одне. */
+var _nicheOff = 0;
+function qNumText(q, total){
+  return 'Питання ' + (q + 1 + _nicheOff) + ' з ' + (total + _nicheOff);
+}
+var _MODULE_QCOUNT = function(id){
+  var m = {strategy: STRATEGY_QUESTIONS, mentor: MENTOR_QUESTIONS, blog: BLOG_QUESTIONS,
+           content: CONTENT_QUESTIONS, warmups: WARMUPS_QUESTIONS}[id];
+  return m ? m.length : 0;
+};
 function askNicheThenGo(moduleId){
+  _nicheOff = 0;
   /* Модулі з noNiche (нумерологія) працюють від дати народження, а не від
      ніші. Питати нішу перед матрицею — зайвий крок, який до того ж зберіг би
      нішу «про всяк випадок» у профіль, хоча користувач її не для цього ввів. */
@@ -4752,6 +4772,7 @@ function askNicheThenGo(moduleId){
     return;
   }
 
+  _nicheOff = 1;
   /* Показуємо mflow з вибором ніші */
   document.getElementById('fl-title').textContent = modName(moduleId) || moduleId;
   document.getElementById('fl-prog').innerHTML = '';
@@ -4772,7 +4793,7 @@ function _renderNicheAskStep(moduleId){
   /* Заголовок */
   var num = document.createElement('div');
   num.className = 'qnum';
-  num.textContent = 'Крок 1 з 1';
+  num.textContent = 'Питання 1 з ' + (_MODULE_QCOUNT(moduleId) + 1);
   wrap.appendChild(num);
 
   var txt = document.createElement('div');

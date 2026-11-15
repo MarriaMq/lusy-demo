@@ -2674,3 +2674,11 @@ body.num-zoom-on{overflow:hidden}
 @keyframes scrIn{from{opacity:0}to{opacity:1}}
 .scr.on{animation-duration:200ms}
 #biz-grid .mc::after,.tar-modules .mc::after{content:none !important}
+
+/* Поля вводу в анкеті мають власний простір: відступи зверху й знизу, без налізання. */
+.qcard .inp{margin-top:18px !important;margin-bottom:6px}
+.qcard textarea.inp{min-height:96px;max-height:280px;overflow-y:auto}
+.qcard .qsub + .inp,.qcard .qtxt + .inp{margin-top:18px !important}
+.qcard + .bpair,.qcard ~ .bpair{margin-top:18px !important}
+.qcard .inp{margin-bottom:16px}
+.custom-row .inp{margin-bottom:6px}
