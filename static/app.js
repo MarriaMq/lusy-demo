@@ -111,7 +111,6 @@ var I18N = {
     err_network_check: 'Network error. Check your connection.',
 
     /* ── Копіювання, уточнення, шит оплати ── */
-    copy_done: 'Copied!',
     copy_toast: 'Result copied',
     copy_btn: 'Copy',
     copy_failed: 'Could not copy',
@@ -509,7 +508,6 @@ var I18N = {
     err_network_check: 'Ошибка сети. Проверь соединение.',
 
     /* ── Копіювання, уточнення, шит оплати ── */
-    copy_done: 'Скопировано!',
     copy_toast: 'Результат скопирован',
     copy_btn: 'Скопировать',
     copy_failed: 'Не удалось скопировать',
@@ -1283,6 +1281,13 @@ function planDisplayName(plan){
    Хто саме бачить бейдж, вирішує applyAccessChrome() за станом підписки —
    тут розмітка малюється завжди, бо на момент першого рендера стан із
    сервера ще не приїхав. */
+var MOD_ICONS = {
+  mentor: '<svg class="mod-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><circle cx="34" cy="34" r="23" fill="#6f5c38"/><circle cx="32" cy="32" r="23" fill="url(#m3f)"/><circle cx="32" cy="32" r="17" fill="#2b2315"/><circle cx="32" cy="32" r="17" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1"/><g transform="rotate(40 32 32)"><path d="M32 17L38 32H26z" fill="url(#m3c)"/><path d="M32 47L38 32H26z" fill="url(#m3f)"/></g><circle cx="32" cy="32" r="3" fill="url(#m3y)"/><path d="M16 22c3-5 8-8 13-9" stroke="#fff" stroke-opacity=".5" stroke-width="2.500" stroke-linecap="round" fill="none"/></svg>',
+  blog: '<svg class="mod-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><g transform="rotate(-42 32 32)"><rect x="6" y="25" width="8" height="14" rx="2" fill="url(#m3c)"/><rect x="14" y="25" width="30" height="14" fill="url(#m3f)"/><rect x="14" y="25" width="30" height="4" fill="#fff" fill-opacity=".4"/><rect x="14" y="25" width="5" height="14" fill="url(#m3d)"/><path d="M44 25L58 32 44 39z" fill="url(#m3y)"/><path d="M54 30L58 32 54 34z" fill="#3a2e18"/></g></svg>',
+  content: '<svg class="mod-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><rect x="25" y="44" width="14" height="6" rx="2" fill="url(#m3f)"/><rect x="27" y="50" width="10" height="5" rx="2" fill="url(#m3d)"/><circle cx="33" cy="29" r="17" fill="#8f6a26"/><circle cx="32" cy="28" r="17" fill="url(#m3g)"/><path d="M26 36c0-5 2-6 6-10 4 4 6 5 6 10" stroke="#7a5518" stroke-width="2" fill="none" stroke-linecap="round"/><ellipse cx="25" cy="20" rx="6" ry="3.600" transform="rotate(-35 25 20)" fill="#fff" fill-opacity=".55"/></svg>',
+  strategy: '<svg class="mod-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><circle cx="34" cy="34" r="22" fill="#6f5c38"/><circle cx="32" cy="32" r="22" fill="url(#m3f)"/><circle cx="32" cy="32" r="15" fill="url(#m3c)"/><circle cx="32" cy="32" r="8" fill="url(#m3f)"/><circle cx="32" cy="32" r="3" fill="#7a5518"/><path d="M32 32L52 12" stroke="#5f4f30" stroke-width="3" stroke-linecap="round"/><path d="M48 8l2 8 8 2-6-3z" fill="url(#m3y)" transform="translate(-2 2)"/></svg>',
+  warmups: '<svg class="mod-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="59" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M32 7C35 19 47 23 47 38a15 15 0 01-30 0c0-7 4-11 9-16 0 6 3 9 6 9-2-7-1-16 0-24z" transform="translate(1.500 1.500)" fill="#8a6a22"/><path d="M32 7C35 19 47 23 47 38a15 15 0 01-30 0c0-7 4-11 9-16 0 6 3 9 6 9-2-7-1-16 0-24z" fill="url(#m3y)"/><path d="M32 30c2 5 8 7 8 14a8 8 0 01-16 0c0-4 3-6 5-9 0 3 1 4 3 4-1-4-1-6 0-9z" fill="url(#m3c)"/></svg>'
+};
 var _bizTilesHtml = '';
 /* Ті самі розділи, що на екрані «Мій блог» зі схованою глибиною, — але прямо
    на вкладці, коли доступ активний. Без id: вони вже є в #biz-grid. */
@@ -1319,7 +1324,7 @@ function renderModuleGrid(){
     }
     return '<button class="mc'+(free ? ' mc-free' : '')+(id === 'numerology' ? ' mc-hero' : '')+'" id="m-'+id+'" data-mod="'+id+'">'
       +corner
-      +'<span class="mico" aria-hidden="true">'+(m.glyph === '◆' ? '<span class="rh"></span>' : m.glyph)+'</span>'
+      +'<span class="mico'+(MOD_ICONS[id] ? ' mico-3d' : '')+'" aria-hidden="true">'+(MOD_ICONS[id] || (m.glyph === '◆' ? '<span class="rh"></span>' : m.glyph))+'</span>'
       +'<span class="mname">'+escHtml(modName(id))+'</span>'
       +'<span class="mdesc">'+escHtml(modDesc(id))+'</span>'
       +'</button>';
@@ -1530,7 +1535,7 @@ function setVis(el, visible){
 }
 
 /* Один компонент завантаження на весь застосунок. */
-var COPY_BTN_HTML = '<button class="copy-btn" onclick="copyResult(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Копіювати</button>';
+var COPY_BTN_HTML = '<button class="copy-btn" aria-label=\"Копіювати\" onclick="copyResult(this)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>';
 var LOADING_HTML = '<div class="loading tc"><div class="typing"><span></span><span></span><span></span></div></div>';
 function errBlock(msg){ return '<div class="err-block">' + escHtml(msg) + '</div>'; }
 
@@ -2190,24 +2195,39 @@ function handleModClick(id){
 
 function openModAccess(id){
   S._currentModule = id;
-  /* Запамʼятовуємо ДО pushScreen: якщо екран виявиться перехідником, повертати
-     треба саме сюди, а після pushScreen поточним уже буде сам #mod-access. */
+  /* Запамʼятовуємо ДО pushScreen: повертати треба саме сюди. */
   var from = _curScreen;
   var title = document.getElementById('mod-access-title');
-  /* Гліф — окремим спаном, як у .aibadge: відступ задає CSS, а не пробіли. */
   if(title) title.innerHTML =
     '<span class="fltitle-glyph" aria-hidden="true">' + modGlyph(id) + '</span>'
     + escHtml(modName(id));
   var body = document.getElementById('mod-access-body');
-  if(body) body.innerHTML = LOADING_HTML;
-  pushScreen('mod-access');
+  /* Швидка відповідь: екран-перехідник не показуємо взагалі, одразу йдемо далі —
+     інакше людина бачила б дві зміни екрана поспіль (це і мерехтить). Повільна
+     мережа: через 0,22 с зʼявляється лоадер, щоб клік не виглядав проігнорованим. */
+  var shown = false;
+  var timer = setTimeout(function(){
+    shown = true;
+    if(body) body.innerHTML = LOADING_HTML;
+    pushScreen('mod-access');
+  }, 220);
   fetch(apiUrl('/api/module/access?module='+id))
     .then(function(r){ return r.json(); })
     .then(function(data){
+      clearTimeout(timer);
+      if(!shown){
+        if(data.ok && !data.has_history && data.can_generate){ goMod(id); return; }
+        if(body) body.innerHTML = '';
+        pushScreen('mod-access');
+      }
       if(!data.ok){ body.innerHTML = errBlock(t('err_loading','Помилка завантаження')); return; }
       renderModAccess(id, data, from);
     })
-    .catch(function(){ body.innerHTML = errBlock(t('err_network','Помилка мережі')); });
+    .catch(function(){
+      clearTimeout(timer);
+      if(!shown) pushScreen('mod-access');
+      if(body) body.innerHTML = errBlock(t('err_network','Помилка мережі'));
+    });
 }
 
 /* Одна картка блокування на всі три причини. Кнопка завжди одна й та сама,
@@ -2521,7 +2541,7 @@ function goMentorMod(){
   document.getElementById('fl-title').textContent = modName('mentor');
   setVis('fl-r', false);
   setVis('fl-q', true);
-  show('mflow');
+  pushScreen('mflow');
   renderMntQ();
 }
 
@@ -2821,7 +2841,7 @@ function goBlogMod(){
   document.getElementById('fl-title').textContent = modName('blog');
   setVis('fl-r', false);
   setVis('fl-q', true);
-  show('mflow');
+  pushScreen('mflow');
   renderBlogQ();
 }
 
@@ -3119,7 +3139,7 @@ function goContentMod(){
   document.getElementById('fl-title').textContent = modName('content');
   setVis('fl-r', false);
   setVis('fl-q', true);
-  show('mflow');
+  pushScreen('mflow');
   renderContQ();
 }
 
@@ -3431,7 +3451,7 @@ function goWarmupsMod(){
   document.getElementById('fl-title').textContent = modName('warmups');
   setVis('fl-r', false);
   setVis('fl-q', true);
-  show('mflow');
+  pushScreen('mflow');
   renderWarmQ();
 }
 
@@ -3672,7 +3692,7 @@ function goStrategyMod(){
   document.getElementById('fl-title').textContent = modName('strategy');
   setVis('fl-r', false);
   setVis('fl-q', true);
-  show('mflow');
+  pushScreen('mflow');
   renderStratQ();
 }
 
@@ -4737,7 +4757,7 @@ function askNicheThenGo(moduleId){
   document.getElementById('fl-prog').innerHTML = '';
   setVis('fl-r', false);
   setVis('fl-q', true);
-  show('mflow');
+  pushScreen('mflow');
 
   _renderNicheAskStep(moduleId);
 }
@@ -7038,16 +7058,16 @@ function copyResult(btn){
   var text = (txt.innerText || txt.textContent || '').trim();
   if(!text) return;
 
-  var ICON_COPY = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+  var ICON_COPY = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
   var ICON_OK   = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
 
   function markCopied(){
     btn.classList.add('copied');
-    btn.innerHTML = ICON_OK + ' ' + escHtml(t('copy_done','Скопійовано!'));
+    btn.innerHTML = ICON_OK;
     showToast(t('copy_toast','Результат скопійовано'));
     setTimeout(function(){
       btn.classList.remove('copied');
-      btn.innerHTML = ICON_COPY + ' ' + escHtml(t('copy_btn','Копіювати'));
+      btn.innerHTML = ICON_COPY; btn.setAttribute('aria-label', t('copy_btn','Копіювати'));
     }, 2500);
   }
 

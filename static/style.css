@@ -2662,3 +2662,15 @@ body.num-zoom-on{overflow:hidden}
 /* «Мої аналізи» над анкетою; на екрані результату ховаємо. */
 #fl-hist{margin:0 0 14px}
 #mflow:has(#fl-r:not([hidden])) #fl-hist{display:none}
+
+/* Копіювання: лише значок, у кутку результату, без зайвого простору. */
+.copy-btn{float:right;width:36px;height:36px;min-height:0;padding:0;margin:0 0 6px 12px;border-radius:50%;gap:0}
+.copy-btn svg{width:16px;height:16px}
+/* 3D-іконки розділів «Мого блогу» замість символів у квадраті. */
+.mico.mico-3d{width:56px;height:56px;border-radius:0;background:none !important}
+.mico-3d .mod-ico{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 4px 5px rgba(0,0,0,.4))}
+#biz-grid .mc,#tar-modules .mc{column-gap:16px}
+/* Перехід між екранами: лише м'яке проявлення, без «стрибка». */
+@keyframes scrIn{from{opacity:0}to{opacity:1}}
+.scr.on{animation-duration:200ms}
+#biz-grid .mc::after,.tar-modules .mc::after{content:none !important}
