@@ -113,7 +113,7 @@ var I18N = {
     /* ── Копіювання, уточнення, шит оплати ── */
     copy_done: 'Copied!',
     copy_toast: 'Result copied',
-    copy_btn: 'Copy result',
+    copy_btn: 'Copy',
     copy_failed: 'Could not copy',
     fu_none_left: 'No follow-ups left',
     fu_empty: 'Type your question',
@@ -318,6 +318,10 @@ var I18N = {
     num_zk_full: 'COMFORT ZONE',
     num_zoom_in: 'Enlarge the chart',
     num_zoom_tip: 'Tap the chart to enlarge',
+    strat_or_own: 'or write your own',
+    strat_custom_ph: 'Write it here in your own words…',
+    strat_pick_or_type: 'Choose an option or write your own in the field below',
+    strat_type_own: 'Write your own option in the field below',
     num_zoom_plus: 'Zoom in',
     num_zoom_minus: 'Zoom out',
     num_years: 'years',
@@ -366,10 +370,10 @@ var I18N = {
     mx_name: 'Destiny Matrix',
     mx_desc: 'Character, talents and personal potential',
     mx_cta: 'Calculate my matrix',
-    biz_pick: 'Choose what we work on 👇',
+    biz_pick: 'Choose what we work on',
     svc_title: 'My services',
     svc_intro: 'I have created several ways of working together so you can pick the one that fits your needs best.',
-    svc_pick: 'Choose what interests you right now 👇',
+    svc_pick: 'Choose what interests you right now',
     svc_back: 'Back to my services',
     svc_tile_name: 'My services',
     svc_tile_desc: 'Consultations, learning and support',
@@ -507,7 +511,7 @@ var I18N = {
     /* ── Копіювання, уточнення, шит оплати ── */
     copy_done: 'Скопировано!',
     copy_toast: 'Результат скопирован',
-    copy_btn: 'Скопировать результат',
+    copy_btn: 'Скопировать',
     copy_failed: 'Не удалось скопировать',
     fu_none_left: 'Уточнения закончились',
     fu_empty: 'Напиши свой вопрос',
@@ -712,6 +716,10 @@ var I18N = {
     num_zk_full: 'ЗОНА КОМФОРТА',
     num_zoom_in: 'Увеличить схему',
     num_zoom_tip: 'Коснись схемы, чтобы увеличить',
+    strat_or_own: 'или напиши свой вариант',
+    strat_custom_ph: 'Напиши здесь своими словами…',
+    strat_pick_or_type: 'Выбери вариант или напиши свой в поле ниже',
+    strat_type_own: 'Напиши свой вариант в поле ниже',
     num_zoom_plus: 'Увеличить',
     num_zoom_minus: 'Уменьшить',
     num_years: 'лет',
@@ -760,10 +768,10 @@ var I18N = {
     mx_name: 'Матрица судьбы',
     mx_desc: 'Характер, таланты и личный потенциал',
     mx_cta: 'Рассчитать матрицу',
-    biz_pick: 'Выбирай, над чем работаем 👇',
+    biz_pick: 'Выбирай, над чем работаем',
     svc_title: 'Мои услуги',
     svc_intro: 'Я создала несколько форматов работы, чтобы ты могла выбрать тот, который лучше всего отвечает твоим потребностям.',
-    svc_pick: 'Выбирай, что тебе сейчас интересно 👇',
+    svc_pick: 'Выбирай, что тебе сейчас интересно',
     svc_back: 'Вернуться к моим услугам',
     svc_tile_name: 'Мои услуги',
     svc_tile_desc: 'Консультации, обучение и поддержка',
@@ -1522,7 +1530,7 @@ function setVis(el, visible){
 }
 
 /* Один компонент завантаження на весь застосунок. */
-var COPY_BTN_HTML = '<button class="copy-btn" onclick="copyResult(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Копіювати результат</button>';
+var COPY_BTN_HTML = '<button class="copy-btn" onclick="copyResult(this)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Копіювати</button>';
 var LOADING_HTML = '<div class="loading tc"><div class="typing"><span></span><span></span><span></span></div></div>';
 function errBlock(msg){ return '<div class="err-block">' + escHtml(msg) + '</div>'; }
 
@@ -1945,43 +1953,44 @@ function sfxBell(f, t0, dur, vol){
 var _sfxPent = [1046.5, 1174.7, 1318.5, 1568, 1760, 2093, 2349.3, 2637, 3136];
 /* Заставка: «магічний дощ» — безліч дзвіночків, що красиво ллються вниз, як
    монетки або зірки, і мʼякий низький «подих» під ними. */
-function sfxSplash(){
+/* Звук грає лише ЯКЩО браузер дозволяє це прямо зараз. Safari не вмикає звук без
+   дотику; якщо чекати дозволу, звук запускався б пізніше, коли людина вже йде
+   по застосунку. Тому: або відразу, або (дозвіл прийшов за ≤ 0,4 с) — інакше мовчимо. */
+function sfxWhenReady(cb){
   try{
     var AC = window.AudioContext || window.webkitAudioContext;
     if(!AC) return;
     if(!_ac) _ac = new AC();
-    var go = function(){
-      if(!_ac || _ac.state !== 'running') return;
-      var t0 = _ac.currentTime + 0.05, idx = _sfxPent.length - 1, i, t;
-      sfxTone(261.6, t0, 1.9, 0.035);
-      sfxTone(392, t0 + 0.1, 1.8, 0.025);
-      for(i = 0; i < 30; i++){
-        t = t0 + i * 0.052 + Math.random() * 0.025;
-        idx = Math.max(0, Math.min(_sfxPent.length - 1, idx + (Math.random() < 0.72 ? -1 : 1)));
-        if(idx === 0 && Math.random() < 0.5) idx = _sfxPent.length - 3;
-        sfxBell(_sfxPent[idx], t, 0.55 + Math.random() * 0.5, 0.028 + Math.random() * 0.02);
-      }
-    };
-    if(_ac.state === 'suspended'){ var pr = _ac.resume(); if(pr && pr.then) pr.then(go, function(){}); }
-    else go();
+    if(_ac.state === 'running'){ cb(); return; }
+    var t0 = Date.now(), pr = _ac.resume();
+    if(pr && pr.then) pr.then(function(){ if(Date.now() - t0 < 400 && _ac.state === 'running') cb(); }, function(){});
   }catch(e){}
+}
+/* Заставка: «магічний дощ» — безліч дзвіночків, що красиво ллються вниз, як
+   монетки або зірки, і мʼякий низький «подих» під ними. */
+function sfxSplash(){
+  sfxWhenReady(function(){
+    var t0 = _ac.currentTime + 0.05, idx = _sfxPent.length - 1, i, t;
+    sfxTone(261.6, t0, 1.9, 0.035);
+    sfxTone(392, t0 + 0.1, 1.8, 0.025);
+    for(i = 0; i < 30; i++){
+      t = t0 + i * 0.052 + Math.random() * 0.025;
+      idx = Math.max(0, Math.min(_sfxPent.length - 1, idx + (Math.random() < 0.72 ? -1 : 1)));
+      if(idx === 0 && Math.random() < 0.5) idx = _sfxPent.length - 3;
+      sfxBell(_sfxPent[idx], t, 0.55 + Math.random() * 0.5, 0.028 + Math.random() * 0.02);
+    }
+  });
 }
 /* Звук відкриття головної: теплий висхідний мотив із трьох дзвіночків. */
 var _homeSfxDone = false;
 function sfxOpen(){
-  try{
-    if(!_ac) return;
-    var go = function(){
-      if(!_ac || _ac.state !== 'running') return;
-      var t0 = _ac.currentTime + 0.03;
-      sfxBell(783.99, t0, 1.3, 0.07);
-      sfxBell(1174.7, t0 + 0.13, 1.3, 0.07);
-      sfxBell(1568, t0 + 0.27, 1.6, 0.06);
-      sfxTone(392, t0, 1.6, 0.03);
-    };
-    if(_ac.state === 'suspended'){ var pr = _ac.resume(); if(pr && pr.then) pr.then(go, function(){}); }
-    else go();
-  }catch(e){}
+  sfxWhenReady(function(){
+    var t0 = _ac.currentTime + 0.03;
+    sfxBell(783.99, t0, 1.3, 0.07);
+    sfxBell(1174.7, t0 + 0.13, 1.3, 0.07);
+    sfxBell(1568, t0 + 0.27, 1.6, 0.06);
+    sfxTone(392, t0, 1.6, 0.03);
+  });
 }
 function sfxSuccess(){
   try{
@@ -2721,7 +2730,6 @@ function mntShowResult(md, stratId){
   setVis(r, true);
   r.innerHTML =
     '<div class="airesp">'
-    +'<div class="aibadge"><span class="aibadge-glyph" aria-hidden="true">'+modGlyph('mentor')+'</span>'+escHtml(modName('mentor'))+'</div>'
     +COPY_BTN_HTML
     +'<div class="aitxt" id="mnt-result-body"></div>'
     +'</div>'
@@ -3022,7 +3030,6 @@ function blogShowResult(md, stratId){
   setVis(r, true);
   r.innerHTML =
     '<div class="airesp">'
-    +'<div class="aibadge"><span class="aibadge-glyph" aria-hidden="true">'+modGlyph('blog')+'</span>'+escHtml(modName('blog'))+'</div>'
     +COPY_BTN_HTML
     +'<div class="aitxt" id="blog-result-body"></div>'
     +'</div>'
@@ -3321,7 +3328,6 @@ function contShowResult(md, stratId){
   setVis(r, true);
   r.innerHTML =
     '<div class="airesp">'
-    +'<div class="aibadge"><span class="aibadge-glyph" aria-hidden="true">'+modGlyph('content')+'</span>'+escHtml(modName('content'))+'</div>'
     +COPY_BTN_HTML
     +'<div class="aitxt" id="cont-result-body"></div>'
     +'</div>'
@@ -3635,7 +3641,6 @@ function warmShowResult(md, stratId){
   setVis(r, true);
   r.innerHTML =
     '<div class="airesp">'
-    +'<div class="aibadge"><span class="aibadge-glyph" aria-hidden="true">'+modGlyph('warmups')+'</span>'+escHtml(modName('warmups'))+'</div>'
     +COPY_BTN_HTML
     +'<div class="aitxt" id="warm-result-body"></div>'
     +'</div>'
@@ -3728,10 +3733,10 @@ function renderStratQ(){
 
         var customRow = wrap.querySelector('.custom-row');
         if(isCustom){
-          /* показати поле для введення */
-          if(customRow) setVis(customRow, true);
+          /* «Інше» — одразу в поле для власного варіанта */
+          var cta = document.getElementById('strat-custom'); if(cta) cta.focus();
         } else {
-          if(customRow) setVis(customRow, false);
+          var cta2 = document.getElementById('strat-custom'); if(cta2) cta2.value = '';
           strat.answers[q.id] = opt;
           /* авто-перехід через 280мс */
           setTimeout(function(){ stratNext(); }, 280);
@@ -3745,10 +3750,14 @@ function renderStratQ(){
     /* Поле «Інше» */
     var customRow = document.createElement('div');
     customRow.className = 'custom-row';
-    setVis(customRow, false);
     customRow.innerHTML =
-      '<textarea class="inp" id="strat-custom" placeholder="Напиши свій варіант..." rows="2" style="margin-top:10px"></textarea>';
+      '<div class="custom-or">'+escHtml(t('strat_or_own','або напиши свій варіант'))+'</div>'
+      +'<textarea class="inp" id="strat-custom" placeholder="'+escHtml(t('strat_custom_ph','Напиши тут своїми словами…'))+'" rows="2"></textarea>';
     wrap.appendChild(customRow);
+    var customTa = customRow.querySelector('#strat-custom');
+    customTa.addEventListener('input', function(){
+      if(customTa.value.trim()){ grid.querySelectorAll('.chip').forEach(function(c){ c.classList.remove('sel'); }); }
+    });
 
     container.appendChild(wrap);
 
@@ -3756,13 +3765,11 @@ function renderStratQ(){
     container.appendChild(buildStratNavBtns(function(){
       /* Перевірити чи обрано чіп або введено текст */
       var sel = grid.querySelector('.chip.sel');
-      if(!sel){ showToast('Обери або введи варіант'); return; }
+      var typed = (document.getElementById('strat-custom')||{value:''}).value.trim();
+      if(typed){ strat.answers[q.id] = typed; stratNext(); return; }
+      if(!sel){ showToast(t('strat_pick_or_type','Обери варіант або напиши свій у полі нижче')); return; }
       var isCustomChip = sel.textContent.toLowerCase().indexOf('інш') >= 0;
-      if(isCustomChip){
-        var val = (document.getElementById('strat-custom')||{value:''}).value.trim();
-        if(!val){ showToast('Напиши свій варіант'); return; }
-        strat.answers[q.id] = val;
-      }
+      if(isCustomChip){ showToast(t('strat_type_own','Напиши свій варіант у полі нижче')); return; }
       stratNext();
     }));
   }
@@ -3941,7 +3948,6 @@ function stratShowResult(md, stratId){
   setVis(r, true);
   r.innerHTML =
     '<div class="airesp">'
-    +'<div class="aibadge"><span class="aibadge-glyph" aria-hidden="true">'+modGlyph('strategy')+'</span>'+escHtml(modName('strategy'))+'</div>'
     +COPY_BTN_HTML
     +'<div class="aitxt" id="strat-result-body"></div>'
     +'</div>'
@@ -4335,8 +4341,21 @@ function openFollowup(stratId, module, md){
   var titleEl = document.getElementById('followup-title');
   if(titleEl) titleEl.textContent = module ? ('Уточнення — ' + modName(module)) : 'Уточнення';
 
+  /* Розбір показуємо ПОВНІСТЮ (раніше обрізався до 400 символів). Якщо тексту
+     ще немає — підвантажуємо його за id. */
   var prevBody = document.getElementById('followup-strategy-body');
-  if(prevBody) prevBody.innerHTML = renderMarkdown(fu.strategyMd.slice(0,400)+(fu.strategyMd.length>400?'…':''));
+  if(prevBody){
+    if(fu.strategyMd){ prevBody.innerHTML = renderMarkdown(fu.strategyMd); }
+    else if(stratId){
+      prevBody.innerHTML = LOADING_HTML;
+      fetch(apiUrl('/api/strategies/' + stratId)).then(function(r){ return r.json(); }).then(function(d){
+        if(d && d.ok && d.result && fu.strategyId === stratId){
+          fu.strategyMd = d.result;
+          prevBody.innerHTML = renderMarkdown(d.result);
+        } else { prevBody.textContent = ''; }
+      }).catch(function(){ prevBody.textContent = ''; });
+    }
+  }
 
   var chat = document.getElementById('followup-chat');
   if(chat) chat.innerHTML = '';
@@ -4847,7 +4866,22 @@ function _saveNicheAndLaunch(niche, moduleId){
 }
 
 
+/* Посилання «Мої аналізи» над анкетою: попередні розбори видно одразу, а не лише
+   на проміжному екрані. З'являється, коли історія справді є. */
+function flHistLink(moduleId){
+  var box = document.getElementById('fl-hist'), btn = document.getElementById('fl-hist-btn');
+  if(!box || !btn) return;
+  box.hidden = true;
+  if(moduleId === 'numerology') return;
+  fetch(apiUrl('/api/module/access?module=' + moduleId)).then(function(r){ return r.json(); }).then(function(d){
+    if(!d || !d.ok || !d.history_count) return;
+    btn.innerHTML = '<span>' + escHtml(getHistoryLabel(moduleId)) + '</span><span class="strat-count">' + d.history_count + '</span>';
+    btn.onclick = function(){ openMyStrategies(moduleId); };
+    box.hidden = false;
+  }).catch(function(){});
+}
 function _launchModule(moduleId){
+  flHistLink(moduleId);
   if(moduleId === 'strategy'){ goStrategyMod(); }
   else if(moduleId === 'warmups'){  goWarmupsMod();  }
   else if(moduleId === 'content'){  goContentMod();  }
@@ -6495,7 +6529,7 @@ var SERVICES = [
         'Як краще розподіляти свої ресурси та планувати важливі рішення.',
         'Які внутрішні зміни та можливості для особистого зростання може принести цей рік.']],
       ['p','Прогностика — це не готовий сценарій, за яким ти зобов’язана жити. Це можливість подивитися на свій рік ширше, усвідомленіше приймати рішення та краще розуміти себе.'],
-      ['p','👇 Хочеш отримати свою особисту прогностику на 2027 рік?']],
+      ['pt','Хочеш отримати свою особисту прогностику на 2027 рік?']],
     cta:{ label:'Подати заявку на прогностику', kind:'tg',
           msg:'Вітаю! Хочу подати заявку на прогностику на 2027 рік. Підкажіть, будь ласка, як це зробити?' } },
 
@@ -6684,6 +6718,7 @@ function svcOpenDetail(id){
     var k = b[0];
     if(k === 'b')          h += '<div class="svc-b">'+escHtml(b[1])+'</div>';
     else if(k === 'p')     h += '<p class="num-para">'+escHtml(b[1])+'</p>';
+    else if(k === 'pt')    h += '<p class="num-para svc-pick">'+escHtml(b[1])+'</p>';
     else if(k === 'h')     h += '<div class="num-sect svc-h">'+escHtml(b[1])+'</div>';
     else if(k === 'ul')    h += '<ul class="learn-list">'+b[1].map(function(x){ return '<li>'+escHtml(x)+'</li>'; }).join('')+'</ul>';
     else if(k === 'sh')    h += '<div class="svc-sh"><div class="svc-shh">'+escHtml(b[1])+'</div><p class="num-para">'+escHtml(b[2])+'</p></div>';
@@ -7012,7 +7047,7 @@ function copyResult(btn){
     showToast(t('copy_toast','Результат скопійовано'));
     setTimeout(function(){
       btn.classList.remove('copied');
-      btn.innerHTML = ICON_COPY + ' ' + escHtml(t('copy_btn','Копіювати результат'));
+      btn.innerHTML = ICON_COPY + ' ' + escHtml(t('copy_btn','Копіювати'));
     }, 2500);
   }
 

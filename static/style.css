@@ -2647,3 +2647,18 @@ body.num-zoom-on{overflow:hidden}
 @media (prefers-reduced-motion:reduce){.pw-coin,.pw-shine{animation:none}}
 /* Вступ у «Мої послуги» — звичайним текстом, без рамки. */
 .svc-plain{padding:0 2px}
+
+/* Підказка-стрілка замість жовтого пальця-емодзі. */
+.svc-pick::after{content:"";display:inline-block;width:18px;height:18px;margin-left:8px;vertical-align:-4px;
+	background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F0CE7A' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v13M6.500 13l5.500 5.500 5.500-5.500'/%3E%3C/svg%3E") no-repeat center/contain}
+/* Плейсхолдер сірий і блідий — не схожий на вже введений текст. */
+.inp::placeholder,textarea::placeholder,input::placeholder{color:rgba(240,238,230,.3);opacity:1}
+/* Результат: кнопка копіювання — компактна, праворуч. */
+.copy-btn{width:auto;min-height:34px;padding:0 14px;margin:0 0 12px auto;font-size:12.5px;gap:6px}
+/* Власний варіант під чипами. */
+.custom-row{margin-top:12px}
+.custom-or{margin:0 0 6px;font-size:12px;letter-spacing:.08em;color:var(--t3)}
+.custom-row .inp{margin-top:0}
+/* «Мої аналізи» над анкетою; на екрані результату ховаємо. */
+#fl-hist{margin:0 0 14px}
+#mflow:has(#fl-r:not([hidden])) #fl-hist{display:none}
