@@ -5064,7 +5064,6 @@ function numRenderHome(otherOnly){
     h +=     '<div class="ierr" id="num-other-err"></div>';
     h +=   '</div>';
     h +=   '<button class="btn bp" id="num-other-go">' + escHtml(t('num_btn_calc','Розрахувати матрицю')) + '</button>';
-    h +=   '<button class="btn bg" id="num-other-compat">' + escHtml(t('num_btn_compat','Розрахувати сумісність')) + '</button>';
     h += '</div>';
   } else {
     h += '<div class="num-dcard">'
@@ -5092,11 +5091,6 @@ function numRenderHome(otherOnly){
     });
     var btnGo = document.getElementById('num-other-go');
     if(btnGo) btnGo.addEventListener('click', numOtherGo);
-    var btnOc = document.getElementById('num-other-compat');
-    if(btnOc) btnOc.addEventListener('click', function(){
-      numRenderCompatForm();
-      pushScreen('num-compat');
-    });
     return;
   }
 
@@ -5210,6 +5204,10 @@ function numRenderScheme(){
     if(lbl) lbl.textContent = t('num_lbl_self', 'Матриця за датою');
     if(sub) sub.textContent = NUM.birthdate || '—';
   }
+
+  /* «Змінити» і «Розрахувати сумісність» — лише на власній матриці; екран пари — кінцевий. */
+  setVis('num-change-date', NUM.mode !== 'pair');
+  setVis('num-scheme-compat', NUM.mode !== 'pair');
 
   var title = document.getElementById('num-scheme-title');
   if(title){
@@ -6829,6 +6827,10 @@ function numCompatGo(){
       numInlineErr(isPartner ? 'num-c-partner-err' : 'num-c-self-err', msg);
       return;
     }
+    if(NUM.mode === 'self' && NUM.active){
+      NUM.selfSnap = { active: NUM.active, birthdate: NUM.birthdate, hints: NUM.hints,
+                       energyTitles: NUM.energyTitles, contentLang: NUM.contentLang };
+    }
     NUM.active           = data.pair;
     NUM.mode             = 'pair';
     NUM.birthdate        = data.birthdate;
@@ -6840,7 +6842,10 @@ function numCompatGo(){
 
     numRenderAll();
     numRenderCompatResult();
-    pushScreen('num-scheme');
+    /* Форма сумісності не лишається в історії: зі схеми пари «назад» веде на
+       власну матрицю, а звідти — на головну. */
+    show('num-scheme');
+    window.scrollTo(0, 0);
   }).catch(function(){
     btn.disabled = false; btn.textContent = label;
     showErrToast(t('err_network','Помилка мережі'));
@@ -7106,7 +7111,7 @@ document.addEventListener('DOMContentLoaded', function(){
   /* Кнопки «назад» модуля. Усі через той самий стек: схема — хаб, тож
      з підекранів повертає на неї, а зі схеми — на вхід у модуль. */
   [['btn-back-num-home','home'],
-   ['btn-back-num-scheme','num-home'],
+   ['btn-back-num-scheme-x','num-home'],
    ['btn-back-num-block','num-scheme'],
    /* Навчання відкривається зі сторінки блоку, тому й фолбек у неї, а не в
       схему: інакше «назад» вивело б на крок далі, ніж людина зайшла. */
@@ -7125,6 +7130,25 @@ document.addEventListener('DOMContentLoaded', function(){
   /* «Змінити дату» веде на вхід у модуль з УЖЕ розгорнутим полем іншої дати.
      Без setVis людина побачила б згорнутий блок і мусила б удруге шукати, де
      ж міняється дата, — а вона щойно натиснула саме цю кнопку. */
+  /* «Назад» зі схеми пари повертає власну матрицю (вона збережена перед
+     розрахунком сумісності), далі — як зазвичай. */
+  var numBackScheme = document.getElementById('btn-back-num-scheme');
+  if(numBackScheme) numBackScheme.addEventListener('click', function(){
+    if(NUM.mode === 'pair' && NUM.selfSnap && _navStack[_navStack.length - 1] === 'num-scheme'){
+      var sn = NUM.selfSnap;
+      NUM.active = sn.active; NUM.mode = 'self'; NUM.birthdate = sn.birthdate;
+      NUM.partnerBirthdate = null; NUM.hints = sn.hints;
+      NUM.energyTitles = sn.energyTitles; NUM.contentLang = sn.contentLang;
+      numRenderAll();
+      window.scrollTo(0, 0);
+    }
+    goBack('home');
+  });
+  var numSchemeCompat = document.getElementById('num-scheme-compat');
+  if(numSchemeCompat) numSchemeCompat.addEventListener('click', function(){
+    numRenderCompatForm();
+    pushScreen('num-compat');
+  });
   var numChangeDate = document.getElementById('num-change-date');
   if(numChangeDate) numChangeDate.addEventListener('click', function(){
     numRenderHome(true);
