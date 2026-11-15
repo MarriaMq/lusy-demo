@@ -6343,20 +6343,8 @@ var MATRIX_ICO =
   +'</svg>';
 /* Іконки двох другорядних рядків: срібно-блакитна «розмова» з іскрою й
    фіолетове перо з іскрою. */
-var SVC_ICO =
-  '<svg class="mr-ico" viewBox="0 0 64 64" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-  +'<path d="M15.500 22.500H36a6 6 0 016 6V44a6 6 0 01-6 6H23l-7 7v-7h-.5a6 6 0 01-6-6V28.500a6 6 0 016-6z" stroke="#87A3B5"/>'
-  +'<path d="M26 10.500h23.500a6 6 0 016 6V34a6 6 0 01-6 6H49l1 7-9-7H26a6 6 0 01-6-6V16.500a6 6 0 016-6z" stroke="#BCD2E1" fill="#14161B"/>'
-  +'<path class="mr-spark" d="M38 17C38.800 22 41 24.200 46 25C41 25.800 38.800 28 38 33C37.200 28 35 25.800 30 25C35 24.200 37.200 22 38 17Z" fill="#E8C070" stroke="none"/>'
-  +'</svg>';
-var BLOG_ICO =
-  '<svg class="mr-ico" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-  +'<rect x="9.500" y="9.500" width="45" height="45" rx="11.500" stroke="#C3A9DD" stroke-width="2.200"/>'
-  +'<circle cx="19" cy="19" r="2.800" stroke="#C3A9DD" stroke-width="2"/>'
-  +'<path d="M25.500 18h19M25.500 21.500H38" stroke="#C3A9DD" stroke-width="2"/>'
-  +'<path class="blog-trend" d="M18 43.500L27.500 34.500L36.500 39.500L46.500 29" stroke="#E8C070" stroke-width="2.400"/>'
-  +'<path class="blog-trend" d="M40 28.500H46.500V35" stroke="#E8C070" stroke-width="2.400"/>'
-  +'</svg>';
+var SVC_ICO = '<svg class="mr-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="58" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M11 33h16a5 5 0 015 5v10a5 5 0 01-5 5h-7l-8 7v-7h-1a5 5 0 01-5-5V38a5 5 0 015-5z" transform="translate(2 2)" fill="#5f4f30"/><path d="M11 33h16a5 5 0 015 5v10a5 5 0 01-5 5h-7l-8 7v-7h-1a5 5 0 01-5-5V38a5 5 0 015-5z" fill="url(#m3d)"/><path d="M27 8h26a6 6 0 016 6v16a6 6 0 01-6 6h-4v8l-11-8H27a6 6 0 01-6-6V14a6 6 0 016-6z" transform="translate(2 2)" fill="#7e6a44"/><path d="M27 8h26a6 6 0 016 6v16a6 6 0 01-6 6h-4v8l-11-8H27a6 6 0 01-6-6V14a6 6 0 016-6z" fill="url(#m3f)"/><path d="M40 14C40.900 19.500 43.500 22 49 23C43.500 24 40.900 26.500 40 32C39.100 26.500 36.500 24 31 23C36.500 22 39.100 19.500 40 14Z" fill="url(#m3c)"/></svg>';
+var BLOG_ICO = '<svg class="mr-ico" viewBox="0 0 64 64" aria-hidden="true"><ellipse cx="32" cy="58" rx="17" ry="3" fill="#000" opacity=".35"/><path d="M21 40L24 37V51L21 54z" fill="url(#m3d)"/><path d="M9 40L12 37H24L21 40z" fill="#fff" fill-opacity=".4"/><rect x="9" y="40" width="12" height="14" fill="url(#m3f)"/><path d="M38 28L41 25V51L38 54z" fill="url(#m3d)"/><path d="M26 28L29 25H41L38 28z" fill="#fff" fill-opacity=".4"/><rect x="26" y="28" width="12" height="26" fill="url(#m3f)"/><path d="M55 12L58 9V51L55 54z" fill="#8a5a28"/><path d="M43 12L46 9H58L55 12z" fill="#fff" fill-opacity=".45"/><rect x="43" y="12" width="12" height="42" fill="url(#m3c)"/></svg>';
 
 function bizTileHtml(){
   return '<button class="mc mc-biz" id="m-biz" data-biz="1">'

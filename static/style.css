@@ -2584,3 +2584,10 @@ body.num-zoom-on{overflow:hidden}
 .blog-trend{stroke-dasharray:60;stroke-dashoffset:60;animation:blogTrend 1.1s ease-out .5s forwards}
 @keyframes blogTrend{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion:reduce){.blog-trend{animation:none;stroke-dashoffset:0}}
+
+/* 3D-металеві іконки (шампань / мідь): меню й плитки. */
+.ni svg.ico3d{width:32px;height:32px;fill:initial;stroke:none;overflow:visible;
+	filter:grayscale(.45) brightness(.78);transition:filter 220ms var(--ease),transform 220ms var(--ease)}
+.ni.a svg.ico3d{filter:drop-shadow(0 0 6px rgba(240,206,122,.5));transform:translateY(-1px) scale(1.06)}
+.ni{gap:3px}
+#mgrid .mc-svc .mico,#mgrid .mc-biz .mico{filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))}
